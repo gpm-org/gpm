@@ -17,20 +17,13 @@ namespace RedCommunityToolkit.ViewModels
     /// </summary>
     public sealed class AppsPageViewModel : ObservableRecipient
     {
-        /// <summary>
-        /// Gets the <see cref="IGitHubService"/> instance to use.
-        /// </summary>
-        private readonly IGitHubService _gitHubService = Ioc.Default.GetRequiredService<IGitHubService>();
-
+        
         /// <summary>
         /// Gets the <see cref="ISettingsService"/> instance to use.
         /// </summary>
         private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
 
-        /// <summary>
-        /// An <see cref="AsyncLock"/> instance to avoid concurrent requests.
-        /// </summary>
-        private readonly AsyncLock _loadingLock = new();
+        
 
 
         /// <summary>
@@ -38,11 +31,9 @@ namespace RedCommunityToolkit.ViewModels
         /// </summary>
         public AppsPageViewModel()
         {
-            LoadPostsCommand = new AsyncRelayCommand(LoadPostsAsync);
-
             _libraryService.PropertyChanged += LibraryService_PropertyChanged;
 
-            Plugins = new ObservableCollection<PluginModel>(_libraryService.Plugins.Values.ToList());
+            Plugins = new ObservableCollection<PluginViewModel>(_libraryService.Plugins.Values.Select(x => new PluginViewModel(x)));
         }
 
         private void LibraryService_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -50,7 +41,7 @@ namespace RedCommunityToolkit.ViewModels
             switch (e.PropertyName)
             {
                 case nameof(ILibraryService.Plugins):
-                    Plugins = new ObservableCollection<PluginModel>(_libraryService.Plugins.Values.ToList());
+                    Plugins = new ObservableCollection<PluginViewModel>(_libraryService.Plugins.Values.Select(x => new PluginViewModel(x)));
                     //await LoadPostsCommand.ExecuteAsync(null);
                     break;
                 default:
@@ -58,15 +49,12 @@ namespace RedCommunityToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        /// Gets the <see cref="IAsyncRelayCommand"/> instance responsible for loading posts.
-        /// </summary>
-        public IAsyncRelayCommand LoadPostsCommand { get; }
+        
 
         /// <summary>
         /// Gets the collection of loaded posts.
         /// </summary>
-        public ObservableCollection<PluginModel> Plugins { get; set; } = new();
+        public ObservableCollection<PluginViewModel> Plugins { get; set; } = new();
 
 
         private PluginModel? _selectedPlugin;
@@ -80,31 +68,7 @@ namespace RedCommunityToolkit.ViewModels
             set => SetProperty(ref _selectedPlugin, value);//_settingsService.SetValue(nameof(SelectedRepo), value);
         }
 
-        /// <summary>
-        /// Loads the posts from a specified subreddit.
-        /// </summary>
-        private async Task LoadPostsAsync()
-        {
-            using (await _loadingLock.LockAsync())
-            {
-                try
-                {
-                    foreach (var item in Plugins)
-                    {
-
-                        var response = await _gitHubService.GetGitHubRepoAsync(item);
-                    }
-
-                }
-                catch
-                {
-                    // Whoops!
-                }
-            }
-
-
-
-        }
+       
     }
 }
 

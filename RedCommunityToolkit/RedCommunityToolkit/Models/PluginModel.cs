@@ -12,25 +12,33 @@ namespace RedCommunityToolkit.Models
     /// </summary>
     public sealed class PluginModel
     {
-        public PluginModel(string id, string name)
+        public PluginModel(string id, string name, int assetIndex)
         {
             ID = id;
             Name = name;
+            AssetIndex = assetIndex;
         }
 
+
+
         [JsonPropertyName("id")]
-        public string ID { get; set; }
+        public string ID { get; }
 
         [JsonPropertyName("name")]
-        public string? Name { get; set; }
+        public string Name { get; }
+
+        [JsonPropertyName("assetIndex")]
+        public int AssetIndex { get; }
+
+
 
         [JsonPropertyName("thumbnail")]
-        public string? Thumbnail { get; set; }
+        public string? Thumbnail { get; }
 
         [JsonPropertyName("installedversion")]
         public string? InstalledVersion { get; set; }
 
         [JsonPropertyName("installedversions")]
-        public IEnumerable<string>? InstalledVersions { get; set; }
+        public Dictionary<string, string> InstalledVersions { get; set; } = new();
     }
 }

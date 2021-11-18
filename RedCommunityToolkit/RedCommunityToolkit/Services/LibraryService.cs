@@ -74,13 +74,12 @@ namespace RedCommunityToolkit.Services
             {
                 if (!Plugins.ContainsKey(key))
                 {
-                    Plugins.Add(key, new PluginModel(key, value));
+                    Plugins.Add(key, new PluginModel(key, value, 1));
                 }
             }
 
             await SaveAsync();
         }
-
 
         public async Task SaveAsync()
         {

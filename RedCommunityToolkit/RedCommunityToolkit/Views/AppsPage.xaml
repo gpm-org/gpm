@@ -40,21 +40,100 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:PluginModel">
+                <DataTemplate x:DataType="viewModels:PluginViewModel">
                     <Grid
                         ColumnSpacing="8"
+                        RowSpacing="8"
                         Padding="16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Text="{x:Bind Name}"
-                            FontSize="15"
+                       
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <StackPanel Grid.Row="0">
+                            <StackPanel Orientation="Horizontal" Spacing="15">
+                                <TextBlock 
+                                Text="{x:Bind Name}"
+                                FontSize="15"
+                                FontWeight="SemiBold"
+                                TextWrapping="WrapWholeWords"
+                                VerticalAlignment="Center"/>
+                                
+                                <TextBlock 
+                                Text="|"
+                                FontSize="15"
+                                FontWeight="SemiBold"
+                                TextWrapping="WrapWholeWords"
+                                VerticalAlignment="Center"/>
+                                
+                                <TextBlock 
+                                Text="{x:Bind Version}"
+                                FontSize="15"
+                                FontWeight="SemiBold"
+                                TextWrapping="WrapWholeWords"
+                                VerticalAlignment="Center"/>
+                            </StackPanel>
+                           
+                            <TextBlock 
+                            Text="{x:Bind ID}"
+                            FontSize="13"
                             FontWeight="Normal"
                             TextWrapping="WrapWholeWords"
                             VerticalAlignment="Center"/>
+                        </StackPanel>
                         
+                        <!-- Buttons -->
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" >
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" 
+                                        Visibility="{Binding IsInstalled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                <Button x:Name="LaunchlButton" Grid.Column="0" Margin="0,0,50,0"
+                                    Command="{Binding LaunchCommand}"
+                                    >
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <SymbolIcon Symbol="Play" />
+                                            <TextBlock Text="Launch" Padding="5"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+
+                                <Button x:Name="CheckButton" Grid.Column="0" Margin="0,0,50,0"
+                                    Command="{Binding CheckCommand}"
+                                    >
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <SymbolIcon Symbol="Sync" />
+                                            <TextBlock Text="Check for updates" Padding="5"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+
+                            <Button x:Name="InstallButton" Grid.Column="0" Margin="0,0,50,0"
+                                    Command="{Binding InstallCommand}"
+                                    Visibility="{Binding IsNotInstalled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Symbol="Download" />
+                                        <TextBlock Text="Install latest" Padding="5"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                            <Button x:Name="SettingsButton" Grid.Column="1">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <SymbolIcon Symbol="Setting" />
+                                        <TextBlock Text="Settings" Padding="5"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

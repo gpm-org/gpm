@@ -11,7 +11,7 @@ namespace RedCommunityToolkit.Services
 {
     public interface IGitHubService
     {
-        Task<PostsQueryResponse> GetGitHubRepoAsync(PluginModel selectedSubreddit);
+        Task<bool> InstallLatestReleaseAsync(PluginModel selectedSubreddit);
     }
 
     public sealed class PostsQueryResponse

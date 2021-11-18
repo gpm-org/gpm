@@ -20,7 +20,7 @@
                         IsSettingsVisible="True"
                         ItemInvoked="NavigationView_OnItemInvoked"
                         BackRequested="NavigationView_OnBackRequested"
-                        ExpandedModeThresholdWidth="200"
+                        CompactModeThresholdWidth="50"
                         >
             
             <NavigationView.MenuItems>
@@ -55,7 +55,7 @@
                         Grid.Row="0"
                         Background="{ThemeResource SystemControlAltMediumLowAcrylicElementMediumBrush}"/>
 
-                    <StackPanel Grid.Row="0" Background="Aqua">
+                    <StackPanel Grid.Row="0" >
 
                         <!--Title bar drop shadow-->
                         <!--<Rectangle Height="32" Fill="#40000000"/>
