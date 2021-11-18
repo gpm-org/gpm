@@ -7,22 +7,58 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity" 
     xmlns:viewModels="using:RedCommunityToolkit.ViewModels" 
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core" 
+    xmlns:models="using:RedCommunityToolkit.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-    NavigationCacheMode="Enabled">
+    NavigationCacheMode="Enabled"
+    >
     
     <Page.DataContext>
         <viewModels:AppsPageViewModel x:Name="ViewModel"/>
     </Page.DataContext>
 
-    <interactivity:Interaction.Behaviors>
+    <!--<interactivity:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Loaded">
-            <core:InvokeCommandAction Command="{x:Bind ViewModel.LoadDocsCommand}" CommandParameter="Introduction"/>
+            <core:InvokeCommandAction Command="{x:Bind ViewModel.LoadPostsCommand}"/>
         </core:EventTriggerBehavior>
-    </interactivity:Interaction.Behaviors>
+    </interactivity:Interaction.Behaviors>-->
 
     <Grid>
+
+        <ListView
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            ItemsSource="{x:Bind ViewModel.Plugins}"
+            SelectedItem="{x:Bind ViewModel.SelectedPlugin, Mode=TwoWay}"
+            ScrollViewer.CanContentRenderOutsideBounds="True">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Background" Value="#30808080"/>
+                    <Setter Property="Margin" Value="0,2,0,2"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:PluginModel">
+                    <Grid
+                        ColumnSpacing="8"
+                        Padding="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Text="{x:Bind Name}"
+                            FontSize="15"
+                            FontWeight="Normal"
+                            TextWrapping="WrapWholeWords"
+                            VerticalAlignment="Center"/>
+                        
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
     </Grid>
 </Page>

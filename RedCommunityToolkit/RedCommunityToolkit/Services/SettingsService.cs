@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
+using RedCommunityToolkit.Models;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 
@@ -15,20 +17,34 @@ namespace RedCommunityToolkit.Services
         /// <summary>
         /// The <see cref="IPropertySet"/> with the settings targeted by the current instance.
         /// </summary>
-        private readonly IPropertySet SettingsStorage = ApplicationData.Current.LocalSettings.Values;
+        private readonly IPropertySet _settingsStorage = ApplicationData.Current.LocalSettings.Values;
+
+        public string? Location
+        {
+            get => GetValue<string>(nameof(Location));
+            set => SetValue<string>(nameof(Location), value);
+        }
+
+
 
         /// <inheritdoc/>
-        public void SetValue<T>(string key, T value)
+        private void SetValue<T>(string key, T? value)
         {
-            if (!SettingsStorage.ContainsKey(key)) SettingsStorage.Add(key, value);
-            else SettingsStorage[key] = value;
+            if (!_settingsStorage.ContainsKey(key))
+            {
+                _settingsStorage.Add(key, value);
+            }
+            else
+            {
+                _settingsStorage[key] = value;
+            }
         }
 
         /// <inheritdoc/>
-        public T? GetValue<T>(string key)
+        private T? GetValue<T>(string key)
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            if (SettingsStorage.TryGetValue(key, out object value))
+            if (_settingsStorage.TryGetValue(key, out var value))
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             {
                 return (T)value;
@@ -36,5 +52,10 @@ namespace RedCommunityToolkit.Services
 
             return default;
         }
+
+
+
+
+
     }
 }

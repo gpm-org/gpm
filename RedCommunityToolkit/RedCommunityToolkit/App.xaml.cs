@@ -33,11 +33,15 @@ namespace RedCommunityToolkit
     /// </summary>
     public partial class App : Application
     {
+        private Window m_window;
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public App()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             this.InitializeComponent();
         }
@@ -49,31 +53,16 @@ namespace RedCommunityToolkit
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            //m_window = new MainWindow();
-            //m_window.Activate();
+            // Register services
+            Ioc.Default.ConfigureServices(
+                new ServiceCollection()
+                .AddSingleton<ISettingsService, SettingsService>()
+                .AddSingleton<IGitHubService, GitHubService>()
+                .AddSingleton<ILibraryService, LibraryService>()
+                .BuildServiceProvider());
 
-            // Ensure the UI is initialized
-            if (Window.Current.Content is null)
-            {
-                Window.Current.Content = new Shell();
-
-                //TitleBarHelper.StyleTitleBar();
-                //TitleBarHelper.ExpandViewIntoTitleBar();
-
-                // Register services
-                Ioc.Default.ConfigureServices(
-                    new ServiceCollection()
-                    .AddSingleton<ISettingsService, SettingsService>()
-                    .BuildServiceProvider());
-            }
-
-            // Enable the prelaunch if needed, and activate the window
-            //if (args.PrelaunchActivated == false)
-            //{
-            //    CoreApplication.EnablePrelaunch(true);
-
-            //    Window.Current.Activate();
-            //}
+            m_window = new Shell();
+            m_window.Activate();
         }
     }
 }

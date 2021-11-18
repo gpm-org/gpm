@@ -12,6 +12,7 @@
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
 	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	<Nullable>enable</Nullable>
+	  <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Shell.xaml" />
@@ -35,6 +36,9 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.194" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.8" />
+    <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+    <PackageReference Include="Octokit" Version="0.50.0" />
+    <PackageReference Include="Refit" Version="6.1.15" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -58,5 +62,8 @@
     <Page Update="Views\AppsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <EditorConfigFiles Remove="Z:\GitHub\RedCommunityToolkit\RedCommunityToolkit\RedCommunityToolkit\ViewModels\.editorconfig" />
   </ItemGroup>
 </Project>

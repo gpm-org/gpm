@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace RedCommunityToolkit
 {
-    public sealed partial class Shell : UserControl
+    public sealed partial class Shell : Window/*: UserControl*/
     {
         private readonly IReadOnlyCollection<NavigationItemModel> NavigationItems;
 
