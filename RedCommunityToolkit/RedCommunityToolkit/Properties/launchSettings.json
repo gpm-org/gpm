@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RedCommunityToolkit (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "RedCommunityToolkit (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
