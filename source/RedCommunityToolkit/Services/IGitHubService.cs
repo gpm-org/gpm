@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using RedCommunityToolkit.Models;
+using gpm.core.Models;
 using Refit;
 
 namespace RedCommunityToolkit.Services
 {
     public interface IGitHubService
     {
-        Task<bool> InstallLatestReleaseAsync(PluginModel selectedSubreddit);
+        Task<bool> InstallLatestReleaseAsync(PackageModel selectedSubreddit);
     }
 
     public sealed class PostsQueryResponse

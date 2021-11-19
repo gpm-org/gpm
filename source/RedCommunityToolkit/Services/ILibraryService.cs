@@ -4,14 +4,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RedCommunityToolkit.Models;
+using gpm.core.Models;
 
 namespace RedCommunityToolkit.Services
 {
     public interface ILibraryService : INotifyPropertyChanged, INotifyPropertyChanging
     {
 
-        public Dictionary<string, PluginModel> Plugins { get; }
+        public Dictionary<string, PackageModel> Plugins { get; }
 
         Task LoadAsync();
     }

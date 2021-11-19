@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
+using gpm.core.Models;
 using Nito.AsyncEx;
-using RedCommunityToolkit.Models;
 using RedCommunityToolkit.Services;
 
 namespace RedCommunityToolkit.ViewModels
 {
     public class PluginViewModel : ObservableObject
     {
-        private PluginModel _model;
+        private PackageModel _model;
 
         /// <summary>
         /// Gets the <see cref="IGitHubService"/> instance to use.
@@ -26,7 +26,7 @@ namespace RedCommunityToolkit.ViewModels
         /// </summary>
         private readonly AsyncLock _loadingLock = new();
 
-        public PluginViewModel(PluginModel model)
+        public PluginViewModel(PackageModel model)
         {
             _model = model;
 

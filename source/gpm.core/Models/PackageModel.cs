@@ -1,18 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace RedCommunityToolkit.Models
+namespace gpm.core.Models
 {
     /// <summary>
     /// Model for a plugin
     /// </summary>
-    public sealed class PluginModel
+    public sealed class PackageModel
     {
-        public PluginModel(string id, string name, int assetIndex)
+        public PackageModel(string id, string name, int assetIndex)
         {
             ID = id;
             Name = name;

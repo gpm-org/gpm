@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>RedCommunityToolkit</RootNamespace>
+    <RootNamespace>gpmWinui</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
@@ -49,6 +49,9 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\gpm.core\gpm.core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="Views\PluginsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -63,7 +66,5 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <EditorConfigFiles Remove="Z:\GitHub\RedCommunityToolkit\RedCommunityToolkit\RedCommunityToolkit\ViewModels\.editorconfig" />
-  </ItemGroup>
+
 </Project>

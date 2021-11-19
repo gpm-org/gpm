@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using gpm.core.Models;
 using Octokit;
-using RedCommunityToolkit.Models;
 using Windows.Storage;
 
 namespace RedCommunityToolkit.Services
@@ -24,7 +24,7 @@ namespace RedCommunityToolkit.Services
         }
 
 
-        public async Task<bool> InstallLatestReleaseAsync(PluginModel model)
+        public async Task<bool> InstallLatestReleaseAsync(PackageModel model)
         {
             var fi = new FileInfo(model.ID);
             if (fi.Directory is null)

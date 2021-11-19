@@ -7,8 +7,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using Nito.AsyncEx;
-using RedCommunityToolkit.Models;
 using RedCommunityToolkit.Services;
+using gpm.core.Models;
 
 namespace RedCommunityToolkit.ViewModels
 {
@@ -57,12 +57,12 @@ namespace RedCommunityToolkit.ViewModels
         public ObservableCollection<PluginViewModel> Plugins { get; set; } = new();
 
 
-        private PluginModel? _selectedPlugin;
+        private PackageModel? _selectedPlugin;
 
         /// <summary>
         /// Gets or sets the currently selected subreddit.
         /// </summary>
-        public PluginModel? SelectedPlugin
+        public PackageModel? SelectedPlugin
         {
             get => _selectedPlugin;
             set => SetProperty(ref _selectedPlugin, value);//_settingsService.SetValue(nameof(SelectedRepo), value);

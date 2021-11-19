@@ -5,7 +5,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using RedCommunityToolkit.Models;
+using gpm.core.Models;
 using Windows.Storage;
 
 namespace RedCommunityToolkit.Services
@@ -74,7 +74,7 @@ namespace RedCommunityToolkit.Services
             {
                 if (!Plugins.ContainsKey(key))
                 {
-                    Plugins.Add(key, new PluginModel(key, value, 1));
+                    Plugins.Add(key, new PackageModel(key, value, 1));
                 }
             }
 
@@ -90,13 +90,13 @@ namespace RedCommunityToolkit.Services
             await FileIO.WriteTextAsync(sampleFile, jsonString);
         }
 
-        public Dictionary<string, PluginModel> Plugins => _library?.Plugins is null ? new() : _library.Plugins;
+        public Dictionary<string, PackageModel> Plugins => _library?.Plugins is null ? new() : _library.Plugins;
     }
 
 
     public class Library
     {
-        public Dictionary<string, PluginModel>? Plugins { get; set; }
+        public Dictionary<string, PackageModel>? Plugins { get; set; }
     }
 
 }
