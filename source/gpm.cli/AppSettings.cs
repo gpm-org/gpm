@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using gpm.core;
+using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.Options;
 

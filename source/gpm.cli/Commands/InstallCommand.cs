@@ -42,79 +42,7 @@ namespace gpm.cli.Commands
 
             foreach (var name in names.Select(x => x.ToLower()))
             {
-                Package? package = null;
-                if (Path.GetExtension(name) == ".git")
-                {
-                    var packages = db.LookupByUrl(name).ToList();
-                    if (packages.Count == 1)
-                    {
-                        package = packages.First();
-                    }
-                    else if (packages.Count > 1)
-                    {
-                        // log results
-                        foreach (var item in packages)
-                        {
-                            logger.Warning($"Multiple packages found in repository {name}:");
-                            logger.Info(item.Id);
-                        }
-                    }
-                }
-                else if (name.Split('/').Length == 2)
-                {
-                    var splits = name.Split('/');
-                    var id = $"{splits[0]}-{splits[1]}";
-                    package = db.Lookup(id);
-                }
-                else if (name.Split('/').Length == 3)
-                {
-                    var splits = name.Split('/');
-                    var id = $"{splits[0]}-{splits[1]}-{splits[2]}";
-                    package = db.Lookup(id);
-                }
-                else
-                {
-
-                    {
-                        // try name
-                        var packages = db.LookupByName(name).ToList();
-                        if (packages.Count == 1)
-                        {
-                            package = packages.First();
-                            InstallPackage(logger, package);
-                            continue;
-                        }
-                        else if (packages.Count > 1)
-                        {
-                            // log results
-                            foreach (var item in packages)
-                            {
-                                logger.Warning($"Multiple packages found for name {name}:");
-                                logger.Info(item.Id);
-                            }
-                        }
-                    }
-
-                    {
-                        // try owner
-                        var packages = db.LookupByOwner(name).ToList();
-                        if (packages.Count == 1)
-                        {
-                            package = packages.First();
-                            InstallPackage(logger, package);
-                            continue;
-                        }
-                        else if (packages.Count > 1)
-                        {
-                            // log results
-                            foreach (var item in packages)
-                            {
-                                logger.Warning($"Multiple packages found for owner {name}:");
-                                logger.Info(item.Id);
-                            }
-                        }
-                    }
-                }
+                var package = Parsepackagename(db, logger, name);
 
                 if (package is not null)
                 {
@@ -128,11 +56,90 @@ namespace gpm.cli.Commands
 
         }
 
-        private void InstallPackage(ILoggerService logger, Package package)
+        private static Package? Parsepackagename(IDataBaseService db, ILoggerService logger, string name)
         {
-            logger.Info($"installing package {package.Id}...");
+            Package? package = null;
+            if (Path.GetExtension(name) == ".git")
+            {
+                var packages = db.LookupByUrl(name).ToList();
+                if (packages.Count == 1)
+                {
+                    package = packages.First();
+                }
+                else if (packages.Count > 1)
+                {
+                    // log results
+                    foreach (var item in packages)
+                    {
+                        logger.Warning($"Multiple packages found in repository {name}:");
+                        logger.Info(item.Id);
+                    }
+                }
+            }
+            else if (name.Split('/').Length == 2)
+            {
+                var splits = name.Split('/');
+                var id = $"{splits[0]}-{splits[1]}";
+                package = db.Lookup(id);
+            }
+            else if (name.Split('/').Length == 3)
+            {
+                var splits = name.Split('/');
+                var id = $"{splits[0]}-{splits[1]}-{splits[2]}";
+                package = db.Lookup(id);
+            }
+            else
+            {
+
+                {
+                    // try name
+                    var packages = db.LookupByName(name).ToList();
+                    if (packages.Count == 1)
+                    {
+                        return packages.First();
+                    }
+                    else if (packages.Count > 1)
+                    {
+                        // log results
+                        foreach (var item in packages)
+                        {
+                            logger.Warning($"Multiple packages found for name {name}:");
+                            logger.Info(item.Id);
+                        }
+                    }
+                }
+
+                {
+                    // try owner
+                    var packages = db.LookupByOwner(name).ToList();
+                    if (packages.Count == 1)
+                    {
+                        return packages.First();
+                    }
+                    else if (packages.Count > 1)
+                    {
+                        // log results
+                        foreach (var item in packages)
+                        {
+                            logger.Warning($"Multiple packages found for owner {name}:");
+                            logger.Info(item.Id);
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
+        private static void InstallPackage(ILoggerService logger, Package package)
+        {
+            logger.Info($"installing package {package.Id}...");
+
+
+
+
+
+        }
         #endregion Constructors
     }
 }

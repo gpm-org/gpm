@@ -16,5 +16,8 @@ namespace gpm.core
 
         public const string LOCALDB = "gpm-lib.bin";
 
+        public const string CACHE = "cache";
+
+
     }
 }

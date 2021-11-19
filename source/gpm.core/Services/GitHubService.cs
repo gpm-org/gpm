@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,43 +6,26 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using gpm.core.Models;
 using Octokit;
-using Windows.Storage;
 
-namespace RedCommunityToolkit.Services
+namespace gpm.core.Services
 {
     public class GitHubService : IGitHubService
     {
         private readonly GitHubClient _client = new(new ProductHeaderValue("RedCommunityToolkit"));
 
-        private static readonly HttpClient client = new HttpClient();
-
-        private readonly StorageFolder _localFolder = ApplicationData.Current.LocalFolder;
+        private static readonly HttpClient s_client = new();
 
         public GitHubService()
         {
 
         }
 
-
-        public async Task<bool> InstallLatestReleaseAsync(PackageModel model)
+        public async Task<bool> InstallLatestReleaseAsync(Package model)
         {
-            var fi = new FileInfo(model.ID);
-            if (fi.Directory is null)
-            {
-                throw new ArgumentException(nameof(model.ID));
-            }
-            var rOwner = fi.Directory.Name;
-            var rName = fi.Name.Split('.').First();
-
-            if (string.IsNullOrEmpty(rOwner) || string.IsNullOrEmpty(rName))
-            {
-                throw new ArgumentException(nameof(model.ID));
-            }
-
             IReadOnlyList<Release>? releases;
             try
             {
-                releases = await _client.Repository.Release.GetAll(rOwner, rName);
+                releases = await _client.Repository.Release.GetAll(model.RepoOwner, model.RepoName);
             }
             catch (Exception)
             {
@@ -66,40 +49,48 @@ namespace RedCommunityToolkit.Services
             var url = latest.Assets[idx].BrowserDownloadUrl;
             var filename = latest.Assets[idx].Name;
 
+            await DownloadAsset(model, url, filename);
+
+
+
+            // udpate current info in local db
+            //var version = latest.TagName;
+            //model.InstalledVersion = version;
+            //if (model.InstalledVersions is null)
+            //{
+            //    model.InstalledVersions = new();
+            //}
+            //model.InstalledVersions.Add(version, filename);
+
+            return true;
+
+        }
+
+        private static async Task DownloadAsset(Package model, string url, string filename)
+        {
             try
             {
-                var libdir = Path.Combine(_localFolder.Path, "Library", $"{model.Name}");
+                var libdir = Path.Combine(IAppSettings.GetCacheFolder(), $"{model.Id}");
                 if (!Directory.Exists(libdir))
                 {
                     Directory.CreateDirectory(libdir);
                 }
                 var path = Path.Combine(libdir, filename);
-               
+
                 var uri = new Uri(url);
-                var response = await client.GetAsync(uri);
+                var response = await s_client.GetAsync(uri);
 
                 response.EnsureSuccessStatusCode();
 
-                using var fs = new FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+                using var fs = new FileStream(path, System.IO.FileMode.Create, FileAccess.Write);
                 await response.Content.CopyToAsync(fs);
+
             }
             catch (HttpRequestException e)
             {
                 Console.WriteLine("\nException Caught!");
                 Console.WriteLine("Message :{0} ", e.Message);
             }
-
-            // udpate current info in model
-            var version = latest.TagName;
-            model.InstalledVersion = version;
-            if (model.InstalledVersions is null)
-            {
-                model.InstalledVersions = new();
-            }
-            model.InstalledVersions.Add(version, filename);
-
-            return true;
-
         }
 
 

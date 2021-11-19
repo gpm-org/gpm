@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +7,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using gpm.core.Models;
+using gpm.core.Services;
 using Nito.AsyncEx;
-using RedCommunityToolkit.Services;
 
 namespace RedCommunityToolkit.ViewModels
 {
@@ -70,12 +70,13 @@ namespace RedCommunityToolkit.ViewModels
             {
                 try
                 {
-                    var result = await _gitHubService.InstallLatestReleaseAsync(_model);
-                    if (result)
-                    {
-                        OnPropertyChanged(nameof(IsInstalled));
-                        OnPropertyChanged(nameof(IsNotInstalled));
-                    }
+                    await Task.Delay(1);
+                    //var result = await _gitHubService.InstallLatestReleaseAsync(_model);
+                    //if (result)
+                    //{
+                    //    OnPropertyChanged(nameof(IsInstalled));
+                    //    OnPropertyChanged(nameof(IsNotInstalled));
+                    //}
                 }
                 catch
                 {

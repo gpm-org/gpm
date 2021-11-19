@@ -1,4 +1,4 @@
-namespace gpm.core.Services
+namespace gpm.core.Models
 {
     public class CommonSettings
     {

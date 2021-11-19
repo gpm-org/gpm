@@ -1,3 +1,4 @@
+using gpm.core.Models;
 using Microsoft.Extensions.Options;
 
 namespace gpm.core.Services
@@ -10,8 +11,13 @@ namespace gpm.core.Services
 
 
         public static string GetAppSettingsFile() => Path.Combine(GetAppDataFolder(), Constants.APPSETTINGS);
+
         public static string GetDbFile() => Path.Combine(GetAppDataFolder(), Constants.DB);
+
         public static string GetLocalDbFile() => Path.Combine(GetAppDataFolder(), Constants.LOCALDB);
+
+        public static string GetCacheFolder() => Path.Combine(GetAppDataFolder(), Constants.CACHE);
+
 
         public static string GetAppDataFolder()
         {
