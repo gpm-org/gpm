@@ -1,13 +1,13 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using RedCommunityToolkit.Models;
+using gpmWinui.Models;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 
-namespace RedCommunityToolkit.Services
+namespace gpmWinui.Services
 {
     /// <summary>
     /// A simple <see langword="class"/> that handles the local app settings.
@@ -22,7 +22,7 @@ namespace RedCommunityToolkit.Services
         public string? Location
         {
             get => GetValue<string>(nameof(Location));
-            set => SetValue<string>(nameof(Location), value);
+            set => SetValue(nameof(Location), value);
         }
 
 

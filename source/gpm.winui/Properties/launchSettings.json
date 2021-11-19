@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "RedCommunityToolkit (Package)": {
+    "gpmWinui (Package)": {
       "commandName": "MsixPackage"
     },
-    "RedCommunityToolkit (Unpackaged)": {
+    "gpmWinui (Unpackaged)": {
       "commandName": "Project"
     }
   }

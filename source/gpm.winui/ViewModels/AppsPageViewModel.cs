@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,23 +7,23 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using Nito.AsyncEx;
-using RedCommunityToolkit.Services;
 using gpm.core.Models;
+using gpmWinui.Services;
 
-namespace RedCommunityToolkit.ViewModels
+namespace gpmWinui.ViewModels
 {
     /// <summary>
     /// A viewmodel for a subreddit widget.
     /// </summary>
     public sealed class AppsPageViewModel : ObservableRecipient
     {
-        
+
         /// <summary>
         /// Gets the <see cref="ISettingsService"/> instance to use.
         /// </summary>
         private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
 
-        
+
 
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace RedCommunityToolkit.ViewModels
             }
         }
 
-        
+
 
         /// <summary>
         /// Gets the collection of loaded posts.
@@ -68,7 +68,7 @@ namespace RedCommunityToolkit.ViewModels
             set => SetProperty(ref _selectedPlugin, value);//_settingsService.SetValue(nameof(SelectedRepo), value);
         }
 
-       
+
     }
 }
 

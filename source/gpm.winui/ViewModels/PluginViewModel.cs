@@ -10,7 +10,7 @@ using gpm.core.Models;
 using gpm.core.Services;
 using Nito.AsyncEx;
 
-namespace RedCommunityToolkit.ViewModels
+namespace gpmWinui.ViewModels
 {
     public class PluginViewModel : ObservableObject
     {
@@ -20,7 +20,7 @@ namespace RedCommunityToolkit.ViewModels
         /// Gets the <see cref="IGitHubService"/> instance to use.
         /// </summary>
         private readonly IGitHubService _gitHubService = Ioc.Default.GetRequiredService<IGitHubService>();
-        
+
         /// <summary>
         /// An <see cref="AsyncLock"/> instance to avoid concurrent requests.
         /// </summary>
@@ -56,7 +56,7 @@ namespace RedCommunityToolkit.ViewModels
         private async Task LaunchAsync()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-           throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private async Task CheckForUpdatesAsync()

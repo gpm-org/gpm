@@ -11,7 +11,7 @@ namespace gpm.core.Services
 {
     public class GitHubService : IGitHubService
     {
-        private readonly GitHubClient _client = new(new ProductHeaderValue("RedCommunityToolkit"));
+        private readonly GitHubClient _client = new(new ProductHeaderValue("gpm"));
 
         private static readonly HttpClient s_client = new();
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
 
-namespace RedCommunityToolkit.Models
+namespace gpmWinui.Models
 {
     /// <summary>
     /// A simple model for tracking sample pages associated with buttons.

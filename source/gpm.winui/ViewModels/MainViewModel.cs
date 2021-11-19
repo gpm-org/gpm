@@ -1,14 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using gpm.core.Services;
-using RedCommunityToolkit.Services;
+using gpmWinui.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RedCommunityToolkit.ViewModels
+namespace gpmWinui.ViewModels
 {
     public sealed class MainViewModel : ObservableObject
     {

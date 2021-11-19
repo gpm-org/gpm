@@ -1,8 +1,8 @@
-﻿<Application
-    x:Class="RedCommunityToolkit.App"
+<Application
+    x:Class="gpmWinui.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:RedCommunityToolkit"
+    xmlns:local="using:gpmWinui"
     RequestedTheme="Light"
     >
     

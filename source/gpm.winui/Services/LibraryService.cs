@@ -8,11 +8,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using gpm.core.Models;
 using Windows.Storage;
 
-namespace RedCommunityToolkit.Services
+namespace gpmWinui.Services
 {
     public class LibraryService : ObservableObject, ILibraryService
     {
-       
+
         private Library? _library;
 
         private const string s_fileName = "library.json";
