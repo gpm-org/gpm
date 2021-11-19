@@ -84,7 +84,9 @@ namespace gpm.cli.Services
             (_name, _config) = (name, config);
         }
 
-        public IDisposable? BeginScope<TState>(TState state) => default;
+#pragma warning disable CS8603 // Possible null reference return.
+        public IDisposable BeginScope<TState>(TState state) => default;
+#pragma warning restore CS8603 // Possible null reference return.
 
         public bool IsEnabled(LogLevel logLevel) =>
             _config.LogLevels.ContainsKey(logLevel);
@@ -94,7 +96,7 @@ namespace gpm.cli.Services
             LogLevel logLevel,
             EventId eventId,
             TState state,
-            Exception exception,
+            Exception? exception,
             Func<TState, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel))
@@ -141,9 +143,15 @@ namespace gpm.cli.Services
                 Console.ForegroundColor = _config.LogLevels[logLevel];
 
 
-
-
-                Console.WriteLine($"[{eventId.Id,2}: {logLevelStr,-12}] - {formatter(state, exception)}");
+                if (exception is not null)
+                {
+                    Console.WriteLine($"[{eventId.Id,2}: {logLevelStr,-12}] - {formatter(state, exception)}");
+                }
+                else
+                {
+                    Console.WriteLine($"[{eventId.Id,2}: {logLevelStr,-12}]");
+                }
+                
 
                 //Console.WriteLine($"     {_name} - {formatter(state, exception)}");
                 Console.ForegroundColor = originalColor;

@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpm.core", "gpm.core\gpm.co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpm.cli", "gpm.cli\gpm.cli.csproj", "{6A02A30F-AE1F-4E12-BEB0-7711F4228149}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{4E5DBD2B-6230-4182-BEEB-C57B67D56996}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9BA5CBFC-0758-4A60-8A22-49AA5DF880D0} = {4E5DBD2B-6230-4182-BEEB-C57B67D56996}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1E499F9A-2823-48E3-A97D-AC0752FDF08F}

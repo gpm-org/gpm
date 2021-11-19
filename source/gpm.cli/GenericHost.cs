@@ -1,7 +1,9 @@
 using gpm.cli.Services;
+using gpm.core;
 using gpm.core.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -13,10 +15,14 @@ namespace gpm.cli
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, configuration) =>
                 {
-                    var assemblyFolder = Path.GetDirectoryName(System.AppContext.BaseDirectory);
+                    var appData = AppSettings.GetAppDataFolder();
+                    var provider = new PhysicalFileProvider(appData);
+                    configuration.AddJsonFile(provider, Constants.APPSETTINGS, true, true);
 
-                    configuration.SetBasePath(assemblyFolder);
+                    var baseFolder = Path.GetDirectoryName(System.AppContext.BaseDirectory);
+                    configuration.SetBasePath(baseFolder);
                     configuration.AddJsonFile("appsettings.json");
+
                 })
                 .ConfigureLogging(logging =>
                 {
@@ -30,12 +36,13 @@ namespace gpm.cli
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
+                    services.AddScoped<IAppSettings, AppSettings>();
                     services.AddScoped<ILoggerService, MicrosoftLoggerService>();
                     services.AddScoped<IProgressService<double>, PercentProgressService>();
 
                     //services.AddSingleton<IHashService, HashService>();
 
-
+                    services.AddOptions<CommonSettings>().Bind(hostContext.Configuration.GetSection(nameof(CommonSettings)));
                 }
             );
     }

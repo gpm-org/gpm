@@ -9,7 +9,9 @@ namespace gpm.core.Services
     {
         private int _maxPercent;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public PercentProgressService()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
 
         }
@@ -43,7 +45,7 @@ namespace gpm.core.Services
 
         public event EventHandler<double> ProgressChanged;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 #pragma warning restore CS0067 
 
         public bool IsIndeterminate { get; set; }

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "gpm.cli update": {
+      "commandName": "Project",
+      "commandLineArgs": "update"
+    },
+    "gpm.cli new": {
+      "commandName": "Project",
+      "commandLineArgs": "new https://github.com/WolvenKit/WolvenKit.git"
+    }
+  }
+}

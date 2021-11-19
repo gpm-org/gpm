@@ -6,19 +6,26 @@ using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using gpm.cli;
 using gpm.cli.Commands;
+using Microsoft.Extensions.Hosting;
 
 var rootCommand = new RootCommand
 {
+          new UpdateCommand(),
           new ListCommand(),
-
+          new NewCommand(),
 };
 
-var parser = new CommandLineBuilder(rootCommand)
+var builder = new CommandLineBuilder(rootCommand)
     .UseDefaults()
     .UseHost(GenericHost.CreateHostBuilder)
-    .Build();
+    ;
+var parser = builder.Build();
+
+var opts = builder.Options;
+
+// hack to get DI in system.commandline
+parser.Invoke(new UpdateCommand().Name);
 
 parser.Invoke(args);

@@ -4,41 +4,36 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using ProtoBuf;
 
 namespace gpm.core.Models
 {
     /// <summary>
     /// Model for a plugin
     /// </summary>
-    public sealed class PackageModel
+
+    [ProtoContract]
+    public sealed class Package
     {
-        public PackageModel(string id, string name, int assetIndex)
+        public Package(string id)
         {
             ID = id;
-            Name = name;
-            AssetIndex = assetIndex;
         }
 
 
 
         [JsonPropertyName("id")]
+        [ProtoMember(1)]
         public string ID { get; }
 
+
         [JsonPropertyName("name")]
-        public string Name { get; }
+        [ProtoMember(2)]
+        public string? Name { get; set; }
 
         [JsonPropertyName("assetIndex")]
-        public int AssetIndex { get; }
+        [ProtoMember(3)]
+        public int AssetIndex { get; set; }
 
-
-
-        [JsonPropertyName("thumbnail")]
-        public string? Thumbnail { get; }
-
-        [JsonPropertyName("installedversion")]
-        public string? InstalledVersion { get; set; }
-
-        [JsonPropertyName("installedversions")]
-        public Dictionary<string, string> InstalledVersions { get; set; } = new();
     }
 }
