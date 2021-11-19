@@ -70,7 +70,7 @@ namespace gpm.cli.Commands
 
             var package = new Package(url)
             {
-                Name = name
+                Identifier = name
             };
 
             var currentDir = Path.GetFullPath(Environment.CurrentDirectory);

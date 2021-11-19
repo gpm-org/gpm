@@ -7,6 +7,14 @@
     "gpm.cli new": {
       "commandName": "Project",
       "commandLineArgs": "new https://github.com/WolvenKit/WolvenKit.git"
+    },
+    "gpm.cli list": {
+      "commandName": "Project",
+      "commandLineArgs": "list"
+    },
+    "gpm install": {
+      "commandName": "Project",
+      "commandLineArgs": "install wolvenkit wolvenkit/wolvenkit test Neurolinked/MlsetupBuilder"
     }
   }
 }

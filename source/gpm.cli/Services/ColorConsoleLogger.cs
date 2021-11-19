@@ -97,7 +97,7 @@ namespace gpm.cli.Services
             EventId eventId,
             TState state,
             Exception? exception,
-            Func<TState, Exception, string> formatter)
+            Func<TState, Exception?, string> formatter)
         {
             if (!IsEnabled(logLevel))
             {
@@ -143,14 +143,11 @@ namespace gpm.cli.Services
                 Console.ForegroundColor = _config.LogLevels[logLevel];
 
 
-                if (exception is not null)
+                //if (exception is not null)
                 {
                     Console.WriteLine($"[{eventId.Id,2}: {logLevelStr,-12}] - {formatter(state, exception)}");
                 }
-                else
-                {
-                    Console.WriteLine($"[{eventId.Id,2}: {logLevelStr,-12}]");
-                }
+                
                 
 
                 //Console.WriteLine($"     {_name} - {formatter(state, exception)}");

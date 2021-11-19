@@ -15,7 +15,7 @@ namespace gpm.cli
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, configuration) =>
                 {
-                    var appData = AppSettings.GetAppDataFolder();
+                    var appData = IAppSettings.GetAppDataFolder();
                     var provider = new PhysicalFileProvider(appData);
                     configuration.AddJsonFile(provider, Constants.APPSETTINGS, true, true);
 
@@ -40,7 +40,7 @@ namespace gpm.cli
                     services.AddScoped<ILoggerService, MicrosoftLoggerService>();
                     services.AddScoped<IProgressService<double>, PercentProgressService>();
 
-                    //services.AddSingleton<IHashService, HashService>();
+                    services.AddSingleton<IDataBaseService, DataBaseService>();
 
                     services.AddOptions<CommonSettings>().Bind(hostContext.Configuration.GetSection(nameof(CommonSettings)));
                 }

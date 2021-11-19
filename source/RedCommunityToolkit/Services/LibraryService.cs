@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,12 +12,7 @@ namespace RedCommunityToolkit.Services
 {
     public class LibraryService : ObservableObject, ILibraryService
     {
-        private readonly Dictionary<string, string> plugins = new()
-        {
-            { "https://github.com/WolvenKit/WolvenKit.git", "WolvenKit" },
-            { "https://github.com/Neurolinked/MlsetupBuilder.git", "MlsetupBuilder" },
-        };
-
+       
         private Library? _library;
 
         private const string s_fileName = "library.json";
@@ -70,13 +65,13 @@ namespace RedCommunityToolkit.Services
             }
 
             // check self
-            foreach (var (key, value) in plugins)
-            {
-                if (!Plugins.ContainsKey(key))
-                {
-                    Plugins.Add(key, new PackageModel(key, value, 1));
-                }
-            }
+            //foreach (var (key, value) in plugins)
+            //{
+            //    if (!Plugins.ContainsKey(key))
+            //    {
+            //        Plugins.Add(key, new PackageModel(key, value, 1));
+            //    }
+            //}
 
             await SaveAsync();
         }
@@ -91,12 +86,6 @@ namespace RedCommunityToolkit.Services
         }
 
         public Dictionary<string, PackageModel> Plugins => _library?.Plugins is null ? new() : _library.Plugins;
-    }
-
-
-    public class Library
-    {
-        public Dictionary<string, PackageModel>? Plugins { get; set; }
     }
 
 }
