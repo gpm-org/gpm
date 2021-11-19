@@ -14,7 +14,7 @@
     },
     "gpm install": {
       "commandName": "Project",
-      "commandLineArgs": "install wolvenkit wolvenkit/wolvenkit test Neurolinked/MlsetupBuilder"
+      "commandLineArgs": "install wolvenkit"
     }
   }
 }

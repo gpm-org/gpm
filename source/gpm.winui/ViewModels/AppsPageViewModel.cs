@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using Nito.AsyncEx;
 using gpm.core.Models;
 using gpmWinui.Services;
+using gpm.core.Services;
 
 namespace gpmWinui.ViewModels
 {
@@ -31,19 +32,19 @@ namespace gpmWinui.ViewModels
         /// </summary>
         public AppsPageViewModel()
         {
-            _libraryService.PropertyChanged += LibraryService_PropertyChanged;
+            //_libraryService.PropertyChanged += LibraryService_PropertyChanged;
 
-            Plugins = new ObservableCollection<PluginViewModel>(_libraryService.Plugins.Values.Select(x => new PluginViewModel(x)));
+            Plugins = new ObservableCollection<PluginViewModel>(_libraryService.Packages.Values.Select(x => new PluginViewModel(x)));
         }
 
         private void LibraryService_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case nameof(ILibraryService.Plugins):
-                    Plugins = new ObservableCollection<PluginViewModel>(_libraryService.Plugins.Values.Select(x => new PluginViewModel(x)));
-                    //await LoadPostsCommand.ExecuteAsync(null);
-                    break;
+                //case nameof(ILibraryService.Plugins):
+                //    Plugins = new ObservableCollection<PluginViewModel>(_libraryService.Plugins.Values.Select(x => new PluginViewModel(x)));
+                //    //await LoadPostsCommand.ExecuteAsync(null);
+                //    break;
                 default:
                     break;
             }

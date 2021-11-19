@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -11,24 +12,29 @@ namespace gpm.core.Services
 {
     public class GitHubService : IGitHubService
     {
-        private readonly GitHubClient _client = new(new ProductHeaderValue("gpm"));
+        private readonly GitHubClient _gitHubClient = new(new ProductHeaderValue("gpm"));
 
         private static readonly HttpClient s_client = new();
 
-        public GitHubService()
-        {
+        private readonly ILibraryService _libraryService;
+        private readonly ILoggerService _loggerService;
 
+        public GitHubService(ILibraryService libraryService, ILoggerService loggerService)
+        {
+            _libraryService = libraryService;
+            _loggerService = loggerService;
         }
 
-        public async Task<bool> InstallLatestReleaseAsync(Package model)
+        public async Task<bool> InstallLatestReleaseAsync(Package package)
         {
             IReadOnlyList<Release>? releases;
             try
             {
-                releases = await _client.Repository.Release.GetAll(model.RepoOwner, model.RepoName);
+                releases = await _gitHubClient.Repository.Release.GetAll(package.RepoOwner, package.RepoName);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _loggerService.Error(e);
                 throw;
             }
             if (releases == null || !releases.Any())
@@ -39,7 +45,7 @@ namespace gpm.core.Services
 
             // install latest
             var latest = releases[0];
-            var idx = model.AssetIndex;
+            var idx = package.AssetIndex;
 
             var zip = latest.Assets[idx];
             if (zip is null)
@@ -48,36 +54,53 @@ namespace gpm.core.Services
             }
             var url = latest.Assets[idx].BrowserDownloadUrl;
             var filename = latest.Assets[idx].Name;
+            var version = latest.TagName;
+            
+            var cacheFile = await DownloadAssetToCache(package, filename, version);
+            if (cacheFile == null)
+            {
+                return false;
+            }
 
-            await DownloadAsset(model, url, filename);
-
-
+            var info = await InstallAsset(package, cacheFile, version);
+            if (info == null)
+            {
+                return false;
+            }
 
             // udpate current info in local db
-            //var version = latest.TagName;
-            //model.InstalledVersion = version;
-            //if (model.InstalledVersions is null)
-            //{
-            //    model.InstalledVersions = new();
-            //}
-            //model.InstalledVersions.Add(version, filename);
+            if (_libraryService.Contains(package.Id))
+            {
+                // update version?
+            }
+            else
+            {
+                // add
+                var model = new PackageModel(package.Id)
+                {
+                    InstalledVersion = version,
+                    Url = url,
+                };
+                model.InstalledVersions.Add(version, info);
+                _libraryService.Packages.Add(version, model);
+            }
+            _libraryService.Save();
 
             return true;
-
         }
 
-        private static async Task DownloadAsset(Package model, string url, string filename)
+        private static async Task<string?> DownloadAssetToCache(Package package, string filename, string version)
         {
+            var libdir = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
+            if (!Directory.Exists(libdir))
+            {
+                Directory.CreateDirectory(libdir);
+            }
+            var path = Path.Combine(libdir, filename);
+
             try
             {
-                var libdir = Path.Combine(IAppSettings.GetCacheFolder(), $"{model.Id}");
-                if (!Directory.Exists(libdir))
-                {
-                    Directory.CreateDirectory(libdir);
-                }
-                var path = Path.Combine(libdir, filename);
-
-                var uri = new Uri(url);
+                var uri = new Uri(package.Url);
                 var response = await s_client.GetAsync(uri);
 
                 response.EnsureSuccessStatusCode();
@@ -85,12 +108,106 @@ namespace gpm.core.Services
                 using var fs = new FileStream(path, System.IO.FileMode.Create, FileAccess.Write);
                 await response.Content.CopyToAsync(fs);
 
+                return path;
             }
             catch (HttpRequestException e)
             {
                 Console.WriteLine("\nException Caught!");
                 Console.WriteLine("Message :{0} ", e.Message);
+
+                return null;
             }
+        }
+
+        private async Task<VersionInfo?> InstallAsset(Package package, string path, string version)
+        {
+            // TODO: unzip
+            if (package.ContentType is null)
+            {
+                var extension = Path.GetExtension(path).ToLower();
+                switch (extension)
+                {
+                    case ".zip":
+                        return await ExtractZipArchiveAsync(package, path, version);
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                switch (package.ContentType)
+                {
+                    case EContentType.SingleFile:
+                        break;
+                    case EContentType.ZipArchive:
+                        return await ExtractZipArchiveAsync(package, path, version);
+                    case EContentType.SevenZipArchive:
+                        break;
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<VersionInfo?> ExtractZipArchiveAsync(Package package, string zipPath, string version)
+        {
+            var extension = Path.GetExtension(zipPath).ToLower();
+            if (extension != ".zip")
+            {
+                throw new ArgumentException(nameof(zipPath));
+            }
+
+            // extract zipfile
+            // get the files in the zip archive
+            var files = new List<string>();
+            using (ZipArchive archive = ZipFile.OpenRead(zipPath))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    // check if folder
+                    if (string.IsNullOrEmpty(entry.Name))
+                    {
+                        continue;
+                    }
+                    files.Add(entry.FullName);
+                }
+            }
+
+            // check for conflicts with existing files
+            //var conflicts = files.Where(x => File.Exists(Path.Combine(_settingsService.GetGameRootPath(), x)));
+            //if (conflicts.Any())
+            //{
+            //    // ask user
+            //    switch (await _interactionService.ShowConfirmation($"The following files will be overwritten, continue?\r\n\r\n {string.Join("\r\n", conflicts)}", "Install Mod"))
+            //    {
+            //        case WMessageBoxResult.None:
+            //        case WMessageBoxResult.Cancel:
+            //        case WMessageBoxResult.No:
+            //            return null;
+            //    }
+            //}
+
+            // extract to 
+            try
+            {
+                //TODO parse destinationDirectoryName
+
+                string appFolder = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
+                string destinationDirectoryName = Path.Combine(appFolder, version);
+                ZipFile.ExtractToDirectory(zipPath, destinationDirectoryName, true);
+            }
+            catch (Exception e)
+            {
+                _loggerService.Error(e);
+                return null;
+            }
+
+            await Task.Delay(1);
+
+            return new VersionInfo()
+            {
+                DeployedFiles = files.ToArray(),
+            };
         }
 
 

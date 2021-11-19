@@ -18,11 +18,26 @@ namespace gpm.core.Services
 
         public static string GetCacheFolder() => Path.Combine(GetAppDataFolder(), Constants.CACHE);
 
+        public static string GetLibraryFolder() => GetDocumentsFolder();
+
 
         public static string GetAppDataFolder()
         {
             var folder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "gpm"
+                );
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            return folder;
+        }
+
+        public static string GetDocumentsFolder()
+        {
+            var folder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "gpm"
                 );
             if (!Directory.Exists(folder))

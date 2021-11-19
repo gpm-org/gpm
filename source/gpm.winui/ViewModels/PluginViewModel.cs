@@ -35,11 +35,10 @@ namespace gpmWinui.ViewModels
             LaunchCommand = new AsyncRelayCommand(LaunchAsync);
         }
 
-        public string? Name => _model.Name;
-
         public string? Version => _model.InstalledVersion;
 
         public string? ID => _model.ID;
+        public string? Url => _model.Url;
 
         public bool IsInstalled => !string.IsNullOrEmpty(_model.InstalledVersion);
 

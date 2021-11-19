@@ -41,7 +41,9 @@ namespace gpm.cli
                     services.AddScoped<ILoggerService, MicrosoftLoggerService>();
                     services.AddScoped<IProgressService<double>, PercentProgressService>();
 
+                    services.AddSingleton<ILibraryService, LibraryService>();
                     services.AddSingleton<IDataBaseService, DataBaseService>();
+                    services.AddSingleton<IGitHubService, GitHubService>();
 
                     services.AddOptions<CommonSettings>().Bind(hostContext.Configuration.GetSection(nameof(CommonSettings)));
                 }

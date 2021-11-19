@@ -56,7 +56,7 @@
                         <StackPanel Grid.Row="0">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <TextBlock 
-                                Text="{x:Bind Name}"
+                                Text="{x:Bind ID}"
                                 FontSize="15"
                                 FontWeight="SemiBold"
                                 TextWrapping="WrapWholeWords"
@@ -78,7 +78,7 @@
                             </StackPanel>
                            
                             <TextBlock 
-                            Text="{x:Bind ID}"
+                            Text="{x:Bind Url}"
                             FontSize="13"
                             FontWeight="Normal"
                             TextWrapping="WrapWholeWords"

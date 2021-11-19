@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using gpm.core.Models;
 using gpm.core.Util;
+using ProtoBuf;
 
 namespace gpm.core.Services
 {
@@ -13,6 +14,8 @@ namespace gpm.core.Services
         Dictionary<string, Package> Packages { get; set; }
 
         void Load();
+
+        void Save();
 
         bool Contains(string key);
         bool ContainsName(string name);
@@ -23,6 +26,7 @@ namespace gpm.core.Services
         IEnumerable<Package> LookupByName(string name);
         IEnumerable<Package> LookupByOwner(string name);
         IEnumerable<Package> LookupByUrl(string url);
+        
     }
 
     public class DataBaseService : IDataBaseService
@@ -41,7 +45,20 @@ namespace gpm.core.Services
 
         public void Load()
         {
-            var packages = DatabaseUtil.GetPackages();
+            IEnumerable<Package>? packages = null;
+            if (File.Exists(IAppSettings.GetDbFile()))
+            {
+                try
+                {
+                    using var file = File.OpenRead(IAppSettings.GetDbFile());
+                    packages = Serializer.Deserialize<IEnumerable<Package>>(file);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+
             if (packages is null)
             {
                 _loggerService.Warning("No Database loaded, try gpm update.");
@@ -49,6 +66,23 @@ namespace gpm.core.Services
             }
 
             Packages = packages.ToDictionary(x => x.Id);
+        }
+
+        public void Save()
+        {
+            try
+            {
+                using var file = File.Create(IAppSettings.GetDbFile());
+                Serializer.Serialize(file, Packages);
+            }
+            catch (Exception)
+            {
+                if (File.Exists(IAppSettings.GetDbFile()))
+                {
+                    File.Delete(IAppSettings.GetDbFile());
+                }
+                throw;
+            }
         }
 
         public bool Contains(string key) => Packages.ContainsKey(key);

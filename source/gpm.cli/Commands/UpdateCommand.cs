@@ -36,6 +36,15 @@ namespace gpm.cli.Commands
 
         private void Action(string[] packages, bool self, bool all, IHost host)
         {
+            Task.Run(async () =>
+            {
+                Octokit.GitHubClient _client = new(new Octokit.ProductHeaderValue("gpm"));
+                var releases = await _client.Repository.Release.GetAll("wolvenkit", "wolvenkit");
+
+                Console.WriteLine(releases);
+            });
+
+
             var serviceProvider = host.Services;
             var settings = serviceProvider.GetRequiredService<IAppSettings>();
             var logger = serviceProvider.GetRequiredService<ILoggerService>();

@@ -1,5 +1,7 @@
+using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Linq;
 using System.Threading.Tasks;
 using gpm.core.Models;
 using gpm.core.Services;
@@ -7,6 +9,7 @@ using gpm.core.Util;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Octokit;
 
 namespace gpm.cli.Commands
 {
@@ -17,9 +20,11 @@ namespace gpm.cli.Commands
         private new const string Description = "";
         private new const string Name = "install";
 
-        #endregion Fields
+        private IServiceProvider? serviceProvider;
+        private ILoggerService? logger;
+        private IDataBaseService? db;
 
-        #region Constructors
+        #endregion Fields
 
         public InstallCommand() : base(Name, Description)
         {
@@ -30,9 +35,14 @@ namespace gpm.cli.Commands
 
         private void Action(string[] names, IHost host)
         {
-            var serviceProvider = host.Services;
-            var logger = serviceProvider.GetRequiredService<ILoggerService>();
-            var db = serviceProvider.GetRequiredService<IDataBaseService>();
+            serviceProvider = host.Services;
+            ArgumentNullException.ThrowIfNull(serviceProvider);
+
+            logger = serviceProvider.GetRequiredService<ILoggerService>();
+            db = serviceProvider.GetRequiredService<IDataBaseService>();
+
+            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(db);
 
             if (names == null)
             {
@@ -40,13 +50,17 @@ namespace gpm.cli.Commands
                 return;
             }
 
+            var toInstall = new List<Package>();
             foreach (var name in names.Select(x => x.ToLower()))
             {
-                var package = Parsepackagename(db, logger, name);
+                var package = Parsepackagename(name);
 
                 if (package is not null)
                 {
-                    InstallPackage(logger, package);
+                    if (!toInstall.Contains(package))
+                    {
+                        toInstall.Add(package);
+                    }
                 }
                 else
                 {
@@ -54,17 +68,27 @@ namespace gpm.cli.Commands
                 }
             }
 
+            //var tasks = new List<Task>();
+            foreach (var package in toInstall.Distinct())
+            {
+                //tasks.Add(InstallPackageAsync(package));
+                _ = InstallPackageAsync(package);
+            }
+
+            //await Task.WhenAll(tasks);
         }
 
-        private static Package? Parsepackagename(IDataBaseService db, ILoggerService logger, string name)
+        private Package? Parsepackagename(string name)
         {
-            Package? package = null;
+            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(db);
+
             if (Path.GetExtension(name) == ".git")
             {
                 var packages = db.LookupByUrl(name).ToList();
                 if (packages.Count == 1)
                 {
-                    package = packages.First();
+                    return packages.First();
                 }
                 else if (packages.Count > 1)
                 {
@@ -80,13 +104,13 @@ namespace gpm.cli.Commands
             {
                 var splits = name.Split('/');
                 var id = $"{splits[0]}-{splits[1]}";
-                package = db.Lookup(id);
+                return db.Lookup(id);
             }
             else if (name.Split('/').Length == 3)
             {
                 var splits = name.Split('/');
                 var id = $"{splits[0]}-{splits[1]}-{splits[2]}";
-                package = db.Lookup(id);
+                return db.Lookup(id);
             }
             else
             {
@@ -131,15 +155,20 @@ namespace gpm.cli.Commands
             return null;
         }
 
-        private static void InstallPackage(ILoggerService logger, Package package)
+        private /*async*/ Task InstallPackageAsync(Package package)
         {
+            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(serviceProvider);
+
+            var githubService = serviceProvider.GetRequiredService<IGitHubService>();
+
             logger.Info($"installing package {package.Id}...");
 
+            //await githubService.InstallLatestReleaseAsync(package);
+            _ = githubService.InstallLatestReleaseAsync(package);
 
 
-
-
+            return Task.CompletedTask;
         }
-        #endregion Constructors
     }
 }

@@ -25,7 +25,7 @@ namespace gpmWinui.ViewModels
 
         public MainViewModel()
         {
-            _ = _libraryService.LoadAsync();
+            _libraryService.Load();
 
 
 

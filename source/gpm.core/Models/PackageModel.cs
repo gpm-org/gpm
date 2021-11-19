@@ -22,28 +22,21 @@ namespace gpm.core.Models
 
         }
 
-        public PackageModel(string id, string name, int assetIndex = 0)
+        public PackageModel(string id)
         {
             ID = id;
-            Name = name;
-            AssetIndex = assetIndex;
         }
-
 
 
         [JsonPropertyName("id")]
         [ProtoMember(1)]
-        public string ID { get; }
+        public string ID { get; set; }
 
-        [JsonPropertyName("name")]
+
+
+        [JsonPropertyName("url")]
         [ProtoMember(2)]
-        public string Name { get; }
-
-        [JsonPropertyName("assetIndex")]
-        [ProtoMember(3)]
-        public int AssetIndex { get; }
-
-
+        public string? Url { get; set; }
 
         [JsonPropertyName("thumbnail")]
         [ProtoMember(4)]
@@ -53,8 +46,23 @@ namespace gpm.core.Models
         [ProtoMember(5)]
         public string? InstalledVersion { get; set; }
 
+
         [JsonPropertyName("installedversions")]
         [ProtoMember(6)]
-        public Dictionary<string, string> InstalledVersions { get; set; } = new();
+        public Dictionary<string, VersionInfo> InstalledVersions { get; set; } = new();
+
+
+
+    }
+
+    [ProtoContract]
+    public record class VersionInfo
+    {
+        [JsonPropertyName("deployedfiles")]
+        [ProtoMember(1)]
+        public string[]? DeployedFiles { get; set; }
+
+
+
     }
 }

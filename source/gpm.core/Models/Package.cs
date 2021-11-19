@@ -39,9 +39,35 @@ namespace gpm.core.Models
         [ProtoMember(3)]
         public int AssetIndex { get; set; }
 
+        // LOGIC
+
+        // Install Directories
+
+
+        // ContentType
+        [JsonPropertyName("contentType")]
+        [ProtoMember(8)]
+        public EContentType? ContentType { get; set; }
+
+        // Tags
+        [JsonPropertyName("tags")]
+        [ProtoMember(9)]
+        public string[]? Tags { get; set; }
+
+
+
+
+
+
+
         public string Id => string.IsNullOrEmpty(Identifier) ? $"{RepoOwner}-{RepoName}" : $"{RepoOwner}-{RepoName}-{Identifier.ToLower()}";
 
         public string RepoOwner => GetRepoOwner();
+
+        public string RepoName => GetRepoName();
+
+
+
 
         private string GetRepoOwner()
         {
@@ -59,8 +85,6 @@ namespace gpm.core.Models
 
             return rOwner.ToLower();
         }
-
-        public string RepoName => GetRepoName();
 
         private string GetRepoName()
         {

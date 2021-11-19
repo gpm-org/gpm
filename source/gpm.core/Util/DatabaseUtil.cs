@@ -12,32 +12,6 @@ namespace gpm.core.Util
 {
     public static class DatabaseUtil
     {
-        public static IEnumerable<Package>? GetPackages()
-        {
-            if (File.Exists(IAppSettings.GetDbFile()))
-            {
-                try
-                {
-                    IEnumerable<Package> packages;
-                    using (var file = File.OpenRead(IAppSettings.GetDbFile()))
-                    {
-                        packages = Serializer.Deserialize<IEnumerable<Package>>(file);
-                    }
-
-                    return packages;
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-
-            }
-
-            return null;
-        }
-    
-
-
         public static void UpdateDatabase(ILoggerService logger)
         {
             var files = Directory.GetFiles(IAppSettings.GetGitDbFolder(), "*.gpak", SearchOption.AllDirectories);
