@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using gpm.cli.Services;
 using gpm.core;
 using gpm.core.Models;

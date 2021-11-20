@@ -1,5 +1,7 @@
+using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using gpm.core;

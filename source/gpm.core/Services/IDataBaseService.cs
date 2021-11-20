@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,12 +22,12 @@ namespace gpm.core.Services
         bool ContainsName(string name);
         bool ContainsOwner(string name);
         bool ContainsUrl(string url);
-        
+
         Package? Lookup(string key);
         IEnumerable<Package> LookupByName(string name);
         IEnumerable<Package> LookupByOwner(string name);
         IEnumerable<Package> LookupByUrl(string url);
-        
+
     }
 
     public class DataBaseService : IDataBaseService

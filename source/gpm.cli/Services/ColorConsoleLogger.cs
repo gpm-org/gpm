@@ -1,6 +1,8 @@
 //https://docs.microsoft.com/en-us/dotnet/core/extensions/custom-logging-provider
 
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -147,8 +149,8 @@ namespace gpm.cli.Services
                 {
                     Console.WriteLine($"[{eventId.Id,2}: {logLevelStr,-12}] - {formatter(state, exception)}");
                 }
-                
-                
+
+
 
                 //Console.WriteLine($"     {_name} - {formatter(state, exception)}");
                 Console.ForegroundColor = originalColor;
