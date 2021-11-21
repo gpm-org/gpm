@@ -6,9 +6,9 @@ using System.Linq;
 using System.Net.Http;
 using Nito.AsyncEx;
 using System.Threading.Tasks;
+using gpm.core.Exceptions;
 using gpm.core.Models;
 using Octokit;
-using gpm.core.Extensions;
 using gpm.core.Util;
 
 namespace gpm.core.Services
@@ -203,7 +203,7 @@ namespace gpm.core.Services
 
                 // if the cache manifest contains a file with this name
                 var fileInCache = cacheManifest.Value.Files
-                    .FirstOrDefault(x => x.Name != null && Path.Combine(packageCacheFolder, x.Name).Equals(assetCacheFile));
+                    .FirstOrDefault(x => Path.Combine(packageCacheFolder, x.Name).Equals(assetCacheFile));
                 if (fileInCache is { })
                 {
                     // size and hash

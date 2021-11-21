@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.IO;
 using System.Security.Cryptography;
 
@@ -6,6 +5,11 @@ namespace gpm.core.Util
 {
     public static class HashUtil
     {
+        /// <summary>
+        /// Convert a byte array to hex string representation
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         public static string BytesToString(byte[] bytes)
         {
             var sb = new System.Text.StringBuilder(bytes.Length * 2);
@@ -34,6 +38,7 @@ namespace gpm.core.Util
         /// <returns></returns>
         public static byte[] Sha512Bytes(Stream stream)
         {
+            stream.Seek(0, SeekOrigin.Begin);
             using var sha512 = SHA512.Create();
             return sha512.ComputeHash(stream);
         }

@@ -34,47 +34,45 @@ namespace gpm.core.Util
             }
 
             MergeStatus? status;
-            using (var repo = new Repository(IAppSettings.GetGitDbFolder()))
+            using var repo = new Repository(IAppSettings.GetGitDbFolder());
+            // TODO: check if the repo was changed
+            var statusItems = repo.RetrieveStatus(new StatusOptions());
+            if (statusItems.Any())
             {
-                // TODO: check if the repo was changed
-                var statusItems = repo.RetrieveStatus(new StatusOptions());
-                if (statusItems.Any())
-                {
-                    throw new NotImplementedException("working tree not clean");
-                }
+                throw new NotImplementedException("working tree not clean");
+            }
 
-                // fetch
-                var logMessage = "";
-                {
-                    var remote = repo.Network.Remotes["origin"];
-                    var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
-                    Commands.Fetch(repo, remote.Name, refSpecs, null, logMessage);
-                }
-                logger.Log(logMessage);
+            // fetch
+            var logMessage = "";
+            {
+                var remote = repo.Network.Remotes["origin"];
+                var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
+                Commands.Fetch(repo, remote.Name, refSpecs, null, logMessage);
+            }
+            logger.Log(logMessage);
 
-                // Pull -ff
-                var options = new PullOptions()
+            // Pull -ff
+            var options = new PullOptions()
+            {
+                MergeOptions = new MergeOptions()
                 {
-                    MergeOptions = new MergeOptions()
-                    {
-                        FailOnConflict = true,
-                        FastForwardStrategy = FastForwardStrategy.FastForwardOnly,
-                    }
-                };
-                // TODO dummy user information to create a merge commit
-                var signature = new Signature(
-                    new Identity("MERGE_USER_NAME", "MERGE_USER_EMAIL"), DateTimeOffset.Now);
+                    FailOnConflict = true,
+                    FastForwardStrategy = FastForwardStrategy.FastForwardOnly,
+                }
+            };
+            // TODO dummy user information to create a merge commit
+            var signature = new Signature(
+                new Identity("MERGE_USER_NAME", "MERGE_USER_EMAIL"), DateTimeOffset.Now);
 
-                var result = Commands.Pull(repo, signature, options);
-                if (result is not null)
-                {
-                    status = result.Status;
-                    logger.Info($"Status: {status}");
-                }
-                else
-                {
-                    throw new ArgumentNullException(nameof(result));
-                }
+            var result = Commands.Pull(repo, signature, options);
+            if (result is not null)
+            {
+                status = result.Status;
+                logger.Info($"Status: {status}");
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(result));
             }
 
             return status;
