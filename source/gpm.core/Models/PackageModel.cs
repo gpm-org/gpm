@@ -1,15 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+using DynamicData.Kernel;
 using ProtoBuf;
 
 namespace gpm.core.Models
 {
     /// <summary>
-    /// Model for a plugin
+    /// Model for an installed plugin
     /// </summary>
 
     [ProtoContract]
@@ -22,47 +18,131 @@ namespace gpm.core.Models
 
         }
 
-        public PackageModel(string id)
+        public PackageModel(string key)
         {
-            ID = id;
+            Key = key;
         }
 
-
-        [JsonPropertyName("id")]
+        /// <summary>
+        /// Unique Key to a package in the form RepoOwner-RepoName-UniqueIdentifier
+        /// </summary>
         [ProtoMember(1)]
-        public string ID { get; set; }
+        public string Key { get; set; }
 
 
-
-        [JsonPropertyName("url")]
-        [ProtoMember(2)]
-        public string? Url { get; set; }
-
-        [JsonPropertyName("thumbnail")]
         [ProtoMember(4)]
         public string? Thumbnail { get; }
 
-        [JsonPropertyName("installedversion")]
         [ProtoMember(5)]
-        public string? InstalledVersion { get; set; }
+        public string? LastInstalledVersion { get; set; }
 
-
-        [JsonPropertyName("installedversions")]
         [ProtoMember(6)]
-        public Dictionary<string, VersionInfo> InstalledVersions { get; set; } = new();
+        public Dictionary<string, PackageManifestData> Manifests { get; set; } = new();
+
+
+        public void AddOrUpdateManifest<T>(string version, T manifest) where T : IPackageManifest
+        {
+            if (!Manifests.ContainsKey(version))
+            {
+                Manifests.Add(version, new PackageManifestData());
+            }
+
+            switch (manifest)
+            {
+                case CachePackageManifest cachePackageManifest:
+                    Manifests[version].CacheManifest = cachePackageManifest;
+                    break;
+                case DeployPackageManifest deployPackageManifest:
+                    Manifests[version].DeployManifest = deployPackageManifest;
+                    break;
+            }
+        }
+
+        public Optional<T> TryGetManifest<T>(string version) where T : IPackageManifest
+        {
+            if (!Manifests.ContainsKey(version))
+            {
+                return Optional<T>.None;
+            }
+
+            if (typeof(T) == typeof(CachePackageManifest))
+            {
+                var manifest = Manifests[version].CacheManifest;
+                return manifest is T m ? Optional<T>.ToOptional(m) : Optional<T>.None;
+            }
+
+            if (typeof(T) == typeof(DeployPackageManifest))
+            {
+                var manifest = Manifests[version].DeployManifest;
+                return manifest is T m ? Optional<T>.ToOptional(m) : Optional<T>.None;
+            }
+
+            return Optional<T>.None;
+        }
 
 
 
     }
 
     [ProtoContract]
-    public record class VersionInfo
+    public record class PackageManifestData
     {
-        [JsonPropertyName("deployedfiles")]
         [ProtoMember(1)]
-        public string[]? DeployedFiles { get; set; }
+        public DeployPackageManifest? DeployManifest { get; set; }
 
-
+        [ProtoMember(2)]
+        public CachePackageManifest? CacheManifest { get; set; }
 
     }
+
+    public interface IPackageManifest
+    {
+        public HashedFile[]? Files { get; set; }
+    }
+
+    [ProtoContract]
+    public record class DeployPackageManifest : IPackageManifest
+    {
+        [ProtoMember(1)]
+        public HashedFile[]? Files { get; set; }
+    }
+
+    [ProtoContract]
+    public record class CachePackageManifest : IPackageManifest
+    {
+        [ProtoMember(1)]
+        public HashedFile[]? Files { get; set; }
+    }
+
+    // [ProtoContract]
+    // public record class HashedFile(
+    //     string? Name,
+    //     byte[]? Sha512,
+    //     long? Size);
+
+    [ProtoContract]
+    public record class HashedFile
+    {
+#pragma warning disable 8618
+        public HashedFile()
+#pragma warning restore 8618
+        {
+
+        }
+        public HashedFile(string name, byte[]? sha512, long? size)
+        {
+            Name = name;
+            Sha512 = sha512;
+            Size = size;
+        }
+
+        [ProtoMember(1)]
+        public string Name { get; init; }
+        [ProtoMember(2)]
+        public byte[]? Sha512 { get; init; }
+        [ProtoMember(3)]
+        public long? Size { get; init; }
+    }
+
+
 }

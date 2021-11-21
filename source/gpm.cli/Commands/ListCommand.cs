@@ -1,12 +1,10 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Threading.Tasks;
 using gpm.core.Services;
 using gpm.core.Util;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace gpm.cli.Commands
 {
@@ -45,7 +43,7 @@ namespace gpm.cli.Commands
                 var installedVersion = "";
                 if (library.Plugins.ContainsKey(key))
                 {
-                    installedVersion = library.Plugins[key].InstalledVersion;
+                    installedVersion = library.Plugins[key].LastInstalledVersion;
                 }
 
                 //logger.Info($"{package.ID}\t{package.Name}\t{installedVersion}");

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DynamicData.Kernel;
 using gpm.core.Models;
 using gpm.core.Util;
 using ProtoBuf;
@@ -18,8 +19,9 @@ namespace gpm.core.Services
 
         bool Contains(string key);
 
-        PackageModel? Lookup(string key);
+        Optional<PackageModel> Lookup(string key);
         void Save();
+        PackageModel GetOrAdd(Package package);
     }
 
     public class LibraryService : ILibraryService
@@ -77,9 +79,20 @@ namespace gpm.core.Services
 
 
         public bool Contains(string key) => Packages.ContainsKey(key);
-        public PackageModel? Lookup(string key) => Contains(key) ? Packages[key] : null;
+        public Optional<PackageModel> Lookup(string key) => Contains(key)
+            ? Optional<PackageModel>.ToOptional(Packages[key])
+            : Optional<PackageModel>.None;
 
+        public PackageModel GetOrAdd(Package package)
+        {
+            var key = package.Id;
+            if (!Packages.ContainsKey(key))
+            {
+                Packages.Add(key, new PackageModel(key));
+            }
 
+            return Packages[key];
+        }
     }
 
 

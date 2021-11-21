@@ -4,17 +4,20 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using Nito.AsyncEx;
 using System.Threading.Tasks;
 using gpm.core.Models;
 using Octokit;
+using gpm.core.Extensions;
+using gpm.core.Util;
 
 namespace gpm.core.Services
 {
     public class GitHubService : IGitHubService
     {
         private readonly GitHubClient _gitHubClient = new(new ProductHeaderValue("gpm"));
-
         private static readonly HttpClient s_client = new();
+        private readonly AsyncLock _loadingLock = new();
 
         private readonly ILibraryService _libraryService;
         private readonly ILoggerService _loggerService;
@@ -25,111 +28,241 @@ namespace gpm.core.Services
             _loggerService = loggerService;
         }
 
-        public async Task<bool> InstallLatestReleaseAsync(Package package)
+        /// <summary>
+        /// Download and install an asset file from a Github repo.
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="version"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <returns></returns>
+        public async Task<bool> InstallReleaseAsync(Package package, string? version)
         {
             IReadOnlyList<Release>? releases;
-            try
+
+            // get releases from github repo
+            using (await _loadingLock.LockAsync())
             {
-                releases = await _gitHubClient.Repository.Release.GetAll(package.RepoOwner, package.RepoName);
-            }
-            catch (Exception e)
-            {
-                _loggerService.Error(e);
-                throw;
+                try
+                {
+                    releases = await _gitHubClient.Repository.Release.GetAll(package.RepoOwner, package.RepoName);
+                }
+                catch (Exception e)
+                {
+                    _loggerService.Error(e);
+                    releases = null;
+                }
             }
             if (releases == null || !releases.Any())
             {
+                _loggerService.Warning($"No releases found for package {package.Id}");
                 return false;
             }
 
+            // get correct release
+            var release = string.IsNullOrEmpty(version)
+                ? releases[0]
+                : releases.FirstOrDefault(x => x.TagName.Equals(version));
 
-            // install latest
-            var latest = releases[0];
+            if (release == null)
+            {
+                _loggerService.Warning($"No release found for version {version}");
+                return false;
+            }
+
+            // get correct release asset
+            // TODO support multiple files?
+            // TODO support logic
             var idx = package.AssetIndex;
-
-            var zip = latest.Assets[idx];
-            if (zip is null)
+            var asset = release.Assets[idx];
+            if (asset is null)
             {
-                return false;
-            }
-            var url = latest.Assets[idx].BrowserDownloadUrl;
-            var filename = latest.Assets[idx].Name;
-            var version = latest.TagName;
-            
-            var cacheFile = await DownloadAssetToCache(package, filename, version);
-            if (cacheFile == null)
-            {
+                _loggerService.Warning($"No release asset found for version {version} and index {idx.ToString()}");
                 return false;
             }
 
-            var info = await InstallAsset(package, cacheFile, version);
-            if (info == null)
+            // get download paths
+            var releaseTagName = release.TagName;
+            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseTagName);
+
+            // download asset to library
+            var isAssetDownloaded = await DownloadAssetToCache(package, asset, releaseTagName);
+            if (!isAssetDownloaded)
             {
+                _loggerService.Error($"Failed to download package {package.Id}");
                 return false;
             }
 
-            // udpate current info in local db
-            if (_libraryService.Contains(package.Id))
-            {
-                // update version?
-            }
-            else
-            {
-                // add
-                var model = new PackageModel(package.Id)
-                {
-                    InstalledVersion = version,
-                    Url = url,
-                };
-                model.InstalledVersions.Add(version, info);
-                _libraryService.Packages.Add(version, model);
-            }
-            _libraryService.Save();
+            // install asset
+            var releaseFilename = asset.Name;
+            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
+
+            InstallPackageFromCache(package, releaseTagName, releaseFilename);
 
             return true;
         }
 
-        private static async Task<string?> DownloadAssetToCache(Package package, string filename, string version)
+        /// <summary>
+        /// Downloads a given release asset from GitHub and saves it to the cache location
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="asset"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        private async Task<bool> DownloadAssetToCache(Package package, ReleaseAsset asset, string version)
         {
-            var libdir = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
-            if (!Directory.Exists(libdir))
+            var releaseFilename = asset.Name;
+            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
+
+            var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
+            string assetCacheFile = Path.Combine(packageCacheFolder, releaseFilename);
+
+            // check if already exists
+            if (CheckIfCachedFileExists())
             {
-                Directory.CreateDirectory(libdir);
+                _loggerService.Info($"Asset exists in cache: {assetCacheFile}. Using cached file.");
+                return true;
             }
-            var path = Path.Combine(libdir, filename);
 
             try
             {
-                var uri = new Uri(package.Url);
-                var response = await s_client.GetAsync(uri);
+                var url = asset.BrowserDownloadUrl;
+                ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(url);
 
+                _loggerService.Info($"Downloading asset from {url} ...");
+
+                var response = await s_client.GetAsync(new Uri(url));
                 response.EnsureSuccessStatusCode();
 
-                using var fs = new FileStream(path, System.IO.FileMode.Create, FileAccess.Write);
-                await response.Content.CopyToAsync(fs);
+                if (!Directory.Exists(packageCacheFolder))
+                {
+                    Directory.CreateDirectory(packageCacheFolder);
+                }
 
-                return path;
+                await using var ms = new MemoryStream();
+                await response.Content.CopyToAsync(ms);
+
+                // sha and size the ms
+                var size = ms.Length;
+                var sha = HashUtil.Sha512Bytes(ms);
+
+                // write to file
+                ms.Seek(0, SeekOrigin.Begin);
+                await using var fs = new FileStream(assetCacheFile, System.IO.FileMode.Create, FileAccess.Write);
+                await ms.CopyToAsync(fs);
+
+                _loggerService.Success($"Downloaded asset {releaseFilename} with hash {HashUtil.BytesToString(sha)}.");
+                _loggerService.Info($"Saving file to local cache: {assetCacheFile}.");
+
+                //TODO cache manifest
+                // cache manifest
+                var manifest = new CachePackageManifest()
+                {
+                    Files = new[]
+                    {
+                        new HashedFile(releaseFilename, sha, size)
+                    }
+                };
+
+                var model = _libraryService.GetOrAdd(package);
+                model.AddOrUpdateManifest(version, manifest);
+                _libraryService.Save();
+
+                return true;
             }
-            catch (HttpRequestException e)
+            catch (HttpRequestException httpRequestException)
             {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", e.Message);
+                _loggerService.Error(httpRequestException);
+                return false;
+            }
+            catch (Exception e)
+            {
+                _loggerService.Error(e);
+                return false;
+            }
 
-                return null;
+            bool CheckIfCachedFileExists()
+            {
+                if (!File.Exists(assetCacheFile))
+                {
+                    return false;
+                }
+                var existingModel = _libraryService.Lookup(package.Id);
+                if (!existingModel.HasValue)
+                {
+                    return false;
+                }
+                var cacheManifest = existingModel.Value.TryGetManifest<CachePackageManifest>(version);
+                if (!cacheManifest.HasValue)
+                {
+                    return false;
+                }
+                if (cacheManifest.Value.Files is null)
+                {
+                    return false;
+                }
+
+                // if the cache manifest contains a file with this name
+                var fileInCache = cacheManifest.Value.Files
+                    .FirstOrDefault(x => x.Name != null && Path.Combine(packageCacheFolder, x.Name).Equals(assetCacheFile));
+                if (fileInCache is { })
+                {
+                    // size and hash
+                    using var fs = new FileStream(assetCacheFile, System.IO.FileMode.Open, FileAccess.Read);
+                    var size = fs.Length;
+                    var sha = HashUtil.Sha512Bytes(fs);
+                    if (fileInCache.Sha512 != null && fileInCache.Sha512.SequenceEqual(sha) && fileInCache.Size == size)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
 
-        private async Task<VersionInfo?> InstallAsset(Package package, string path, string version)
+        /// <summary>
+        /// Installs a package from the cache location by version and exact filename
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="version"></param>
+        /// <param name="releaseFilename"></param>
+        /// <returns></returns>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        private void InstallPackageFromCache(Package package, string version, string releaseFilename)
         {
-            // TODO: unzip
+            _loggerService.Info($"Installing {package.Id} from cache...");
+
+            var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
+            if (!Directory.Exists(packageCacheFolder))
+            {
+                throw new DirectoryNotFoundException();
+            }
+            var assetCachePath = Path.Combine(packageCacheFolder, releaseFilename);
+
+            //TODO: support multiple files here
+            string packageLibraryDir = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id, version);
+            if (!Directory.Exists(packageLibraryDir))
+            {
+                Directory.CreateDirectory(packageLibraryDir);
+            }
+            DeployPackageManifest? info = null;
             if (package.ContentType is null)
             {
-                var extension = Path.GetExtension(path).ToLower();
+                // TODO: multiple archive support
+                var extension = Path.GetExtension(assetCachePath).ToLower();
                 switch (extension)
                 {
                     case ".zip":
-                        return await ExtractZipArchiveAsync(package, path, version);
+                        // TODO: installation instructions
+                        info = ExtractZipArchiveTo(assetCachePath, packageLibraryDir);
+                        break;
                     default:
+                        // treat as single file
+                        // TODO: installation instructions
+                        // move from cache to library
+                        var assetDestinationPath = Path.Combine(packageLibraryDir, releaseFilename);
+                        info = DeploySingleFile(assetCachePath, assetDestinationPath);
                         break;
                 }
             }
@@ -140,37 +273,75 @@ namespace gpm.core.Services
                     case EContentType.SingleFile:
                         break;
                     case EContentType.ZipArchive:
-                        return await ExtractZipArchiveAsync(package, path, version);
+                        info = ExtractZipArchiveTo(assetCachePath, packageLibraryDir);
+                        break;
                     case EContentType.SevenZipArchive:
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(package.ContentType), "Invalid Package content type.");
                 }
             }
 
-            return null;
+            ArgumentNullException.ThrowIfNull(info);
+
+            // update library
+            var model = _libraryService.GetOrAdd(package);
+            model.AddOrUpdateManifest(version, info);
+            model.LastInstalledVersion = version;
+            _libraryService.Save();
+
         }
 
-        private async Task<VersionInfo?> ExtractZipArchiveAsync(Package package, string zipPath, string version)
+        /// <summary>
+        /// Deploys a single file to its install destination
+        /// </summary>
+        /// <param name="sourceFileName"></param>
+        /// <param name="destinationFileName"></param>
+        /// <param name="overwrite"></param>
+        /// <returns></returns>
+        private DeployPackageManifest DeploySingleFile(string sourceFileName, string destinationFileName,
+            bool overwrite = true)
         {
-            var extension = Path.GetExtension(zipPath).ToLower();
+            File.Copy(sourceFileName, destinationFileName, overwrite);
+
+            var info = new DeployPackageManifest()
+            {
+                Files = new[]
+                {
+                    new HashedFile( destinationFileName, null, null)
+                }
+            };
+
+            _loggerService.Success($"Installed package to {destinationFileName}.");
+
+            return info;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sourceArchiveFileName"></param>
+        /// <param name="destinationDirectoryName"></param>
+        /// <param name="overwriteFiles"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        private DeployPackageManifest? ExtractZipArchiveTo(string sourceArchiveFileName, string destinationDirectoryName,
+            bool overwriteFiles = true)
+        {
+            var extension = Path.GetExtension(sourceArchiveFileName).ToLower();
             if (extension != ".zip")
             {
-                throw new ArgumentException(nameof(zipPath));
+                throw new ArgumentException(null, nameof(sourceArchiveFileName));
             }
 
-            // extract zipfile
+            // extract zipFile
             // get the files in the zip archive
             var files = new List<string>();
-            using (ZipArchive archive = ZipFile.OpenRead(zipPath))
+            using (ZipArchive archive = ZipFile.OpenRead(sourceArchiveFileName))
             {
-                foreach (ZipArchiveEntry entry in archive.Entries)
-                {
-                    // check if folder
-                    if (string.IsNullOrEmpty(entry.Name))
-                    {
-                        continue;
-                    }
-                    files.Add(entry.FullName);
-                }
+                files.AddRange(from entry in archive.Entries
+                    where !string.IsNullOrEmpty(entry.Name)
+                    select entry.FullName);
             }
 
             // check for conflicts with existing files
@@ -187,27 +358,25 @@ namespace gpm.core.Services
             //    }
             //}
 
-            // extract to 
+            // extract to
             try
             {
                 //TODO parse destinationDirectoryName
+                // TODO package install directories
 
-                string appFolder = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
-                string destinationDirectoryName = Path.Combine(appFolder, version);
-                ZipFile.ExtractToDirectory(zipPath, destinationDirectoryName, true);
+                ZipFile.ExtractToDirectory(sourceArchiveFileName, destinationDirectoryName, overwriteFiles);
+
+                _loggerService.Success($"Installed {sourceArchiveFileName} to {destinationDirectoryName}.");
+
+                return new DeployPackageManifest() { Files = files
+                    .Select(x => new HashedFile(x, null, null))
+                    .ToArray(), };
             }
             catch (Exception e)
             {
                 _loggerService.Error(e);
                 return null;
             }
-
-            await Task.Delay(1);
-
-            return new VersionInfo()
-            {
-                DeployedFiles = files.ToArray(),
-            };
         }
 
 

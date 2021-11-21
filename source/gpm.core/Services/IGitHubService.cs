@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using gpm.core.Models;
 
@@ -10,6 +5,12 @@ namespace gpm.core.Services
 {
     public interface IGitHubService
     {
-        Task<bool> InstallLatestReleaseAsync(Package selectedSubreddit);
+        /// <summary>
+        /// Installs a release from github
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        Task<bool> InstallReleaseAsync(Package package, string? version = null);
     }
 }

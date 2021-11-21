@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using ProtoBuf;
 
 namespace gpm.core.Models
@@ -28,30 +24,39 @@ namespace gpm.core.Models
             Url = url;
         }
 
-        [JsonPropertyName("url")]
+        /// <summary>
+        /// Required github repo url
+        /// </summary>
         [ProtoMember(1)]
         public string Url { get; set; }
 
-        [JsonPropertyName("identifier")]
+        /// <summary>
+        /// Optional unique identifier for multiple packages for one repo
+        /// </summary>
         [ProtoMember(2)]
         public string? Identifier { get; set; }
 
-        [JsonPropertyName("assetIndex")]
+        // LOGIC
+
+
+        /// <summary>
+        /// Asset index to download
+        /// </summary>
         [ProtoMember(3)]
         public int AssetIndex { get; set; }
 
-        // LOGIC
-
         // Install Directories
+        // TODO
 
-
-        // ContentType
-        [JsonPropertyName("contentType")]
+        /// <summary>
+        /// Content Type
+        /// </summary>
         [ProtoMember(8)]
         public EContentType? ContentType { get; set; }
 
-        // Tags
-        [JsonPropertyName("tags")]
+        /// <summary>
+        /// GitHub tags
+        /// </summary>
         [ProtoMember(9)]
         public string[]? Tags { get; set; }
 
