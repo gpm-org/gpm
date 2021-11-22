@@ -15,7 +15,9 @@ namespace gpm.cli.Commands
     {
         private new const string Description = "";
         private new const string Name = "remove";
+
         private ILoggerService? _logger;
+        private ILibraryService? _libraryService;
 
         public RemoveCommand() : base(Name, Description)
         {
@@ -38,7 +40,8 @@ namespace gpm.cli.Commands
             ArgumentNullException.ThrowIfNull(_logger);
 
             var _dataBaseService = _serviceProvider.GetRequiredService<IDataBaseService>();
-            var libraryService = _serviceProvider.GetRequiredService<ILibraryService>();
+            _libraryService = _serviceProvider.GetRequiredService<ILibraryService>();
+            ArgumentNullException.ThrowIfNull(_libraryService);
 
             // TODO: check the git database?
             // what if a package is removed from the database?
@@ -51,7 +54,7 @@ namespace gpm.cli.Commands
             }
 
             // no package installed with that id
-            var optional = libraryService.Lookup(package.Id);
+            var optional = _libraryService.Lookup(package.Id);
             if (!optional.HasValue)
             {
                 _logger.Warning($"package {name} with version {version} is not installed.");
@@ -62,13 +65,13 @@ namespace gpm.cli.Commands
             if (!model.Manifests.Any())
             {
                 // remove from library
-                libraryService.Remove(package.Id);
+                _libraryService.Remove(package.Id);
+                _libraryService.Save();
 
                 _logger.Warning($"package {name} with version {version} is not installed.");
                 return;
             }
 
-            // if version is null or empty
             if (string.IsNullOrEmpty(version))
             {
                 if (all)
@@ -88,14 +91,12 @@ namespace gpm.cli.Commands
             {
                 RemovePackage(package, model, version);
             }
-
-            // TODO: remove all?
-            
         }
 
         private void RemovePackage(Package package, PackageModel existingModel, string version)
         {
             ArgumentNullException.ThrowIfNull(_logger);
+            ArgumentNullException.ThrowIfNull(_libraryService);
 
             if (!existingModel.Manifests.ContainsKey(version))
             {
@@ -103,6 +104,7 @@ namespace gpm.cli.Commands
                 return;
             }
 
+            // package has not been installed
             var deploymanifest = existingModel.Manifests[version].DeployManifest;
             if (deploymanifest is null)
             {
@@ -110,6 +112,7 @@ namespace gpm.cli.Commands
                 return;
             }
 
+            // package has no files installed
             if (deploymanifest.Files is null)
             {
                 _logger.Warning($"package {package.Id} with version {version} is not installed.");
@@ -134,7 +137,24 @@ namespace gpm.cli.Commands
                 }
             }
 
+            // remove deploy manifest from library
+            // TODO: remove cached files as well?
+            var model = _libraryService.Lookup(package.Id);
+            if (model.HasValue)
+            {
+                var manifest = model.Value.Manifests[version];
+                if (manifest is not null)
+                {
+                    manifest.DeployManifest = null;
+                }
+            }
+            _libraryService.Save();
+
             _logger.Success($"Package {package.Id} successfully removed.");
+
+            // TODO check if other versions are installed
+
+
         }
     }
 }

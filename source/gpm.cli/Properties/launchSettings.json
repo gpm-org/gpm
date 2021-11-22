@@ -19,6 +19,10 @@
     "gpm remove": {
       "commandName": "Project",
       "commandLineArgs": "remove wolvenkit -a"
+    },
+    "gpm installed": {
+      "commandName": "Project",
+      "commandLineArgs": "installed"
     }
   }
 }

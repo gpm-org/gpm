@@ -61,8 +61,5 @@ namespace gpm.cli.Commands
 
             _logger.Success($"Package {package.Id} successfully installed.");
         }
-
-        
-
     }
 }

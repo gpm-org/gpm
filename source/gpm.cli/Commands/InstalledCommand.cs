@@ -8,12 +8,12 @@ using Microsoft.Extensions.Hosting;
 
 namespace gpm.cli.Commands
 {
-    public class ListCommand : Command
+    public class InstalledCommand : Command
     {
         private new const string Description = "";
-        private new const string Name = "list";
+        private new const string Name = "installed";
 
-        public ListCommand() : base(Name, Description)
+        public InstalledCommand() : base(Name, Description)
         {
             AddOption(new Option<string>(new[] { "--pattern", "-w" }, "Use optional search pattern (e.g. *.ink), if both regex and pattern is defined, pattern will be prioritized."));
             AddOption(new Option<string>(new[] { "--regex", "-r" }, "Use optional regex pattern."));
@@ -25,24 +25,35 @@ namespace gpm.cli.Commands
         {
             var serviceProvider = host.Services;
             var logger = serviceProvider.GetRequiredService<ILoggerService>();
-            var db = serviceProvider.GetRequiredService<IDataBaseService>();
             var library = serviceProvider.GetRequiredService<ILibraryService>();
 
-            logger.Success("Available packages:");
+            logger.Success("Installed packages:");
 
-            Console.WriteLine("Id\tUrl\tInstalled Version");
-            foreach (var (key, package) in db.Packages)
+            //Console.WriteLine("Id\tUrl\tInstalled Version");
+            
+            foreach (var package in library.GetPackages())
             {
-                var installedVersion = "";
-                var model = library.Lookup(key);
-                if (model.HasValue)
+                // get info from db?
+               
+                var versions = new List<string>();
+                foreach (var (version, manifest) in package.Manifests)
                 {
-                    installedVersion = model.Value.LastInstalledVersion;
+                    if (manifest.DeployManifest is not null)
+                    {
+                        versions.Add(version);
+                    }
                 }
 
-                Console.WriteLine($"{key}\t{package.Url}\t{installedVersion}");
+                // print results
+                if (versions.Count > 0)
+                {
+                    Console.WriteLine($"{package.Key}");
+                    foreach (var v in versions)
+                    {
+                        Console.WriteLine($"{v}");
+                    }
+                }
             }
-
         }
     }
 }

@@ -14,9 +14,10 @@ var rootCommand = new RootCommand
 {
           new UpdateCommand(),
           new ListCommand(),
-          new NewCommand(),
+          //new NewCommand(),
           new InstallCommand(),
           new RemoveCommand(),
+          new InstalledCommand(),
 };
 
 var builder = new CommandLineBuilder(rootCommand)

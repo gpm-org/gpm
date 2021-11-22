@@ -10,16 +10,14 @@ namespace gpm.core.Services
 {
     public interface ILibraryService
     {
-        //Dictionary<string, PackageModel> Packages { get; set; }
-
         void Load();
+        void Save();
 
         bool Contains(string key);
-
         Optional<PackageModel> Lookup(string key);
-        void Save();
         PackageModel GetOrAdd(Package package);
         void Remove(string id);
+
         IEnumerable<PackageModel> GetPackages();
     }
 }

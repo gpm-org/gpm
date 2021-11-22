@@ -42,8 +42,6 @@ namespace gpm.cli.Commands
             {
                 Octokit.GitHubClient _client = new(new Octokit.ProductHeaderValue("gpm"));
                 var releases = await _client.Repository.Release.GetAll("wolvenkit", "wolvenkit");
-
-                Console.WriteLine(releases);
             });
 
 
