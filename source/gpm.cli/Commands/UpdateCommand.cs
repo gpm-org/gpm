@@ -44,7 +44,6 @@ namespace gpm.cli.Commands
                 var releases = await _client.Repository.Release.GetAll("wolvenkit", "wolvenkit");
             });
 
-
             var serviceProvider = host.Services;
             var settings = serviceProvider.GetRequiredService<IAppSettings>();
             var logger = serviceProvider.GetRequiredService<ILoggerService>();
@@ -54,7 +53,6 @@ namespace gpm.cli.Commands
             MergeStatus? status = null;
             // update database
             status = GitDatabaseUtil.UpdateGitDatabase(logger, settings);
-
 
             // init database
             if (!File.Exists(IAppSettings.GetDbFile()))
@@ -82,6 +80,11 @@ namespace gpm.cli.Commands
             }
 
             // Update packages
+            if (packages != null)
+            {
+
+            }
+
 
             // TODO
 

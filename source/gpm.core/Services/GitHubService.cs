@@ -32,6 +32,52 @@ namespace gpm.core.Services
         }
 
         /// <summary>
+        /// Check if a release exists that 
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="currentVersion"></param>
+        /// <returns></returns>
+        public async Task<bool> IsUpdateAvailable(Package package, string? currentVersion)
+        {
+            IReadOnlyList<Release>? releases;
+
+            // get releases from github repo
+            using (await _loadingLock.LockAsync())
+            {
+                try
+                {
+                    releases = await _gitHubClient.Repository.Release.GetAll(package.RepoOwner, package.RepoName);
+                }
+                catch (Exception e)
+                {
+                    _loggerService.Error(e);
+                    releases = null;
+                }
+            }
+            if (releases == null || !releases.Any())
+            {
+                _loggerService.Warning($"No releases found for package {package.Id}");
+                return false;
+            }
+
+            if (!releases.Any(x => x.TagName.Equals(currentVersion)))
+            {
+                _loggerService.Warning($"No releases found with version {currentVersion} for package {package.Id}");
+                return false;
+            }
+
+            // idx 0 is latest release
+            if (releases[0].TagName.Equals(currentVersion))
+            {
+                _loggerService.Info($"Latest release already installed.");
+                return false;
+            }
+            
+            return true;
+        }
+
+
+        /// <summary>
         /// Download and install an asset file from a Github repo.
         /// </summary>
         /// <param name="package"></param>
