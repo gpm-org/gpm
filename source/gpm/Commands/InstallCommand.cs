@@ -1,15 +1,12 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm.cli.Commands
+namespace gpm.Commands
 {
     public class InstallCommand : Command
     {
@@ -49,7 +46,8 @@ namespace gpm.cli.Commands
             {
                 if (existingModel.Value.Manifests.ContainsKey(version))
                 {
-                    _logger.Warning($"package {name} with version {version} already installed. To reinstall use gpm repair.");
+                    _logger.Warning(
+                        $"package {name} with version {version} already installed. To reinstall use gpm repair.");
                     // TODO: ask to reinstall?
                     return;
                 }

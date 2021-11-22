@@ -9,13 +9,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace gpm.cli.Services
+namespace gpm.Services
 {
     public sealed class ColorConsoleLoggerProvider : ILoggerProvider
     {
+        private readonly ConcurrentDictionary<string, ColorConsoleLogger> _loggers = new();
         private readonly IDisposable _onChangeToken;
         private ColorConsoleLoggerConfiguration _currentConfig;
-        private readonly ConcurrentDictionary<string, ColorConsoleLogger> _loggers = new();
 
         public ColorConsoleLoggerProvider(
             IOptionsMonitor<ColorConsoleLoggerConfiguration> config)
@@ -76,8 +76,8 @@ namespace gpm.cli.Services
 
     public class ColorConsoleLogger : ILogger
     {
-        private readonly string _name;
         private readonly ColorConsoleLoggerConfiguration _config;
+        private readonly string _name;
 
         public ColorConsoleLogger(
             string name,
@@ -149,7 +149,6 @@ namespace gpm.cli.Services
                 {
                     Console.WriteLine($"[{eventId.Id,2}: {logLevelStr,-12}] - {formatter(state, exception)}");
                 }
-
 
 
                 //Console.WriteLine($"     {_name} - {formatter(state, exception)}");

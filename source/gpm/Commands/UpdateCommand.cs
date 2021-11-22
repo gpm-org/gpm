@@ -2,19 +2,15 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
-using gpm.core;
-using gpm.core.Models;
 using gpm.core.Services;
 using gpm.core.Util;
 using LibGit2Sharp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using ProtoBuf;
+using Octokit;
 
-namespace gpm.cli.Commands
+namespace gpm.Commands
 {
     public class UpdateCommand : Command
     {
@@ -40,7 +36,7 @@ namespace gpm.cli.Commands
         {
             Task.Run(async () =>
             {
-                Octokit.GitHubClient _client = new(new Octokit.ProductHeaderValue("gpm"));
+                GitHubClient _client = new(new ProductHeaderValue("gpm"));
                 var releases = await _client.Repository.Release.GetAll("wolvenkit", "wolvenkit");
             });
 
@@ -80,19 +76,13 @@ namespace gpm.cli.Commands
             }
 
             // Update packages
-            if (packages != null )
+            if (packages != null)
             {
-
             }
 
 
             // TODO
-
         }
-
-
-
-
 
         #endregion Constructors
     }

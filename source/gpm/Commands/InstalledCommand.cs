@@ -6,7 +6,7 @@ using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm.cli.Commands
+namespace gpm.Commands
 {
     public class InstalledCommand : Command
     {
@@ -15,7 +15,8 @@ namespace gpm.cli.Commands
 
         public InstalledCommand() : base(Name, Description)
         {
-            AddOption(new Option<string>(new[] { "--pattern", "-w" }, "Use optional search pattern (e.g. *.ink), if both regex and pattern is defined, pattern will be prioritized."));
+            AddOption(new Option<string>(new[] { "--pattern", "-w" },
+                "Use optional search pattern (e.g. *.ink), if both regex and pattern is defined, pattern will be prioritized."));
             AddOption(new Option<string>(new[] { "--regex", "-r" }, "Use optional regex pattern."));
 
             Handler = CommandHandler.Create<string, string, IHost>(Action);

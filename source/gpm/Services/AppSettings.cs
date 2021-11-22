@@ -5,7 +5,7 @@ using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.Options;
 
-namespace gpm.cli.Services
+namespace gpm.Services
 {
     public class AppSettings : IAppSettings
     {
@@ -20,10 +20,7 @@ namespace gpm.cli.Services
         {
             var options = new JsonSerializerOptions { WriteIndented = true };
 
-            var sections = new Dictionary<string, object>()
-            {
-                {nameof(CommonSettings), CommonSettings.Value}
-            };
+            var sections = new Dictionary<string, object> { { nameof(CommonSettings), CommonSettings.Value } };
 
             var jsonString = JsonSerializer.Serialize(sections, options);
             File.WriteAllText(IAppSettings.GetAppSettingsFile(), jsonString);

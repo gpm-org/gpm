@@ -9,7 +9,7 @@ using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm.cli.Commands
+namespace gpm.Commands
 {
     public class NewCommand : Command
     {
@@ -63,10 +63,7 @@ namespace gpm.cli.Commands
             //    return false;
             //}
 
-            var package = new Package(url)
-            {
-                Identifier = name
-            };
+            var package = new Package(url) { Identifier = name };
 
             var currentDir = Path.GetFullPath(Environment.CurrentDirectory);
             var path = Path.Combine(currentDir, $"{rOwner}_{rName}_{name}.gpak");

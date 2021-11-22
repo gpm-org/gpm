@@ -3,21 +3,20 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm.cli.Commands
+namespace gpm.Commands
 {
     public class RemoveCommand : Command
     {
         private new const string Description = "";
         private new const string Name = "remove";
+        private ILibraryService? _libraryService;
 
         private ILoggerService? _logger;
-        private ILibraryService? _libraryService;
 
         public RemoveCommand() : base(Name, Description)
         {
@@ -60,6 +59,7 @@ namespace gpm.cli.Commands
                 _logger.Warning($"package {name} with version {version} is not installed.");
                 return;
             }
+
             // package is in library but has not been downloaded or deployed
             var model = optional.Value;
             if (!model.Manifests.Any())
@@ -83,8 +83,8 @@ namespace gpm.cli.Commands
                 }
                 else
                 {
-                    _logger.Warning($"No package version selected to remove. To remove all installed versions use gpm remove <PACKAGE> --all");
-                    return;
+                    _logger.Warning(
+                        "No package version selected to remove. To remove all installed versions use gpm remove <PACKAGE> --all");
                 }
             }
             else
@@ -148,13 +148,12 @@ namespace gpm.cli.Commands
                     manifest.DeployManifest = null;
                 }
             }
+
             _libraryService.Save();
 
             _logger.Success($"Package {package.Id} successfully removed.");
 
             // TODO check if other versions are installed
-
-
         }
     }
 }

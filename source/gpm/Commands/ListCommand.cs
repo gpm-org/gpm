@@ -2,11 +2,10 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using gpm.core.Services;
-using gpm.core.Util;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm.cli.Commands
+namespace gpm.Commands
 {
     public class ListCommand : Command
     {
@@ -15,7 +14,8 @@ namespace gpm.cli.Commands
 
         public ListCommand() : base(Name, Description)
         {
-            AddOption(new Option<string>(new[] { "--pattern", "-w" }, "Use optional search pattern (e.g. *.ink), if both regex and pattern is defined, pattern will be prioritized."));
+            AddOption(new Option<string>(new[] { "--pattern", "-w" },
+                "Use optional search pattern (e.g. *.ink), if both regex and pattern is defined, pattern will be prioritized."));
             AddOption(new Option<string>(new[] { "--regex", "-r" }, "Use optional regex pattern."));
 
             Handler = CommandHandler.Create<string, string, IHost>(Action);
@@ -42,7 +42,6 @@ namespace gpm.cli.Commands
 
                 Console.WriteLine($"{key}\t{package.Url}\t{installedVersion}");
             }
-
         }
     }
 }
