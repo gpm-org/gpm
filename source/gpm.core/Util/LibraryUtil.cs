@@ -7,15 +7,7 @@ namespace gpm.core.Util
 {
     public static class LibraryUtil
     {
-        public static Library LoadLibrary()
-        {
-            if (!File.Exists(IAppSettings.GetLocalDbFile()))
-            {
-                return new Library();
-            }
 
-            using var file = File.OpenRead(IAppSettings.GetLocalDbFile());
-            return Serializer.Deserialize<Library>(file);
-        }
+
     }
 }

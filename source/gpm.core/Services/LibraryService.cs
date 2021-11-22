@@ -18,8 +18,7 @@ namespace gpm.core.Services
             Load();
         }
 
-        public Dictionary<string, PackageModel> Packages { get; set; } = new();
-
+        private Dictionary<string, PackageModel> Packages { get; set; } = new();
 
         public void Load()
         {
@@ -76,5 +75,8 @@ namespace gpm.core.Services
 
             return Packages[key];
         }
+
+        public void Remove(string id) => Packages.Remove(id);
+        public IEnumerable<PackageModel> GetPackages() => Packages.Values;
     }
 }

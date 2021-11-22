@@ -70,7 +70,7 @@
                                 VerticalAlignment="Center"/>
                                 
                                 <TextBlock 
-                                Text="{x:Bind Version}"
+                                Text="Version"
                                 FontSize="15"
                                 FontWeight="SemiBold"
                                 TextWrapping="WrapWholeWords"
@@ -78,7 +78,7 @@
                             </StackPanel>
                            
                             <TextBlock 
-                            Text="{x:Bind Url}"
+                            Text="Url"
                             FontSize="13"
                             FontWeight="Normal"
                             TextWrapping="WrapWholeWords"

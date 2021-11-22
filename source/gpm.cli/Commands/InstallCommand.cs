@@ -13,16 +13,8 @@ namespace gpm.cli.Commands
 {
     public class InstallCommand : Command
     {
-        #region Fields
-
         private new const string Description = "";
         private new const string Name = "install";
-
-        private IServiceProvider? _serviceProvider;
-        private ILoggerService? _logger;
-        private IDataBaseService? _dataBaseService;
-
-        #endregion Fields
 
         public InstallCommand() : base(Name, Description)
         {
@@ -37,20 +29,15 @@ namespace gpm.cli.Commands
 
         private async Task Action(string name, string version, IHost host)
         {
-            _serviceProvider = host.Services;
+            var _serviceProvider = host.Services;
             ArgumentNullException.ThrowIfNull(_serviceProvider);
 
-            _logger = _serviceProvider.GetRequiredService<ILoggerService>();
-            _dataBaseService = _serviceProvider.GetRequiredService<IDataBaseService>();
+            var _logger = _serviceProvider.GetRequiredService<ILoggerService>();
+            var _dataBaseService = _serviceProvider.GetRequiredService<IDataBaseService>();
             var githubService = _serviceProvider.GetRequiredService<IGitHubService>();
             var libraryService = _serviceProvider.GetRequiredService<ILibraryService>();
 
-            ArgumentNullException.ThrowIfNull(_logger);
-            ArgumentNullException.ThrowIfNull(_dataBaseService);
-            ArgumentNullException.ThrowIfNull(githubService);
-            ArgumentNullException.ThrowIfNull(libraryService);
-
-            var package = GetPackageFromName(name);
+            var package = _dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
                 _logger.Error($"package {name} not found");
@@ -75,82 +62,7 @@ namespace gpm.cli.Commands
             _logger.Success($"Package {package.Id} successfully installed.");
         }
 
-        private Package? GetPackageFromName(string name)
-        {
-            ArgumentNullException.ThrowIfNull(_logger);
-            ArgumentNullException.ThrowIfNull(_dataBaseService);
-
-            if (Path.GetExtension(name) == ".git")
-            {
-                var packages = _dataBaseService.LookupByUrl(name).ToList();
-                if (packages.Count == 1)
-                {
-                    return packages.First();
-                }
-                else if (packages.Count > 1)
-                {
-                    // log results
-                    foreach (var item in packages)
-                    {
-                        _logger.Warning($"Multiple packages found in repository {name}:");
-                        _logger.Info(item.Id);
-                    }
-                }
-            }
-            else if (name.Split('/').Length == 2)
-            {
-                var splits = name.Split('/');
-                var id = $"{splits[0]}-{splits[1]}";
-                return _dataBaseService.Lookup(id);
-            }
-            else if (name.Split('/').Length == 3)
-            {
-                var splits = name.Split('/');
-                var id = $"{splits[0]}-{splits[1]}-{splits[2]}";
-                return _dataBaseService.Lookup(id);
-            }
-            else
-            {
-
-                {
-                    // try name
-                    var packages = _dataBaseService.LookupByName(name).ToList();
-                    if (packages.Count == 1)
-                    {
-                        return packages.First();
-                    }
-                    else if (packages.Count > 1)
-                    {
-                        // log results
-                        foreach (var item in packages)
-                        {
-                            _logger.Warning($"Multiple packages found for name {name}:");
-                            _logger.Info(item.Id);
-                        }
-                    }
-                }
-
-                {
-                    // try owner
-                    var packages = _dataBaseService.LookupByOwner(name).ToList();
-                    if (packages.Count == 1)
-                    {
-                        return packages.First();
-                    }
-                    else if (packages.Count > 1)
-                    {
-                        // log results
-                        foreach (var item in packages)
-                        {
-                            _logger.Warning($"Multiple packages found for owner {name}:");
-                            _logger.Info(item.Id);
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
+        
 
     }
 }

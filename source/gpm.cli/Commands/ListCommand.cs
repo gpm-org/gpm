@@ -32,21 +32,21 @@ namespace gpm.cli.Commands
             var serviceProvider = host.Services;
             var logger = serviceProvider.GetRequiredService<ILoggerService>();
             var db = serviceProvider.GetRequiredService<IDataBaseService>();
-
-            var library = LibraryUtil.LoadLibrary();
+            var library = serviceProvider.GetRequiredService<ILibraryService>();
 
             logger.Success("Available packages:");
-            //logger.Log("GitHub\tName\tInstalled Version");
+
             Console.WriteLine("Id\tUrl\tInstalled Version");
             foreach (var (key, package) in db.Packages)
             {
                 var installedVersion = "";
-                if (library.Plugins.ContainsKey(key))
+                var model = library.Lookup(key);
+                if (model.HasValue)
                 {
-                    installedVersion = library.Plugins[key].LastInstalledVersion;
+                    installedVersion = model.Value.LastInstalledVersion;
                 }
 
-                //logger.Info($"{package.ID}\t{package.Name}\t{installedVersion}");
+
                 Console.WriteLine($"{key}\t{package.Url}\t{installedVersion}");
             }
 

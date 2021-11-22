@@ -13,14 +13,8 @@ namespace gpm.cli.Commands
 {
     public class NewCommand : Command
     {
-        #region Fields
-
         private new const string Description = "";
         private new const string Name = "new";
-
-        #endregion Fields
-
-        #region Constructors
 
         public NewCommand() : base(Name, Description)
         {
@@ -83,7 +77,5 @@ namespace gpm.cli.Commands
 
             logger.Success($"created new package {path}");
         }
-
-        #endregion Constructors
     }
 }

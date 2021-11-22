@@ -10,7 +10,7 @@ namespace gpm.core.Services
 {
     public interface ILibraryService
     {
-        Dictionary<string, PackageModel> Packages { get; set; }
+        //Dictionary<string, PackageModel> Packages { get; set; }
 
         void Load();
 
@@ -19,5 +19,7 @@ namespace gpm.core.Services
         Optional<PackageModel> Lookup(string key);
         void Save();
         PackageModel GetOrAdd(Package package);
+        void Remove(string id);
+        IEnumerable<PackageModel> GetPackages();
     }
 }

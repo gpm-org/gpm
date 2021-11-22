@@ -11,18 +11,18 @@ namespace gpm.core.Services
         Dictionary<string, Package> Packages { get; set; }
 
         void Load();
-
         void Save();
+
 
         bool Contains(string key);
         bool ContainsName(string name);
         bool ContainsOwner(string name);
         bool ContainsUrl(string url);
-
         Package? Lookup(string key);
         IEnumerable<Package> LookupByName(string name);
         IEnumerable<Package> LookupByOwner(string name);
         IEnumerable<Package> LookupByUrl(string url);
 
+        Package? GetPackageFromName(string name);
     }
 }
