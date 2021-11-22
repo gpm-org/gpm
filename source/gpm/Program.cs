@@ -21,7 +21,7 @@ var builder = new CommandLineBuilder(rootCommand)
     ;
 var parser = builder.Build();
 
-// hack to get DI in system.commandline
-parser.Invoke(new UpdateCommand().Name);
+// TODO: hack to get DI in system.commandline
+parser.Invoke(new UpgradeCommand().Name);
 
 parser.Invoke(args);

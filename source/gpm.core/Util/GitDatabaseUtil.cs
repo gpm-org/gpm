@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using gpm.core.Models;
 using gpm.core.Services;
 using LibGit2Sharp;
 
@@ -8,10 +7,17 @@ namespace gpm.core.Util
 {
     public static class GitDatabaseUtil
     {
-        public static MergeStatus? UpdateGitDatabase(ILoggerService logger, IAppSettings settings)
+        /// <summary>
+        /// Fetch and Pull git database
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static MergeStatus? UpdateGitDatabase(ILoggerService logger)
         {
-            var commonSettings = settings.CommonSettings.Value;
-            ArgumentNullException.ThrowIfNull(commonSettings);
+            //var commonSettings = settings.CommonSettings.Value;
+            //ArgumentNullException.ThrowIfNull(commonSettings);
 
             // check if git is initialized
             try

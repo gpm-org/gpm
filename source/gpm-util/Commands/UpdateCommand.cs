@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Octokit;
 
-namespace gpm.Commands
+namespace gpm_util.Commands
 {
     public class UpdateCommand : Command
     {
@@ -19,23 +19,16 @@ namespace gpm.Commands
 
         public UpdateCommand() : base(Name, Description)
         {
-            AddOption(new Option<string[]>(new[] { "--packages", "-p" }, ""));
-            AddOption(new Option<bool>(new[] { "--all", "-a" }, ""));
-
-            Handler = CommandHandler.Create<string[], bool, bool, IHost>(Action);
+            Handler = CommandHandler.Create<bool, IHost>(Action);
         }
 
-        private void Action(string[] packages, bool self, bool all, IHost host)
+        private void Action(bool all, IHost host)
         {
             var serviceProvider = host.Services;
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
 
-            // Update packages
-            if (packages != null)
-            {
-            }
 
-            // TODO
+
         }
     }
 }

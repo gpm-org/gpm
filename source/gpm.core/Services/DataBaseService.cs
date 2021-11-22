@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using gpm.core.Models;
+using gpm.core.Util;
+using LibGit2Sharp;
 using ProtoBuf;
 
 namespace gpm.core.Services
@@ -20,21 +23,18 @@ namespace gpm.core.Services
 
         public Dictionary<string, Package> Packages { get; set; } = new();
 
+        #region serialization
 
+        /// <summary>
+        /// Deserialize from file
+        /// </summary>
         public void Load()
         {
             IEnumerable<Package>? packages = null;
             if (File.Exists(IAppSettings.GetDbFile()))
             {
-                try
-                {
-                    using var file = File.OpenRead(IAppSettings.GetDbFile());
-                    packages = Serializer.Deserialize<IEnumerable<Package>>(file);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
+                using var file = File.OpenRead(IAppSettings.GetDbFile());
+                packages = Serializer.Deserialize<IEnumerable<Package>>(file);
             }
 
             if (packages is null)
@@ -46,6 +46,9 @@ namespace gpm.core.Services
             Packages = packages.ToDictionary(x => x.Id);
         }
 
+        /// <summary>
+        /// Serialize to file
+        /// </summary>
         public void Save()
         {
             try
@@ -63,6 +66,92 @@ namespace gpm.core.Services
             }
         }
 
+        /// <summary>
+        /// Re-create protobuf database from git database and reload
+        /// </summary>
+        public void UpdateSelf()
+        {
+            var files = Directory.GetFiles(IAppSettings.GetGitDbFolder(), "*.gpak", SearchOption.AllDirectories);
+            var packages = new List<Package>();
+            foreach (var file in files)
+            {
+                Package? package;
+                try
+                {
+                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    package = JsonSerializer.Deserialize<Package>(File.ReadAllText(file), options);
+                }
+                catch (Exception e)
+                {
+                    package = null;
+                    _loggerService.Error(e);
+                }
+
+                if (package is not null)
+                {
+                    packages.Add(package);
+                }
+            }
+
+            try
+            {
+                using var file = File.Create(IAppSettings.GetDbFile());
+                Serializer.Serialize(file, packages);
+            }
+            catch (Exception)
+            {
+                if (File.Exists(IAppSettings.GetDbFile()))
+                {
+                    File.Delete(IAppSettings.GetDbFile());
+                }
+                throw;
+            }
+
+            _loggerService.Success("Database updated");
+
+            Load();
+        }
+
+        /// <summary>
+        /// Fetch and Pull git database and update
+        /// </summary>
+        public void FetchAndUpdateSelf()
+        {
+            using var sw = new ScopedStopwatch();
+
+            // update database
+            var status = GitDatabaseUtil.UpdateGitDatabase(_loggerService);
+
+            // init database
+            if (!File.Exists(IAppSettings.GetDbFile()))
+            {
+                UpdateSelf();
+            }
+            else
+            {
+                if (status.HasValue)
+                {
+                    switch (status.Value)
+                    {
+                        case MergeStatus.UpToDate:
+                            // do nothing
+                            break;
+                        case MergeStatus.FastForward:
+                            // re-create database
+                            UpdateSelf();
+                            break;
+                    }
+                }
+                else
+                {
+                    throw new ArgumentNullException(nameof(status));
+                }
+            }
+        }
+
+        #endregion
+
+        #region dictionary helpers
 
         public bool Contains(string key) => Packages.ContainsKey(key);
         public Package? Lookup(string key) => Contains(key) ? Packages[key] : null;
@@ -150,6 +239,8 @@ namespace gpm.core.Services
 
             return null;
         }
+
+        #endregion
 
     }
 }

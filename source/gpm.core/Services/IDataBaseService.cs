@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using gpm.core.Models;
-using gpm.core.Util;
 
 namespace gpm.core.Services
 {
@@ -24,5 +21,15 @@ namespace gpm.core.Services
         IEnumerable<Package> LookupByUrl(string url);
 
         Package? GetPackageFromName(string name);
+
+        /// <summary>
+        /// Re-create protobuf database
+        /// </summary>
+        void UpdateSelf();
+
+        /// <summary>
+        /// Fetch and Pull git database and update
+        /// </summary>
+        void FetchAndUpdateSelf();
     }
 }

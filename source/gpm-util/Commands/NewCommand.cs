@@ -9,7 +9,7 @@ using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm.Commands
+namespace gpm_util.Commands
 {
     public class NewCommand : Command
     {

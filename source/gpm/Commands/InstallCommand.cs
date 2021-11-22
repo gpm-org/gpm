@@ -26,18 +26,18 @@ namespace gpm.Commands
 
         private async Task Action(string name, string version, IHost host)
         {
-            var _serviceProvider = host.Services;
-            ArgumentNullException.ThrowIfNull(_serviceProvider);
+            var serviceProvider = host.Services;
+            ArgumentNullException.ThrowIfNull(serviceProvider);
 
-            var _logger = _serviceProvider.GetRequiredService<ILoggerService>();
-            var _dataBaseService = _serviceProvider.GetRequiredService<IDataBaseService>();
-            var githubService = _serviceProvider.GetRequiredService<IGitHubService>();
-            var libraryService = _serviceProvider.GetRequiredService<ILibraryService>();
+            var logger = serviceProvider.GetRequiredService<ILoggerService>();
+            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
+            var githubService = serviceProvider.GetRequiredService<IGitHubService>();
+            var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
 
-            var package = _dataBaseService.GetPackageFromName(name);
+            var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
-                _logger.Error($"package {name} not found");
+                logger.Error($"package {name} not found");
                 return;
             }
 
@@ -46,18 +46,18 @@ namespace gpm.Commands
             {
                 if (existingModel.Value.Manifests.ContainsKey(version))
                 {
-                    _logger.Warning(
+                    logger.Warning(
                         $"package {name} with version {version} already installed. To reinstall use gpm repair.");
                     // TODO: ask to reinstall?
                     return;
                 }
             }
 
-            _logger.Info($"Installing package {package.Id}...");
+            logger.Info($"Installing package {package.Id}...");
 
             await githubService.InstallReleaseAsync(package, version);
 
-            _logger.Success($"Package {package.Id} successfully installed.");
+            logger.Success($"Package {package.Id} successfully installed.");
         }
     }
 }

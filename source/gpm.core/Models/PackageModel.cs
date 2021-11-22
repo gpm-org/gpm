@@ -85,7 +85,7 @@ namespace gpm.core.Models
     }
 
     [ProtoContract]
-    public record class PackageManifestData
+    public record PackageManifestData
     {
         [ProtoMember(1)]
         public DeployPackageManifest? DeployManifest { get; set; }
@@ -101,14 +101,14 @@ namespace gpm.core.Models
     }
 
     [ProtoContract]
-    public record class DeployPackageManifest : IPackageManifest
+    public record DeployPackageManifest : IPackageManifest
     {
         [ProtoMember(1)]
         public HashedFile[]? Files { get; set; }
     }
 
     [ProtoContract]
-    public record class CachePackageManifest : IPackageManifest
+    public record CachePackageManifest : IPackageManifest
     {
         [ProtoMember(1)]
         public HashedFile[]? Files { get; set; }
@@ -121,7 +121,7 @@ namespace gpm.core.Models
     //     long? Size);
 
     [ProtoContract]
-    public record class HashedFile
+    public record HashedFile
     {
 #pragma warning disable 8618
         public HashedFile()
