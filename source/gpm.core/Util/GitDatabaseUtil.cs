@@ -11,21 +11,16 @@ namespace gpm.core.Util
         public static MergeStatus? UpdateGitDatabase(ILoggerService logger, IAppSettings settings)
         {
             var commonSettings = settings.CommonSettings.Value;
-
-            if (commonSettings is null)
-            {
-                throw new ArgumentException(nameof(CommonSettings));
-            }
+            ArgumentNullException.ThrowIfNull(commonSettings);
 
             // check if git is initialized
             try
             {
                 using (new Repository(IAppSettings.GetGitDbFolder()))
                 {
-
                 }
-                commonSettings.IsInitialized = true;
-                settings.Save();
+                //commonSettings.IsInitialized = true;
+                //settings.Save();
             }
             catch (RepositoryNotFoundException)
             {

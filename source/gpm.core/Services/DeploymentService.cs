@@ -4,24 +4,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using gpm.core.Models;
-using gpm.core.Services;
 
-namespace gpm.core.Util
+namespace gpm.core.Services
 {
-    public interface IDeploymentService
-    {
-        /// <summary>
-        /// Installs a package from the cache location by version and exact filename
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="version"></param>
-        /// <param name="releaseFilename"></param>
-        /// <returns></returns>
-        /// <exception cref="DirectoryNotFoundException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        void InstallPackageFromCache(Package package, string version, string releaseFilename);
-    }
-
     public class DeploymentService : IDeploymentService
     {
         private readonly ILibraryService _libraryService;

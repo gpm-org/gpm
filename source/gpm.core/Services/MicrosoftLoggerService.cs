@@ -1,9 +1,8 @@
 using System;
 using DynamicData;
-using gpm.core.Services;
 using Microsoft.Extensions.Logging;
 
-namespace gpm.cli.Services
+namespace gpm.core.Services
 {
     public class MicrosoftLoggerService : ILoggerService
     {
@@ -14,7 +13,7 @@ namespace gpm.cli.Services
             _logger = logger;
         }
 
-        public void LogString(string message, Logtype type)
+        private void LogString(string message, Logtype type)
         {
             switch (type)
             {
@@ -51,7 +50,7 @@ namespace gpm.cli.Services
         {
             var msg =
                 $"========================\r\n" +
-                $"{exception.ToString()}" +
+                $"{exception}" +
                 $"\r\n========================";
             Error(msg);
         }

@@ -1,25 +1,17 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using gpm.core;
 using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.Options;
 
-namespace gpm.cli
+namespace gpm.cli.Services
 {
-
     public class AppSettings : IAppSettings
     {
-        public AppSettings(
-            IOptions<CommonSettings> commonImportArgs
-        )
+        public AppSettings(IOptions<CommonSettings> commonSettings)
         {
-            CommonSettings = commonImportArgs;
+            CommonSettings = commonSettings;
         }
 
         public IOptions<CommonSettings> CommonSettings { get; }
@@ -36,9 +28,5 @@ namespace gpm.cli
             var jsonString = JsonSerializer.Serialize(sections, options);
             File.WriteAllText(IAppSettings.GetAppSettingsFile(), jsonString);
         }
-
-
-
-
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Globalization;
-using gpm.core.Services;
 
 namespace gpm.core.Services
 {
@@ -46,7 +45,7 @@ namespace gpm.core.Services
         public event EventHandler<double> ProgressChanged;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-#pragma warning restore CS0067 
+#pragma warning restore CS0067
 
         public bool IsIndeterminate { get; set; }
     }

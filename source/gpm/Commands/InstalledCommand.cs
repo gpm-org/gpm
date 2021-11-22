@@ -1,8 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using gpm.core.Services;
-using gpm.core.Util;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -30,11 +30,11 @@ namespace gpm.cli.Commands
             logger.Success("Installed packages:");
 
             //Console.WriteLine("Id\tUrl\tInstalled Version");
-            
+
             foreach (var package in library.GetPackages())
             {
                 // get info from db?
-               
+
                 var versions = new List<string>();
                 foreach (var (version, manifest) in package.Manifests)
                 {

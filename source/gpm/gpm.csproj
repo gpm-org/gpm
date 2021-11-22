@@ -11,7 +11,7 @@
     <ToolCommandName>gpm</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageId>gpm.cli</PackageId>
+    <PackageId>gpm</PackageId>
     <Product>gpm.cli</Product>
     <Description>GitHub package manager</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,6 +21,8 @@
     <PackageTags>gpm, GitHub</PackageTags>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <DebugType>embedded</DebugType>
+    <AssemblyName>gpm</AssemblyName>
+    <RootNamespace>gpm</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
