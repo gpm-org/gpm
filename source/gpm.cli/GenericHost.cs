@@ -4,6 +4,7 @@ using gpm.cli.Services;
 using gpm.core;
 using gpm.core.Models;
 using gpm.core.Services;
+using gpm.core.Util;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -45,6 +46,9 @@ namespace gpm.cli
 
                     services.AddSingleton<ILibraryService, LibraryService>();
                     services.AddSingleton<IDataBaseService, DataBaseService>();
+
+                    services.AddSingleton<IDeploymentService, DeploymentService>();
+
                     services.AddSingleton<IGitHubService, GitHubService>();
 
                     services.AddOptions<CommonSettings>().Bind(hostContext.Configuration.GetSection(nameof(CommonSettings)));
