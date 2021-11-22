@@ -80,7 +80,7 @@ namespace gpm.cli.Commands
             }
 
             // Update packages
-            if (packages != null)
+            if (packages != null )
             {
 
             }

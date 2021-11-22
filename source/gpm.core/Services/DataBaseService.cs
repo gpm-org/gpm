@@ -99,13 +99,13 @@ namespace gpm.core.Services
             else if (name.Split('/').Length == 2)
             {
                 var splits = name.Split('/');
-                var id = $"{splits[0]}-{splits[1]}";
+                var id = $"{splits[0]}/{splits[1]}";
                 return Lookup(id);
             }
             else if (name.Split('/').Length == 3)
             {
                 var splits = name.Split('/');
-                var id = $"{splits[0]}-{splits[1]}-{splits[2]}";
+                var id = $"{splits[0]}/{splits[1]}/{splits[2]}";
                 return Lookup(id);
             }
             else

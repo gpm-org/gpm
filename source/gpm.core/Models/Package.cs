@@ -66,7 +66,7 @@ namespace gpm.core.Models
 
 
 
-        public string Id => string.IsNullOrEmpty(Identifier) ? $"{RepoOwner}-{RepoName}" : $"{RepoOwner}-{RepoName}-{Identifier.ToLower()}";
+        public string Id => string.IsNullOrEmpty(Identifier) ? $"{RepoOwner}/{RepoName}" : $"{RepoOwner}/{RepoName}/{Identifier.ToLower()}";
 
         public string RepoOwner => GetRepoOwner();
 
