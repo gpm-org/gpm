@@ -12,6 +12,9 @@ using gpm.core.Util;
 
 namespace gpm.core.Services
 {
+    /// <summary>
+    /// A service class to handle requests to github
+    /// </summary>
     public class GitHubService : IGitHubService
     {
         private readonly GitHubClient _gitHubClient = new(new ProductHeaderValue("gpm"));
@@ -32,7 +35,7 @@ namespace gpm.core.Services
         }
 
         /// <summary>
-        /// Check if a release exists that 
+        /// Check if a release exists that
         /// </summary>
         /// <param name="package"></param>
         /// <param name="currentVersion"></param>
@@ -72,7 +75,7 @@ namespace gpm.core.Services
                 _loggerService.Info($"Latest release already installed.");
                 return false;
             }
-            
+
             return true;
         }
 

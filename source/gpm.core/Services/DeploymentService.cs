@@ -7,6 +7,9 @@ using gpm.core.Models;
 
 namespace gpm.core.Services
 {
+    /// <summary>
+    /// A service class for file deployments
+    /// </summary>
     public class DeploymentService : IDeploymentService
     {
         private readonly ILibraryService _libraryService;
@@ -40,7 +43,7 @@ namespace gpm.core.Services
             var assetCachePath = Path.Combine(packageCacheFolder, releaseFilename);
 
             //TODO: support multiple files here
-            string packageLibraryDir = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id, version);
+            string packageLibraryDir = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
             if (!Directory.Exists(packageLibraryDir))
             {
                 Directory.CreateDirectory(packageLibraryDir);
@@ -98,7 +101,7 @@ namespace gpm.core.Services
         /// <param name="destinationFileName"></param>
         /// <param name="overwrite"></param>
         /// <returns></returns>
-        public DeployPackageManifest DeploySingleFile(string sourceFileName, string destinationFileName,
+        private DeployPackageManifest DeploySingleFile(string sourceFileName, string destinationFileName,
             bool overwrite = true)
         {
             File.Copy(sourceFileName, destinationFileName, overwrite);
