@@ -3,10 +3,8 @@ using gpm.core.Models;
 
 namespace gpm.core.Services
 {
-    public interface IDataBaseService
+    public interface IDataBaseService : IDictionary<string, Package>
     {
-        Dictionary<string, Package> Packages { get; set; }
-
         void Load();
         void Save();
 

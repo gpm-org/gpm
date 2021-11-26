@@ -46,7 +46,6 @@ namespace gpm
                         services.AddSingleton<IDataBaseService, DataBaseService>();
 
                         services.AddSingleton<IDeploymentService, DeploymentService>();
-
                         services.AddSingleton<IGitHubService, GitHubService>();
 
                         services.AddOptions<CommonSettings>()

@@ -11,10 +11,10 @@ namespace gpm.core.Services
         /// </summary>
         /// <param name="package"></param>
         /// <param name="version"></param>
-        /// <param name="releaseFilename"></param>
+        /// <param name="slot"></param>
         /// <returns></returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        void InstallPackageFromCache(Package package, string version, string releaseFilename);
+        bool InstallPackageFromCache(Package package, string version, int slot = 0);
     }
 }

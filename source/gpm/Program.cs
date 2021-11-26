@@ -9,17 +9,15 @@ var rootCommand = new RootCommand
 {
     new UpdateCommand(),
     new ListCommand(),
-    //new NewCommand(),
     new InstallCommand(),
     new RemoveCommand(),
     new InstalledCommand()
 };
 
-var builder = new CommandLineBuilder(rootCommand)
-        .UseDefaults()
-        .UseHost(GenericHost.CreateHostBuilder)
-    ;
-var parser = builder.Build();
+var parser = new CommandLineBuilder(rootCommand)
+    .UseDefaults()
+    .UseHost(GenericHost.CreateHostBuilder)
+    .Build();
 
 // TODO: hack to get DI in system.commandline
 parser.Invoke(new UpgradeCommand().Name);

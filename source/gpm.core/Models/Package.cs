@@ -108,5 +108,7 @@ namespace gpm.core.Models
 
             return rName.ToLower();
         }
+
+        public override string ToString() => this.Id;
     }
 }

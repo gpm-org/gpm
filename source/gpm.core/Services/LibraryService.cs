@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using DynamicData.Kernel;
+using System.Linq;
 using gpm.core.Models;
 using ProtoBuf;
 
@@ -9,16 +11,16 @@ namespace gpm.core.Services
 {
     public class LibraryService : ILibraryService
     {
-        private readonly ILoggerService _loggerService;
-
-        public LibraryService(ILoggerService loggerService)
+        public LibraryService()
         {
-            _loggerService = loggerService;
-
             Load();
+            
+            //TODO check self
         }
 
-        private Dictionary<string, PackageModel> Packages { get; set; } = new();
+        private Dictionary<string, PackageModel> _packages = new();
+
+        #region serialization
 
         public void Load()
         {
@@ -27,17 +29,17 @@ namespace gpm.core.Services
                 try
                 {
                     using var file = File.OpenRead(IAppSettings.GetLocalDbFile());
-                    Packages = Serializer.Deserialize<Dictionary<string, PackageModel>>(file);
+                    _packages = Serializer.Deserialize<Dictionary<string, PackageModel>>(file);
                 }
                 catch (Exception)
                 {
-                    Packages = new Dictionary<string, PackageModel>();
+                    _packages = new Dictionary<string, PackageModel>();
                 }
 
             }
             else
             {
-                Packages = new Dictionary<string, PackageModel>();
+                _packages = new Dictionary<string, PackageModel>();
             }
 
         }
@@ -47,7 +49,7 @@ namespace gpm.core.Services
             try
             {
                 using var file = File.Create(IAppSettings.GetLocalDbFile());
-                Serializer.Serialize(file, Packages);
+                Serializer.Serialize(file, _packages);
             }
             catch (Exception)
             {
@@ -59,24 +61,93 @@ namespace gpm.core.Services
             }
         }
 
+        #endregion
 
-        public bool Contains(string key) => Packages.ContainsKey(key);
-        public Optional<PackageModel> Lookup(string key) => Contains(key)
-            ? Optional<PackageModel>.ToOptional(Packages[key])
-            : Optional<PackageModel>.None;
+        #region methods
 
         public PackageModel GetOrAdd(Package package)
         {
             var key = package.Id;
-            if (!Packages.ContainsKey(key))
+            if (!_packages.ContainsKey(key))
             {
-                Packages.Add(key, new PackageModel(key));
+                _packages.Add(key, new PackageModel(key));
             }
 
-            return Packages[key];
+            return _packages[key];
         }
 
-        public void Remove(string id) => Packages.Remove(id);
-        public IEnumerable<PackageModel> GetPackages() => Packages.Values;
+        public bool IsInstalled(Package package) => IsInstalled(package.Id);
+
+        public bool IsInstalled(string key) => ContainsKey(key) && !this[key].Slots.Any();
+
+        public bool IsInstalledInSlot(Package package, int slot) => IsInstalledInSlot(package.Id, slot);
+
+        private bool IsInstalledInSlot(string key, int slot)
+        {
+            if (!TryGetValue(key, out var model))
+            {
+                return false;
+            }
+            if (!model.Slots.ContainsKey(slot))
+            {
+                return false;
+            }
+            if (!model.Slots.TryGetValue(slot, out var manifest))
+            {
+                return false;
+            }
+            return manifest.Files is not null && manifest.Files.Any();
+        }
+
+        #endregion
+
+        #region IDictionary
+
+        public void Add(string key, PackageModel value) => _packages.Add(key, value);
+
+        public bool ContainsKey(string key) => _packages.ContainsKey(key);
+
+        bool IDictionary<string, PackageModel>.Remove(string key) => _packages.Remove(key);
+
+        public bool TryGetValue(string key, [MaybeNullWhen(false)] out PackageModel value)
+        {
+            if (_packages.TryGetValue(key, out var innerValue))
+            {
+                value = innerValue;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
+        public PackageModel this[string key]
+        {
+            get => _packages[key];
+            set => _packages[key] = value;
+        }
+
+        public ICollection<string> Keys => _packages.Keys;
+
+        public ICollection<PackageModel> Values => _packages.Values;
+
+        public IEnumerator<KeyValuePair<string, PackageModel>> GetEnumerator() => _packages.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_packages).GetEnumerator();
+
+        public void Add(KeyValuePair<string, PackageModel> item) => _packages.Add(item.Key, item.Value);
+
+        public void Clear() => _packages.Clear();
+
+        public bool Contains(KeyValuePair<string, PackageModel> item) => _packages.Contains(item);
+        public void CopyTo(KeyValuePair<string, PackageModel>[] array, int arrayIndex)
+            => ((ICollection<KeyValuePair<string, PackageModel>>)_packages).CopyTo(array, arrayIndex);
+
+        public bool Remove(KeyValuePair<string, PackageModel> item) => _packages.Remove(item.Key);
+
+        public int Count => _packages.Count;
+        public bool IsReadOnly => ((ICollection<KeyValuePair<string, PackageModel>>)_packages).IsReadOnly;
+
+        #endregion
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using gpm.core.Services;
@@ -10,7 +9,7 @@ namespace gpm.Commands
 {
     public class InstalledCommand : Command
     {
-        private new const string Description = "";
+        private new const string Description = "Lists all installed packages.";
         private new const string Name = "installed";
 
         public InstalledCommand() : base(Name, Description)
@@ -30,28 +29,15 @@ namespace gpm.Commands
 
             logger.Success("Installed packages:");
 
-            //Console.WriteLine("Id\tUrl\tInstalled Version");
-
-            foreach (var package in library.GetPackages())
+            foreach (var (key, model) in library)
             {
-                // get info from db?
-
-                var versions = new List<string>();
-                foreach (var (version, manifest) in package.Manifests)
+                if (library.IsInstalled(key))
                 {
-                    if (manifest.DeployManifest is not null)
-                    {
-                        versions.Add(version);
-                    }
-                }
 
-                // print results
-                if (versions.Count > 0)
-                {
-                    Console.WriteLine($"{package.Key}");
-                    foreach (var v in versions)
+                    foreach (var (_, manifest) in model.Slots)
                     {
-                        Console.WriteLine($"{v}");
+                        // print installed slots
+                        Console.WriteLine($"{manifest.Version}\t{manifest.FullPath}");
                     }
                 }
             }

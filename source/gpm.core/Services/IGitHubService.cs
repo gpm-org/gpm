@@ -9,8 +9,9 @@ namespace gpm.core.Services
         /// Installs a release from github
         /// </summary>
         /// <param name="package"></param>
-        /// <param name="version"></param>
+        /// <param name="requestedVersion"></param>
+        /// <param name="slot"></param>
         /// <returns></returns>
-        Task<bool> InstallReleaseAsync(Package package, string? version = null);
+        Task<bool> InstallReleaseAsync(Package package, string? requestedVersion = null, int slot = 0);
     }
 }

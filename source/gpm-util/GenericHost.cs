@@ -13,7 +13,6 @@ namespace gpm_util
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, configuration) =>
                 {
-
                     // var baseFolder = Path.GetDirectoryName(AppContext.BaseDirectory);
                     // configuration.SetBasePath(baseFolder);
                     // configuration.AddJsonFile("appsettings.json");

@@ -1,6 +1,8 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,21 +12,23 @@ namespace gpm.Commands
 {
     public class InstallCommand : Command
     {
-        private new const string Description = "";
+        private new const string Description = "Install a package.";
         private new const string Name = "install";
 
         public InstallCommand() : base(Name, Description)
         {
             AddArgument(new Argument<string>("name",
-                "The package name. Can be a github repo url, a repo name or in the form of owner/name/id"));
+                "The package name. Can be a github repo url, a repo name or in the form of owner/name/id. "));
 
             AddOption(new Option<string>(new[] { "--version", "-v" },
-                "The package version to install."));
+                "A specific package version to install. Leave out or leave empty to install latest."));
+            AddOption(new Option<string>(new[] { "--slot", "-s" },
+                "A slot to install a new instance into. Must be a directory path."));
 
-            Handler = CommandHandler.Create<string, string, IHost>(Action);
+            Handler = CommandHandler.Create<string, string, string, IHost>(Action);
         }
 
-        private async Task Action(string name, string version, IHost host)
+        private async Task Action(string name, string version, string slot, IHost host)
         {
             var serviceProvider = host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -34,30 +38,54 @@ namespace gpm.Commands
             var githubService = serviceProvider.GetRequiredService<IGitHubService>();
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
 
+            if (string.IsNullOrEmpty(name))
+            {
+                logger.Error($"No package name specified to install.");
+                return;
+            }
             var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
-                logger.Error($"package {name} not found");
+                logger.Error($"[{package}] Package {name} not found.");
                 return;
             }
 
-            var existingModel = libraryService.Lookup(package.Id);
-            if (existingModel.HasValue)
+            var slotId = 0;
+            if (!string.IsNullOrEmpty(slot))
             {
-                if (existingModel.Value.Manifests.ContainsKey(version))
+                if (!Directory.Exists(slot))
                 {
-                    logger.Warning(
-                        $"package {name} with version {version} already installed. To reinstall use gpm repair.");
-                    // TODO: ask to reinstall?
+                    logger.Error($"[{package}] No valid directory path given for slot {slot}.");
                     return;
+                }
+
+
+                // check if package is in local library
+                // if not it just goes to slot 0
+                if (libraryService.TryGetValue(package.Id, out var existingModel))
+                {
+                    // check if that path matches any slot
+                    // if not, add to a new slot
+                    // if it is, return because we should use update or repair
+                    var slotForPath = existingModel.Slots.Values
+                        .FirstOrDefault(x => x.FullPath != null && x.FullPath.Equals(slot));
+                    if (slotForPath is null)
+                    {
+                        slotId = existingModel.Slots.Count;
+                    }
+                    else
+                    {
+                        logger.Warning($"[{package}] Already installed in slot {slot} - Use gpm update or gpm repair.");
+                        return;
+                    }
                 }
             }
 
-            logger.Info($"Installing package {package.Id}...");
+            logger.Info($"[{package}] Installing package ...");
 
-            await githubService.InstallReleaseAsync(package, version);
+            await githubService.InstallReleaseAsync(package, version, slotId);
 
-            logger.Success($"Package {package.Id} successfully installed.");
+            logger.Success($"[{package}] Package successfully installed.");
         }
     }
 }

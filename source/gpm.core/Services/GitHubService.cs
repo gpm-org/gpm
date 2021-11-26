@@ -6,6 +6,7 @@ using System.Net.Http;
 using Nito.AsyncEx;
 using System.Threading.Tasks;
 using gpm.core.Exceptions;
+using gpm.core.Extensions;
 using gpm.core.Models;
 using Octokit;
 using gpm.core.Util;
@@ -84,11 +85,14 @@ namespace gpm.core.Services
         /// Download and install an asset file from a Github repo.
         /// </summary>
         /// <param name="package"></param>
-        /// <param name="version"></param>
+        /// <param name="requestedVersion"></param>
+        /// <param name="slot"></param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <returns></returns>
-        public async Task<bool> InstallReleaseAsync(Package package, string? version)
+        public async Task<bool> InstallReleaseAsync(Package package, string? requestedVersion, int slot = 0)
         {
+            using var ssc = new ScopedStopwatch();
+
             IReadOnlyList<Release>? releases;
 
             // get releases from github repo
@@ -111,34 +115,46 @@ namespace gpm.core.Services
             }
 
             // get correct release
-            var release = string.IsNullOrEmpty(version)
-                ? releases[0]
-                : releases.FirstOrDefault(x => x.TagName.Equals(version));
+            var release = string.IsNullOrEmpty(requestedVersion)
+                ? releases[0] //latest
+                : releases.FirstOrDefault(x => x.TagName.Equals(requestedVersion));
 
             if (release == null)
             {
-                _loggerService.Warning($"No release found for version {version}");
+                _loggerService.Warning($"No release found for version {requestedVersion}");
                 return false;
             }
 
             // get correct release asset
-            // TODO support multiple files?
-            // TODO support logic
+            // TODO support multiple asset files?
+
+            // TODO support asset get logic
+
             var idx = package.AssetIndex;
             var asset = release.Assets[idx];
             if (asset is null)
             {
-                _loggerService.Warning($"No release asset found for version {version} and index {idx.ToString()}");
+                _loggerService.Warning($"No release asset found for version {requestedVersion} and index {idx.ToString()}");
                 return false;
             }
 
             // get download paths
-            var releaseTagName = release.TagName;
-            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseTagName);
+            var version = release.TagName;
 
-            // download asset to library
-            var isAssetDownloaded = await DownloadAssetToCache(package, asset, releaseTagName);
-            if (!isAssetDownloaded)
+            // check if version is already installed
+            if (_libraryService.TryGetValue(package.Id, out var model) && _libraryService.IsInstalledInSlot(package, slot))
+            {
+                var slotManifest = model.Slots[slot];
+                var installedVersion = slotManifest.Version;
+                if (installedVersion is not null && installedVersion.Equals(version))
+                {
+                    _loggerService.Info($"[{package.Id}] Version {version} already installed.");
+                    return false;
+                }
+            }
+
+            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(version);
+            if (!await DownloadAssetToCache(package, asset, version))
             {
                 _loggerService.Error($"Failed to download package {package.Id}");
                 return false;
@@ -147,14 +163,18 @@ namespace gpm.core.Services
             // install asset
             var releaseFilename = asset.Name;
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
-
-            _deploymentService.InstallPackageFromCache(package, releaseTagName, releaseFilename);
+            if (! _deploymentService.InstallPackageFromCache(package, version, slot))
+            {
+                _loggerService.Error($"Failed to install package {package.Id}");
+                return false;
+            }
 
             return true;
         }
 
         /// <summary>
         /// Downloads a given release asset from GitHub and saves it to the cache location
+        /// Creates a CacheManifest inside the library
         /// </summary>
         /// <param name="package"></param>
         /// <param name="asset"></param>
@@ -162,6 +182,8 @@ namespace gpm.core.Services
         /// <returns></returns>
         private async Task<bool> DownloadAssetToCache(Package package, ReleaseAsset asset, string version)
         {
+            using var ssc = new ScopedStopwatch();
+
             var releaseFilename = asset.Name;
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
 
@@ -207,7 +229,7 @@ namespace gpm.core.Services
 
                 //TODO cache manifest
                 // cache manifest
-                var manifest = new CachePackageManifest()
+                var cacheManifest = new CacheManifest()
                 {
                     Files = new[]
                     {
@@ -216,7 +238,7 @@ namespace gpm.core.Services
                 };
 
                 var model = _libraryService.GetOrAdd(package);
-                model.AddOrUpdateManifest(version, manifest);
+                model.CacheData.AddOrUpdate(version, cacheManifest);
                 _libraryService.Save();
 
                 return true;
@@ -238,12 +260,13 @@ namespace gpm.core.Services
                 {
                     return false;
                 }
-                var existingModel = _libraryService.Lookup(package.Id);
-                if (!existingModel.HasValue)
+
+                if (!_libraryService.TryGetValue(package.Id, out var existingModel))
                 {
                     return false;
                 }
-                var cacheManifest = existingModel.Value.TryGetManifest<CachePackageManifest>(version);
+
+                var cacheManifest = existingModel.CacheData.GetOptional(version);
                 if (!cacheManifest.HasValue)
                 {
                     return false;

@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -21,7 +23,7 @@ namespace gpm.core.Services
             Load();
         }
 
-        public Dictionary<string, Package> Packages { get; set; } = new();
+        private Dictionary<string, Package> _packages = new();
 
         #region serialization
 
@@ -43,7 +45,7 @@ namespace gpm.core.Services
                 return;
             }
 
-            Packages = packages.ToDictionary(x => x.Id);
+            _packages = packages.ToDictionary(x => x.Id);
         }
 
         /// <summary>
@@ -54,7 +56,7 @@ namespace gpm.core.Services
             try
             {
                 using var file = File.Create(IAppSettings.GetDbFile());
-                Serializer.Serialize(file, Packages);
+                Serializer.Serialize(file, _packages);
             }
             catch (Exception)
             {
@@ -153,17 +155,17 @@ namespace gpm.core.Services
 
         #region dictionary helpers
 
-        public bool Contains(string key) => Packages.ContainsKey(key);
-        public Package? Lookup(string key) => Contains(key) ? Packages[key] : null;
+        public bool Contains(string key) => _packages.ContainsKey(key);
+        public Package? Lookup(string key) => Contains(key) ? _packages[key] : null;
 
-        public bool ContainsUrl(string url) => Packages.Any(x => x.Value.Url.Equals(url));
-        public IEnumerable<Package> LookupByUrl(string url) => ContainsUrl(url) ? Packages.Values.Where(x => x.Url.Equals(url)) : new List<Package>();
+        public bool ContainsUrl(string url) => _packages.Any(x => x.Value.Url.Equals(url));
+        public IEnumerable<Package> LookupByUrl(string url) => ContainsUrl(url) ? _packages.Values.Where(x => x.Url.Equals(url)) : new List<Package>();
 
-        public bool ContainsName(string name) => Packages.Any(x => x.Value.RepoName.Equals(name));
-        public IEnumerable<Package> LookupByName(string name) => ContainsName(name) ? Packages.Values.Where(x => x.RepoName.Equals(name)) : new List<Package>();
+        public bool ContainsName(string name) => _packages.Any(x => x.Value.RepoName.Equals(name));
+        public IEnumerable<Package> LookupByName(string name) => ContainsName(name) ? _packages.Values.Where(x => x.RepoName.Equals(name)) : new List<Package>();
 
-        public bool ContainsOwner(string name) => Packages.Any(x => x.Value.RepoOwner.Equals(name));
-        public IEnumerable<Package> LookupByOwner(string name) => ContainsOwner(name) ? Packages.Values.Where(x => x.RepoOwner.Equals(name)) : new List<Package>();
+        public bool ContainsOwner(string name) => _packages.Any(x => x.Value.RepoOwner.Equals(name));
+        public IEnumerable<Package> LookupByOwner(string name) => ContainsOwner(name) ? _packages.Values.Where(x => x.RepoOwner.Equals(name)) : new List<Package>();
 
 
         public Package? GetPackageFromName(string name)
@@ -242,5 +244,55 @@ namespace gpm.core.Services
 
         #endregion
 
+        #region IDictionary
+
+        public IEnumerator<KeyValuePair<string, Package>> GetEnumerator() => _packages.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_packages).GetEnumerator();
+
+        public void Add(KeyValuePair<string, Package> item) => _packages.Add(item.Key, item.Value);
+
+        public void Clear() => _packages.Clear();
+
+        public bool Contains(KeyValuePair<string, Package> item) => _packages.Contains(item);
+
+        public void CopyTo(KeyValuePair<string, Package>[] array, int arrayIndex)
+            => ((ICollection<KeyValuePair<string, Package>>)_packages).CopyTo(array, arrayIndex);
+
+        public bool Remove(KeyValuePair<string, Package> item) => _packages.Remove(item.Key);
+
+        public int Count => _packages.Count;
+
+        public bool IsReadOnly => ((ICollection<KeyValuePair<string, Package>>)_packages).IsReadOnly;
+
+        public void Add(string key, Package value) => _packages.Add(key, value);
+
+        public bool ContainsKey(string key) => _packages.ContainsKey(key);
+
+        public bool Remove(string key) => _packages.Remove(key);
+
+        public bool TryGetValue(string key, [MaybeNullWhen(false)] out Package value)
+        {
+            if (_packages.TryGetValue(key, out var innerValue))
+            {
+                value = innerValue;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
+        public Package this[string key]
+        {
+            get => _packages[key];
+            set => _packages[key] = value;
+        }
+
+        public ICollection<string> Keys => _packages.Keys;
+
+        public ICollection<Package> Values => _packages.Values;
+
+        #endregion
     }
 }

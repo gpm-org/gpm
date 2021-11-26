@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using gpm.core.Extensions;
 using gpm.core.Models;
+using gpm.core.Util;
 
 namespace gpm.core.Services
 {
@@ -21,50 +23,91 @@ namespace gpm.core.Services
             _loggerService = loggerService;
         }
 
-
         /// <summary>
         /// Installs a package from the cache location by version and exact filename
         /// </summary>
         /// <param name="package"></param>
         /// <param name="version"></param>
-        /// <param name="releaseFilename"></param>
+        /// <param name="slot"></param>
         /// <returns></returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public void InstallPackageFromCache(Package package, string version, string releaseFilename)
+        public bool InstallPackageFromCache(Package package, string version, int slot = 0)
         {
-            _loggerService.Info($"Installing {package.Id} from cache...");
+            using var ssc = new ScopedStopwatch();
 
+            _loggerService.Info($"[{package.Id}] Installing from cache...");
+
+            // checks
             var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
             if (!Directory.Exists(packageCacheFolder))
             {
                 throw new DirectoryNotFoundException();
             }
-            var assetCachePath = Path.Combine(packageCacheFolder, releaseFilename);
-
-            //TODO: support multiple files here
-            string packageLibraryDir = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
-            if (!Directory.Exists(packageLibraryDir))
+            if (!_libraryService.TryGetValue(package.Id, out var model))
             {
-                Directory.CreateDirectory(packageLibraryDir);
+                // throw because the cache manifest needs to exist from a previous step
+                throw new KeyNotFoundException();
             }
-            DeployPackageManifest? info = null;
+            if (!model.CacheData.TryGetValue(version, out var cacheManifest))
+            {
+                // throw because the cache manifest needs to exist from a previous step
+                throw new KeyNotFoundException();
+            }
+            if (cacheManifest.Files is null)
+            {
+                _loggerService.Error($"[{package.Id}] No files to install.");
+                return false;
+            }
+            if (cacheManifest.Files.Length < 1)
+            {
+                _loggerService.Error($"[{package.Id}] No files to install.");
+                return false;
+            }
+
+            //TODO: support multiple files
+            var assetCachePath = cacheManifest.Files.First().Name;
+
+            // get or create new slot
+            var slotManifest = model.Slots.GetOrAdd(slot);
+
+            // check if version is already installed
+            var installedVersion = slotManifest.Version;
+            if (installedVersion is not null && installedVersion.Equals(version))
+            {
+                _loggerService.Info($"[{package.Id}] Version {version} already installed.");
+                return false;
+            }
+
+            if (slotManifest.FullPath is null)
+            {
+                // TODO: installation instructions
+
+                slotManifest.FullPath = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
+                if (!Directory.Exists(slotManifest.FullPath))
+                {
+                    Directory.CreateDirectory(slotManifest.FullPath);
+                }
+            }
+            var destinationDir = slotManifest.FullPath;
+
+
+            // TODO ask or overwrite
+
+            List<HashedFile>? installedFiles;
             if (package.ContentType is null)
             {
-                // TODO: multiple archive support
                 var extension = Path.GetExtension(assetCachePath).ToLower();
                 switch (extension)
                 {
                     case ".zip":
-                        // TODO: installation instructions
-                        info = ExtractZipArchiveTo(assetCachePath, packageLibraryDir);
+                        installedFiles = ExtractZipArchiveTo(assetCachePath, destinationDir);
                         break;
                     default:
                         // treat as single file
-                        // TODO: installation instructions
-                        // move from cache to library
-                        var assetDestinationPath = Path.Combine(packageLibraryDir, releaseFilename);
-                        info = DeploySingleFile(assetCachePath, assetDestinationPath);
+                        var releaseFilename = Path.GetFileName(assetCachePath);
+                        var assetDestinationPath = Path.Combine(destinationDir, releaseFilename);
+                        installedFiles = DeploySingleFile(assetCachePath, assetDestinationPath);
                         break;
                 }
             }
@@ -73,25 +116,31 @@ namespace gpm.core.Services
                 switch (package.ContentType)
                 {
                     case EContentType.SingleFile:
+                        var releaseFilename = Path.GetFileName(assetCachePath);
+                        var assetDestinationPath = Path.Combine(destinationDir, releaseFilename);
+                        installedFiles = DeploySingleFile(assetCachePath, assetDestinationPath);
                         break;
                     case EContentType.ZipArchive:
-                        info = ExtractZipArchiveTo(assetCachePath, packageLibraryDir);
+                        installedFiles = ExtractZipArchiveTo(assetCachePath, destinationDir);
                         break;
                     case EContentType.SevenZipArchive:
-                        break;
+                        throw new NotImplementedException();
                     default:
                         throw new ArgumentOutOfRangeException(nameof(package.ContentType), "Invalid Package content type.");
                 }
             }
 
-            ArgumentNullException.ThrowIfNull(info);
+            if (installedFiles is null)
+            {
+                _loggerService.Error($"[{package.Id}] No files installed. Aborting.");
+                return false;
+            }
 
             // update library
-            var model = _libraryService.GetOrAdd(package);
-            model.AddOrUpdateManifest(version, info);
-            model.LastInstalledVersion = version;
+            slotManifest.Version = version;
+            slotManifest.Files = installedFiles;
             _libraryService.Save();
-
+            return true;
         }
 
         /// <summary>
@@ -101,33 +150,27 @@ namespace gpm.core.Services
         /// <param name="destinationFileName"></param>
         /// <param name="overwrite"></param>
         /// <returns></returns>
-        private DeployPackageManifest DeploySingleFile(string sourceFileName, string destinationFileName,
+        private List<HashedFile> DeploySingleFile(string sourceFileName, string destinationFileName,
             bool overwrite = true)
         {
-            File.Copy(sourceFileName, destinationFileName, overwrite);
+            // TODO: conflicts
 
-            var info = new DeployPackageManifest()
-            {
-                Files = new[]
-                {
-                    new HashedFile( destinationFileName, null, null)
-                }
-            };
+            File.Copy(sourceFileName, destinationFileName, overwrite);
 
             _loggerService.Success($"Installed package to {destinationFileName}.");
 
-            return info;
+            return new List<HashedFile> { new HashedFile(destinationFileName, null, null) };
         }
 
         /// <summary>
-        ///
+        /// Extracts a zip archive to a given destination directory
         /// </summary>
         /// <param name="sourceArchiveFileName"></param>
         /// <param name="destinationDirectoryName"></param>
         /// <param name="overwriteFiles"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        private DeployPackageManifest? ExtractZipArchiveTo(string sourceArchiveFileName, string destinationDirectoryName,
+        private List<HashedFile>? ExtractZipArchiveTo(string sourceArchiveFileName, string destinationDirectoryName,
             bool overwriteFiles = true)
         {
             var extension = Path.GetExtension(sourceArchiveFileName).ToLower();
@@ -136,7 +179,6 @@ namespace gpm.core.Services
                 throw new ArgumentException(null, nameof(sourceArchiveFileName));
             }
 
-            // extract zipFile
             // get the files in the zip archive
             var files = new List<string>();
             using (ZipArchive archive = ZipFile.OpenRead(sourceArchiveFileName))
@@ -146,6 +188,7 @@ namespace gpm.core.Services
                     select entry.FullName);
             }
 
+            // TODO: conflicts
             // check for conflicts with existing files
             //var conflicts = files.Where(x => File.Exists(Path.Combine(_settingsService.GetGameRootPath(), x)));
             //if (conflicts.Any())
@@ -163,22 +206,19 @@ namespace gpm.core.Services
             // extract to
             try
             {
-                //TODO parse destinationDirectoryName
-                // TODO package install directories
-
                 ZipFile.ExtractToDirectory(sourceArchiveFileName, destinationDirectoryName, overwriteFiles);
-
-                _loggerService.Success($"Installed {sourceArchiveFileName} to {destinationDirectoryName}.");
-
-                return new DeployPackageManifest() { Files = files
-                    .Select(x => new HashedFile(x, null, null))
-                    .ToArray(), };
             }
             catch (Exception e)
             {
                 _loggerService.Error(e);
                 return null;
             }
+
+            _loggerService.Success($"Installed {sourceArchiveFileName} to {destinationDirectoryName}.");
+
+            return files
+                .Select(x => new HashedFile(x, null, null))
+                .ToList();
         }
 
 

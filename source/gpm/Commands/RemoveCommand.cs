@@ -14,8 +14,8 @@ namespace gpm.Commands
     {
         private new const string Description = "";
         private new const string Name = "remove";
-        private ILibraryService? _libraryService;
 
+        private ILibraryService? _libraryService;
         private ILoggerService? _logger;
 
         public RemoveCommand() : base(Name, Description)
@@ -23,137 +23,103 @@ namespace gpm.Commands
             AddArgument(new Argument<string>("name",
                 "The package name. Can be a github repo url, a repo name or in the form of owner/name/id"));
 
-            AddOption(new Option<string>(new[] { "--version", "-v" },
-                "The package version to remove."));
+            // TODO: slots and removing all packages
+            AddOption(new Option<int>(new[] { "--slot", "-s" },
+                "The package slot to remove."));
             AddOption(new Option<bool>(new[] { "--all", "-a" },
-                "Remove all installed versions of this package."));
+                "Remove package from all installed slots."));
 
-            Handler = CommandHandler.Create<string, string, bool, IHost>(Action);
+            Handler = CommandHandler.Create<string, int, bool, IHost>(Action);
         }
 
-        private void Action(string name, string version, bool all, IHost host)
+        private void Action(string name, int slot, bool all, IHost host)
         {
-            var _serviceProvider = host.Services;
-            ArgumentNullException.ThrowIfNull(_serviceProvider);
-            _logger = _serviceProvider.GetRequiredService<ILoggerService>();
+            var serviceProvider = host.Services;
+            _logger = serviceProvider.GetRequiredService<ILoggerService>();
             ArgumentNullException.ThrowIfNull(_logger);
-
-            var _dataBaseService = _serviceProvider.GetRequiredService<IDataBaseService>();
-            _libraryService = _serviceProvider.GetRequiredService<ILibraryService>();
+            _libraryService = serviceProvider.GetRequiredService<ILibraryService>();
             ArgumentNullException.ThrowIfNull(_libraryService);
+            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
 
-            // TODO: check the git database?
+            // TODO support gpm remove --all?
+            if (string.IsNullOrEmpty(name))
+            {
+                _logger.Error($"No package name specified to install.");
+                return;
+            }
+
             // what if a package is removed from the database?
-            // don't do it? deprecate instead?
-            var package = _dataBaseService.GetPackageFromName(name);
+            // deprecate instead?
+            var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
-                _logger.Error($"package {name} not found");
+                _logger.Warning($"package {name} not found in database");
+                return;
+            }
+            if (!_libraryService.TryGetValue(package.Id, out var model))
+            {
+                _logger.Warning($"[{package.Id}] Package is not installed.");
+                return;
+            }
+            if (!_libraryService.IsInstalled(package))
+            {
+                _logger.Warning($"[{package.Id}] Package is not installed.");
                 return;
             }
 
-            // no package installed with that id
-            var optional = _libraryService.Lookup(package.Id);
-            if (!optional.HasValue)
+            // check if all is set
+            if (all)
             {
-                _logger.Warning($"package {name} with version {version} is not installed.");
-                return;
-            }
-
-            // package is in library but has not been downloaded or deployed
-            var model = optional.Value;
-            if (!model.Manifests.Any())
-            {
-                // remove from library
-                _libraryService.Remove(package.Id);
-                _libraryService.Save();
-
-                _logger.Warning($"package {name} with version {version} is not installed.");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(version))
-            {
-                if (all)
+                foreach (var (slotIdx, _) in model.Slots)
                 {
-                    foreach (var (ver, manifest) in model.Manifests)
-                    {
-                        RemovePackage(package, model, ver);
-                    }
-                }
-                else
-                {
-                    _logger.Warning(
-                        "No package version selected to remove. To remove all installed versions use gpm remove <PACKAGE> --all");
+                    RemovePackage(package, model, slotIdx);
                 }
             }
             else
             {
-                RemovePackage(package, model, version);
+                RemovePackage(package, model, slot);
             }
         }
 
-        private void RemovePackage(Package package, PackageModel existingModel, string version)
+        private void RemovePackage(Package package, PackageModel model, int slotIdx)
         {
             ArgumentNullException.ThrowIfNull(_logger);
             ArgumentNullException.ThrowIfNull(_libraryService);
 
-            if (!existingModel.Manifests.ContainsKey(version))
+            if (!model.Slots.TryGetValue(slotIdx, out var slot))
             {
-                _logger.Warning($"package {package.Id} with version {version} is not installed.");
+                _logger.Warning($"[{package.Id}] No package installed in slot {slotIdx.ToString()}.");
                 return;
             }
 
-            // package has not been installed
-            var deploymanifest = existingModel.Manifests[version].DeployManifest;
-            if (deploymanifest is null)
-            {
-                _logger.Warning($"package {package.Id} with version {version} is not installed.");
-                return;
-            }
+            _logger.Info($"[{package.Id}] Removing package from slot {slotIdx.ToString()}.");
 
-            // package has no files installed
-            if (deploymanifest.Files is null)
+            foreach (var file in slot.Files.Select(x => x.Name))
             {
-                _logger.Warning($"package {package.Id} with version {version} is not installed.");
-                return;
-            }
-
-            _logger.Info($"Removing package {package.Id}...");
-
-            foreach (var file in deploymanifest.Files.Select(x => x.Name))
-            {
-                if (File.Exists(file))
+                if (!File.Exists(file))
                 {
-                    try
-                    {
-                        File.Delete(file);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.Error($"Could not delete file {file}.");
-                        _logger.Error(e);
-                    }
+                    _logger.Warning($"[{package.Id}] Could not find file {file} to delete. Skipping.");
+                    continue;
+                }
+
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"[{package.Id}] Could not delete file {file}. Skipping.");
+                    _logger.Error(e);
                 }
             }
 
             // remove deploy manifest from library
-            // TODO: remove cached files as well?
-            var model = _libraryService.Lookup(package.Id);
-            if (model.HasValue)
-            {
-                var manifest = model.Value.Manifests[version];
-                if (manifest is not null)
-                {
-                    manifest.DeployManifest = null;
-                }
-            }
+            slot.Files.Clear();
 
+            // TODO: remove cached files as well?
             _libraryService.Save();
 
-            _logger.Success($"Package {package.Id} successfully removed.");
-
-            // TODO check if other versions are installed
+            _logger.Success($"[{package.Id}] Successfully removed package.");
         }
     }
 }

@@ -9,7 +9,7 @@ namespace gpm.Commands
 {
     public class ListCommand : Command
     {
-        private new const string Description = "";
+        private new const string Description = "Lists all available packages.";
         private new const string Name = "list";
 
         public ListCommand() : base(Name, Description)
@@ -26,21 +26,13 @@ namespace gpm.Commands
             var serviceProvider = host.Services;
             var logger = serviceProvider.GetRequiredService<ILoggerService>();
             var db = serviceProvider.GetRequiredService<IDataBaseService>();
-            var library = serviceProvider.GetRequiredService<ILibraryService>();
 
             logger.Success("Available packages:");
 
-            Console.WriteLine("Id\tUrl\tInstalled Version");
-            foreach (var (key, package) in db.Packages)
+            Console.WriteLine("Id\tUrl");
+            foreach (var (key, package) in db)
             {
-                var installedVersion = "";
-                var model = library.Lookup(key);
-                if (model.HasValue)
-                {
-                    installedVersion = model.Value.LastInstalledVersion;
-                }
-
-                Console.WriteLine($"{key}\t{package.Url}\t{installedVersion}");
+                Console.WriteLine($"{key}\t{package.Url}");
             }
         }
     }
