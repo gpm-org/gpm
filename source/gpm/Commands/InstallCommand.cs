@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using gpm.core.Extensions;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,7 +36,7 @@ namespace gpm.Commands
 
             var logger = serviceProvider.GetRequiredService<ILoggerService>();
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            var githubService = serviceProvider.GetRequiredService<IGitHubService>();
+            var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
 
             if (string.IsNullOrEmpty(name))
@@ -59,33 +60,40 @@ namespace gpm.Commands
                     return;
                 }
 
-
                 // check if package is in local library
                 // if not it just goes to slot 0
-                if (libraryService.TryGetValue(package.Id, out var existingModel))
+                var model = libraryService.GetOrAdd(package);
+
+                // check if that path matches any slot
+                // if not, add to a new slot
+                // if it is, return because we should use update or repair
+                var slotForPath = model.Slots.Values
+                    .FirstOrDefault(x => x.FullPath != null && x.FullPath.Equals(slot));
+                if (slotForPath is null)
                 {
-                    // check if that path matches any slot
-                    // if not, add to a new slot
-                    // if it is, return because we should use update or repair
-                    var slotForPath = existingModel.Slots.Values
-                        .FirstOrDefault(x => x.FullPath != null && x.FullPath.Equals(slot));
-                    if (slotForPath is null)
-                    {
-                        slotId = existingModel.Slots.Count;
-                    }
-                    else
-                    {
-                        logger.Warning($"[{package}] Already installed in slot {slot} - Use gpm update or gpm repair.");
-                        return;
-                    }
+                    slotId = model.Slots.Count;
+                    var slotManifest = model.Slots.GetOrAdd(slotId);
+                    slotManifest.FullPath = slot;
+                }
+                else
+                {
+                    logger.Warning($"[{package}] Already installed in slot {slot} - Use gpm update or gpm repair.");
+                    return;
                 }
             }
 
             logger.Info($"[{package}] Installing package ...");
+            var releases = await gitHubService.GetReleasesForPackage(package);
+            if (releases is null || !releases.Any())
+            {
+                logger.Warning($"No releases found for package {package.Id}");
+                return;
+            }
 
-            await githubService.InstallReleaseAsync(package, version, slotId);
-
-            logger.Success($"[{package}] Package successfully installed.");
+            if (await gitHubService.InstallReleaseAsync(package, releases, version, slotId))
+            {
+                logger.Success($"[{package}] Package successfully installed.");
+            }
         }
     }
 }

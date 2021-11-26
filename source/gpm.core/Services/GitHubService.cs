@@ -36,60 +36,11 @@ namespace gpm.core.Services
         }
 
         /// <summary>
-        /// Check if a release exists that
+        /// Fetch all github releases for a given package.
         /// </summary>
         /// <param name="package"></param>
-        /// <param name="currentVersion"></param>
         /// <returns></returns>
-        public async Task<bool> IsUpdateAvailable(Package package, string? currentVersion)
-        {
-            IReadOnlyList<Release>? releases;
-
-            // get releases from github repo
-            using (await _loadingLock.LockAsync())
-            {
-                try
-                {
-                    releases = await _gitHubClient.Repository.Release.GetAll(package.RepoOwner, package.RepoName);
-                }
-                catch (Exception e)
-                {
-                    _loggerService.Error(e);
-                    releases = null;
-                }
-            }
-            if (releases == null || !releases.Any())
-            {
-                _loggerService.Warning($"No releases found for package {package.Id}");
-                return false;
-            }
-
-            if (!releases.Any(x => x.TagName.Equals(currentVersion)))
-            {
-                _loggerService.Warning($"No releases found with version {currentVersion} for package {package.Id}");
-                return false;
-            }
-
-            // idx 0 is latest release
-            if (releases[0].TagName.Equals(currentVersion))
-            {
-                _loggerService.Info($"Latest release already installed.");
-                return false;
-            }
-
-            return true;
-        }
-
-
-        /// <summary>
-        /// Download and install an asset file from a Github repo.
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="requestedVersion"></param>
-        /// <param name="slot"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        /// <returns></returns>
-        public async Task<bool> InstallReleaseAsync(Package package, string? requestedVersion, int slot = 0)
+        public async Task<IReadOnlyList<Release>?> GetReleasesForPackage(Package package)
         {
             using var ssc = new ScopedStopwatch();
 
@@ -108,11 +59,58 @@ namespace gpm.core.Services
                     releases = null;
                 }
             }
-            if (releases == null || !releases.Any())
+
+            return releases;
+        }
+
+        /// <summary>
+        /// Check if a release exists that
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="releases"></param>
+        /// <param name="installedVersion"></param>
+        /// <returns></returns>
+        public bool IsUpdateAvailable(Package package, IReadOnlyList<Release>? releases, string installedVersion)
+        {
+            using var ssc = new ScopedStopwatch();
+
+            if (releases is null || !releases.Any())
             {
                 _loggerService.Warning($"No releases found for package {package.Id}");
                 return false;
             }
+            if (!releases.Any(x => x.TagName.Equals(installedVersion)))
+            {
+                _loggerService.Warning($"No releases found with version {installedVersion} for package {package.Id}");
+                return false;
+            }
+
+            // idx 0 is latest release
+            if (!releases[0].TagName.Equals(installedVersion))
+            {
+                return true;
+            }
+
+            _loggerService.Info($"Latest release already installed.");
+            return false;
+        }
+
+        /// <summary>
+        /// Download and install an asset file from a Github repo.
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="releases"></param>
+        /// <param name="requestedVersion"></param>
+        /// <param name="slot"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <returns></returns>
+        public async Task<bool> InstallReleaseAsync(
+            Package package,
+            IReadOnlyList<Release> releases,
+            string? requestedVersion,
+            int slot = 0)
+        {
+            using var ssc = new ScopedStopwatch();
 
             // get correct release
             var release = string.IsNullOrEmpty(requestedVersion)
@@ -227,7 +225,6 @@ namespace gpm.core.Services
                 _loggerService.Success($"Downloaded asset {releaseFilename} with hash {HashUtil.BytesToString(sha)}.");
                 _loggerService.Info($"Saving file to local cache: {assetCacheFile}.");
 
-                //TODO cache manifest
                 // cache manifest
                 var cacheManifest = new CacheManifest()
                 {

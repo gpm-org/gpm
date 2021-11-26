@@ -39,6 +39,7 @@ namespace gpm.core.Extensions
         public static TValue GetOrAdd<TKey,TValue>(this Dictionary<TKey, TValue> dictionary, TKey key)
             where TKey : notnull where TValue : new()
         {
+            if (!dictionary.ContainsKey(key))
             {
                 dictionary.Add(key, new TValue());
             }

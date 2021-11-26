@@ -11,10 +11,14 @@ namespace gpm.core.Services
 {
     public class LibraryService : ILibraryService
     {
-        public LibraryService()
+        private readonly ILoggerService _loggerService;
+
+        public LibraryService(ILoggerService loggerService)
         {
+            _loggerService = loggerService;
+
             Load();
-            
+
             //TODO check self
         }
 
@@ -78,7 +82,7 @@ namespace gpm.core.Services
 
         public bool IsInstalled(Package package) => IsInstalled(package.Id);
 
-        public bool IsInstalled(string key) => ContainsKey(key) && !this[key].Slots.Any();
+        public bool IsInstalled(string key) => ContainsKey(key) && this[key].Slots.Any();
 
         public bool IsInstalledInSlot(Package package, int slot) => IsInstalledInSlot(package.Id, slot);
 
@@ -92,11 +96,7 @@ namespace gpm.core.Services
             {
                 return false;
             }
-            if (!model.Slots.TryGetValue(slot, out var manifest))
-            {
-                return false;
-            }
-            return manifest.Files is not null && manifest.Files.Any();
+            return model.Slots.TryGetValue(slot, out var manifest) && manifest.Files.Any();
         }
 
         #endregion
@@ -149,5 +149,72 @@ namespace gpm.core.Services
         public bool IsReadOnly => ((ICollection<KeyValuePair<string, PackageModel>>)_packages).IsReadOnly;
 
         #endregion
+
+
+        /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="slotIdx"></param>
+        public bool UninstallPackage(Package package, int slotIdx = 0)
+        {
+            if (!TryGetValue(package.Id, out var model))
+            {
+                return false;
+            }
+
+            if (!model.Slots.TryGetValue(slotIdx, out var slot))
+            {
+                _loggerService.Warning($"[{package.Id}] No package installed in slot {slotIdx.ToString()}.");
+                return true;
+            }
+
+            _loggerService.Info($"[{package.Id}] Removing package from slot {slotIdx.ToString()}.");
+
+            var files = slot.Files
+                .Select(x => x.Name)
+                .ToList();
+            var failed = new List<string>();
+
+            foreach (var file in files)
+            {
+                if (!File.Exists(file))
+                {
+                    _loggerService.Warning($"[{package.Id}] Could not find file {file} to delete. Skipping.");
+                    continue;
+                }
+
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception e)
+                {
+                    _loggerService.Error($"[{package.Id}] Could not delete file {file}. Skipping.");
+                    _loggerService.Error(e);
+                    failed.Add(file);
+                }
+            }
+
+            // remove deploy manifest from library
+            model.Slots.Remove(slotIdx);
+
+            // TODO: remove cached files as well?
+            Save();
+
+            if (failed.Count == 0)
+            {
+                _loggerService.Success($"[{package.Id}] Successfully removed package.");
+                return true;
+            }
+
+            _loggerService.Warning($"[{package.Id}] Partially removed package. Could not delete:");
+            foreach (var fail in failed)
+            {
+                Console.WriteLine(fail);
+            }
+
+            return false;
+        }
     }
 }

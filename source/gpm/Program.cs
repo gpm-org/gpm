@@ -7,11 +7,12 @@ using gpm.Commands;
 
 var rootCommand = new RootCommand
 {
-    new UpdateCommand(),
     new ListCommand(),
     new InstallCommand(),
+    new UpdateCommand(),
     new RemoveCommand(),
-    new InstalledCommand()
+    new InstalledCommand(),
+    new UpgradeCommand()
 };
 
 var parser = new CommandLineBuilder(rootCommand)
@@ -19,7 +20,7 @@ var parser = new CommandLineBuilder(rootCommand)
     .UseHost(GenericHost.CreateHostBuilder)
     .Build();
 
-// TODO: hack to get DI in system.commandline
+// hack to get DI in system.commandline
 parser.Invoke(new UpgradeCommand().Name);
 
 parser.Invoke(args);

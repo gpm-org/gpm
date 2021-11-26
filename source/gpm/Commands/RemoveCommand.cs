@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -23,7 +24,6 @@ namespace gpm.Commands
             AddArgument(new Argument<string>("name",
                 "The package name. Can be a github repo url, a repo name or in the form of owner/name/id"));
 
-            // TODO: slots and removing all packages
             AddOption(new Option<int>(new[] { "--slot", "-s" },
                 "The package slot to remove."));
             AddOption(new Option<bool>(new[] { "--all", "-a" },
@@ -41,10 +41,9 @@ namespace gpm.Commands
             ArgumentNullException.ThrowIfNull(_libraryService);
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
 
-            // TODO support gpm remove --all?
             if (string.IsNullOrEmpty(name))
             {
-                _logger.Error($"No package name specified to install.");
+                _logger.Warning($"No package name specified to install.");
                 return;
             }
 
@@ -72,54 +71,13 @@ namespace gpm.Commands
             {
                 foreach (var (slotIdx, _) in model.Slots)
                 {
-                    RemovePackage(package, model, slotIdx);
+                    _libraryService.UninstallPackage(package, slotIdx);
                 }
             }
             else
             {
-                RemovePackage(package, model, slot);
+                _libraryService.UninstallPackage(package, slot);
             }
-        }
-
-        private void RemovePackage(Package package, PackageModel model, int slotIdx)
-        {
-            ArgumentNullException.ThrowIfNull(_logger);
-            ArgumentNullException.ThrowIfNull(_libraryService);
-
-            if (!model.Slots.TryGetValue(slotIdx, out var slot))
-            {
-                _logger.Warning($"[{package.Id}] No package installed in slot {slotIdx.ToString()}.");
-                return;
-            }
-
-            _logger.Info($"[{package.Id}] Removing package from slot {slotIdx.ToString()}.");
-
-            foreach (var file in slot.Files.Select(x => x.Name))
-            {
-                if (!File.Exists(file))
-                {
-                    _logger.Warning($"[{package.Id}] Could not find file {file} to delete. Skipping.");
-                    continue;
-                }
-
-                try
-                {
-                    File.Delete(file);
-                }
-                catch (Exception e)
-                {
-                    _logger.Error($"[{package.Id}] Could not delete file {file}. Skipping.");
-                    _logger.Error(e);
-                }
-            }
-
-            // remove deploy manifest from library
-            slot.Files.Clear();
-
-            // TODO: remove cached files as well?
-            _libraryService.Save();
-
-            _logger.Success($"[{package.Id}] Successfully removed package.");
         }
     }
 }

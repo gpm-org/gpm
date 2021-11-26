@@ -36,11 +36,10 @@ namespace gpm.core.Util
 
             MergeStatus? status;
             using var repo = new Repository(IAppSettings.GetGitDbFolder());
-            // TODO: check if the repo was changed
             var statusItems = repo.RetrieveStatus(new StatusOptions());
             if (statusItems.Any())
             {
-                throw new NotImplementedException("working tree not clean");
+                throw new NotSupportedException("working tree not clean");
             }
 
             // fetch

@@ -66,7 +66,8 @@ namespace gpm.core.Services
             }
 
             //TODO: support multiple files
-            var assetCachePath = cacheManifest.Files.First().Name;
+            var assetCacheFile = cacheManifest.Files.First().Name;
+            var assetCachePath = Path.Combine(packageCacheFolder, assetCacheFile);
 
             // get or create new slot
             var slotManifest = model.Slots.GetOrAdd(slot);
@@ -79,6 +80,7 @@ namespace gpm.core.Services
                 return false;
             }
 
+            // get destination path
             if (slotManifest.FullPath is null)
             {
                 // TODO: installation instructions

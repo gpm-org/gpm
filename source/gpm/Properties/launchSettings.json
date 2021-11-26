@@ -1,24 +1,20 @@
 {
   "profiles": {
-    "gpm.cli update": {
+    "gpm update": {
       "commandName": "Project",
-      "commandLineArgs": "update"
+      "commandLineArgs": "update wolvenkit -c"
     },
-    "gpm.cli new": {
-      "commandName": "Project",
-      "commandLineArgs": "new https://github.com/WolvenKit/WolvenKit.git"
-    },
-    "gpm.cli list": {
+    "gpm list": {
       "commandName": "Project",
       "commandLineArgs": "list"
     },
     "gpm install": {
       "commandName": "Project",
-      "commandLineArgs": "install wolvenkit"
+      "commandLineArgs": "install wolvenkit -v 8.4.1"
     },
     "gpm remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove wolvenkit -a"
+      "commandLineArgs": "remove wolvenkit"
     },
     "gpm installed": {
       "commandName": "Project",

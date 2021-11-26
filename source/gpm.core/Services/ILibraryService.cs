@@ -15,5 +15,12 @@ namespace gpm.core.Services
         bool IsInstalled(Package package);
 
         bool IsInstalledInSlot(Package package, int slot);
+
+        /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="slotIdx"></param>
+        bool UninstallPackage(Package package, int slotIdx = 0);
     }
 }

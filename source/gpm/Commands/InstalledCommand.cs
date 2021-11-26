@@ -27,17 +27,17 @@ namespace gpm.Commands
             var logger = serviceProvider.GetRequiredService<ILoggerService>();
             var library = serviceProvider.GetRequiredService<ILibraryService>();
 
-            logger.Success("Installed packages:");
+            logger.Info("Installed packages:");
 
             foreach (var (key, model) in library)
             {
                 if (library.IsInstalled(key))
                 {
-
-                    foreach (var (_, manifest) in model.Slots)
+                    Console.WriteLine($"{model.Key}");
+                    foreach (var (slotIdx, manifest) in model.Slots)
                     {
                         // print installed slots
-                        Console.WriteLine($"{manifest.Version}\t{manifest.FullPath}");
+                        Console.WriteLine($"[Slot {slotIdx.ToString()}]\t{manifest.Version}\t{manifest.FullPath}");
                     }
                 }
             }
