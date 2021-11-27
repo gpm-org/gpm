@@ -29,11 +29,9 @@ namespace gpm.Commands
 
             logger.Success("Available packages:");
 
-            Console.WriteLine("Id\tUrl");
-            foreach (var (key, package) in db)
-            {
-                Console.WriteLine($"{key}\t{package.Url}");
-            }
+            db.ListAllPackages();
         }
+
+
     }
 }

@@ -69,7 +69,8 @@ namespace gpm.Services
 
         public Dictionary<LogLevel, ConsoleColor> LogLevels { get; set; } = new()
         {
-            [LogLevel.Information] = ConsoleColor.Green
+            [LogLevel.Information] = ConsoleColor.Green,
+            [LogLevel.Debug] = ConsoleColor.DarkYellow
         };
     }
 
@@ -77,13 +78,12 @@ namespace gpm.Services
     public class ColorConsoleLogger : ILogger
     {
         private readonly ColorConsoleLoggerConfiguration _config;
-        private readonly string _name;
 
         public ColorConsoleLogger(
             string name,
             ColorConsoleLoggerConfiguration config)
         {
-            (_name, _config) = (name, config);
+            (_, _config) = (name, config);
         }
 
 #pragma warning disable CS8603 // Possible null reference return.
@@ -106,28 +106,28 @@ namespace gpm.Services
                 return;
             }
 
-            var logLevelStr = "";
+            string logLevelStr;
             switch (logLevel)
             {
                 case LogLevel.Trace:
                     logLevelStr = "Trace";
                     break;
+
                 case LogLevel.Debug:
-                    logLevelStr = "Debug";
+                    logLevelStr = "Information";
                     break;
-
-
                 case LogLevel.Information:
                     logLevelStr = "Success";
                     break;
+
                 case LogLevel.Warning:
-                    logLevelStr = "Information";
-                    break;
-                case LogLevel.Error:
                     logLevelStr = "Warning";
                     break;
-                case LogLevel.Critical:
+                case LogLevel.Error:
                     logLevelStr = "Error";
+                    break;
+                case LogLevel.Critical:
+                    logLevelStr = "Critical";
                     break;
 
 

@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpm-util", "gpm-util\gpm-ut
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B83D342C-D814-4671-BA9E-6B68FCF48948}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gpm-tests", "gpm-tests\gpm-tests.csproj", "{BCB23EFC-4476-400C-B38C-E002A67A3B59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,12 +52,21 @@ Global
 		{E91E1635-8E65-4EEF-AC71-14830B49A3FC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E91E1635-8E65-4EEF-AC71-14830B49A3FC}.Release|x64.ActiveCfg = Release|Any CPU
 		{E91E1635-8E65-4EEF-AC71-14830B49A3FC}.Release|x64.Build.0 = Release|Any CPU
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59}.Debug|x64.Build.0 = Debug|Any CPU
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59}.Release|x64.ActiveCfg = Release|Any CPU
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9BA5CBFC-0758-4A60-8A22-49AA5DF880D0} = {4E5DBD2B-6230-4182-BEEB-C57B67D56996}
+		{BCB23EFC-4476-400C-B38C-E002A67A3B59} = {B83D342C-D814-4671-BA9E-6B68FCF48948}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1E499F9A-2823-48E3-A97D-AC0752FDF08F}

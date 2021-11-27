@@ -36,7 +36,7 @@ namespace gpm.core.Services
         {
             using var ssc = new ScopedStopwatch();
 
-            _loggerService.Info($"[{package.Id}] Installing from cache...");
+            _loggerService.Information($"[{package.Id}] Installing from cache...");
 
             // checks
             var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
@@ -56,12 +56,12 @@ namespace gpm.core.Services
             }
             if (cacheManifest.Files is null)
             {
-                _loggerService.Error($"[{package.Id}] No files to install.");
+                _loggerService.Warning($"[{package.Id}] No files to install.");
                 return false;
             }
             if (cacheManifest.Files.Length < 1)
             {
-                _loggerService.Error($"[{package.Id}] No files to install.");
+                _loggerService.Warning($"[{package.Id}] No files to install.");
                 return false;
             }
 
@@ -76,7 +76,7 @@ namespace gpm.core.Services
             var installedVersion = slotManifest.Version;
             if (installedVersion is not null && installedVersion.Equals(version))
             {
-                _loggerService.Info($"[{package.Id}] Version {version} already installed.");
+                _loggerService.Information($"[{package.Id}] Version {version} already installed.");
                 return false;
             }
 
@@ -134,7 +134,7 @@ namespace gpm.core.Services
 
             if (installedFiles is null)
             {
-                _loggerService.Error($"[{package.Id}] No files installed. Aborting.");
+                _loggerService.Warning($"[{package.Id}] No files installed. Aborting.");
                 return false;
             }
 

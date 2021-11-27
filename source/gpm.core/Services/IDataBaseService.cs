@@ -29,5 +29,10 @@ namespace gpm.core.Services
         /// Fetch and Pull git database and update
         /// </summary>
         void FetchAndUpdateSelf();
+
+        /// <summary>
+        /// Lists all packages in the database
+        /// </summary>
+        void ListAllPackages();
     }
 }

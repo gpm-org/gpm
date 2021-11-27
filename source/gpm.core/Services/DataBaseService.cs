@@ -151,6 +151,19 @@ namespace gpm.core.Services
             }
         }
 
+        /// <summary>
+        /// Lists all packages in the database
+        /// </summary>
+        /// <param name="db"></param>
+        public void ListAllPackages()
+        {
+            Console.WriteLine("Id\tUrl");
+            foreach (var (key, package) in this)
+            {
+                Console.WriteLine($"{key}\t{package.Url}");
+            }
+        }
+
         #endregion
 
         #region dictionary helpers
@@ -183,7 +196,7 @@ namespace gpm.core.Services
                     foreach (var item in packages)
                     {
                         _loggerService.Warning($"Multiple packages found in repository {name}:");
-                        _loggerService.Info(item.Id);
+                        _loggerService.Information(item.Id);
                     }
                 }
             }
@@ -215,7 +228,7 @@ namespace gpm.core.Services
                         foreach (var item in packages)
                         {
                             _loggerService.Warning($"Multiple packages found for name {name}:");
-                            _loggerService.Info(item.Id);
+                            _loggerService.Information(item.Id);
                         }
                     }
                 }
@@ -233,7 +246,7 @@ namespace gpm.core.Services
                         foreach (var item in packages)
                         {
                             _loggerService.Warning($"Multiple packages found for owner {name}:");
-                            _loggerService.Info(item.Id);
+                            _loggerService.Information(item.Id);
                         }
                     }
                 }

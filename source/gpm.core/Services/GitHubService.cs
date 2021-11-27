@@ -91,7 +91,7 @@ namespace gpm.core.Services
                 return true;
             }
 
-            _loggerService.Info($"Latest release already installed.");
+            _loggerService.Information($"Latest release already installed.");
             return false;
         }
 
@@ -146,7 +146,7 @@ namespace gpm.core.Services
                 var installedVersion = slotManifest.Version;
                 if (installedVersion is not null && installedVersion.Equals(version))
                 {
-                    _loggerService.Info($"[{package.Id}] Version {version} already installed.");
+                    _loggerService.Information($"[{package.Id}] Version {version} already installed.");
                     return false;
                 }
             }
@@ -154,7 +154,7 @@ namespace gpm.core.Services
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(version);
             if (!await DownloadAssetToCache(package, asset, version))
             {
-                _loggerService.Error($"Failed to download package {package.Id}");
+                _loggerService.Warning($"Failed to download package {package.Id}");
                 return false;
             }
 
@@ -163,7 +163,7 @@ namespace gpm.core.Services
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
             if (! _deploymentService.InstallPackageFromCache(package, version, slot))
             {
-                _loggerService.Error($"Failed to install package {package.Id}");
+                _loggerService.Warning($"Failed to install package {package.Id}");
                 return false;
             }
 
@@ -191,7 +191,7 @@ namespace gpm.core.Services
             // check if already exists
             if (CheckIfCachedFileExists())
             {
-                _loggerService.Info($"Asset exists in cache: {assetCacheFile}. Using cached file.");
+                _loggerService.Information($"Asset exists in cache: {assetCacheFile}. Using cached file.");
                 return true;
             }
 
@@ -200,7 +200,7 @@ namespace gpm.core.Services
                 var url = asset.BrowserDownloadUrl;
                 ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(url);
 
-                _loggerService.Info($"Downloading asset from {url} ...");
+                _loggerService.Information($"Downloading asset from {url} ...");
 
                 var response = await s_client.GetAsync(new Uri(url));
                 response.EnsureSuccessStatusCode();
@@ -223,7 +223,7 @@ namespace gpm.core.Services
                 await ms.CopyToAsync(fs);
 
                 _loggerService.Success($"Downloaded asset {releaseFilename} with hash {HashUtil.BytesToString(sha)}.");
-                _loggerService.Info($"Saving file to local cache: {assetCacheFile}.");
+                _loggerService.Information($"Saving file to local cache: {assetCacheFile}.");
 
                 // cache manifest
                 var cacheManifest = new CacheManifest()

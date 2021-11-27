@@ -169,7 +169,7 @@ namespace gpm.core.Services
                 return true;
             }
 
-            _loggerService.Info($"[{package.Id}] Removing package from slot {slotIdx.ToString()}.");
+            _loggerService.Information($"[{package.Id}] Removing package from slot {slotIdx.ToString()}.");
 
             var files = slot.Files
                 .Select(x => x.Name)
@@ -190,7 +190,7 @@ namespace gpm.core.Services
                 }
                 catch (Exception e)
                 {
-                    _loggerService.Error($"[{package.Id}] Could not delete file {file}. Skipping.");
+                    _loggerService.Warning($"[{package.Id}] Could not delete file {file}. Skipping.");
                     _loggerService.Error(e);
                     failed.Add(file);
                 }

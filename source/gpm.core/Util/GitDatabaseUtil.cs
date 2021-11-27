@@ -49,7 +49,7 @@ namespace gpm.core.Util
                 var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
                 Commands.Fetch(repo, remote.Name, refSpecs, null, logMessage);
             }
-            logger.Log(logMessage);
+            logger.Debug(logMessage);
 
             // Pull -ff
             var options = new PullOptions()
@@ -68,7 +68,7 @@ namespace gpm.core.Util
             if (result is not null)
             {
                 status = result.Status;
-                logger.Info($"Status: {status}");
+                logger.Information($"Status: {status}");
             }
             else
             {

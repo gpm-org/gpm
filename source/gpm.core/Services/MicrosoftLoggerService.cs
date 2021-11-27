@@ -1,5 +1,4 @@
 using System;
-using DynamicData;
 using Microsoft.Extensions.Logging;
 
 namespace gpm.core.Services
@@ -13,39 +12,53 @@ namespace gpm.core.Services
             _logger = logger;
         }
 
-        private void LogString(string message, Logtype type)
+        public void Log(string message, Logtype type = Logtype.Debug)
         {
             switch (type)
             {
-                case Logtype.Normal:
-                    _logger.LogDebug(message);
+                case Logtype.Trace:
+                    _logger.LogTrace("{Message}", message);
+                    break;
+                case Logtype.Debug:
+                    _logger.LogTrace("{Message}", message);
                     break;
 
-
+                case Logtype.Information:
+                    _logger.LogDebug("{Message}", message);
+                    break;
                 case Logtype.Success:
-                    _logger.LogInformation(message);
+                    _logger.LogInformation("{Message}", message);
                     break;
-                case Logtype.Important:
-                    _logger.LogWarning(message);
-                    break;
+
                 case Logtype.Warning:
-                    _logger.LogError(message);
+                    _logger.LogWarning("{Message}", message);
                     break;
                 case Logtype.Error:
-                    _logger.LogCritical(message);
+                    _logger.LogError("{Message}", message);
+                    break;
+                case Logtype.Critical:
+                    _logger.LogCritical("{Message}", message);
+                    break;
+                case Logtype.None:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
 
-        // Normal
-        public void Log(string msg, Logtype type = Logtype.Normal) => LogString(msg, type);
+        public void Trace(string message) => Log(message, Logtype.Trace);
+
+        public void Debug(string message) => Log(message, Logtype.Debug);
 
 
-        public void Success(string msg) => LogString(msg, Logtype.Success);
-        public IObservable<IChangeSet<LogEntry>> Connect() => throw new NotImplementedException();
+        public void Information(string message) => Log(message, Logtype.Information);
 
+        public void Success(string message)  => Log(message, Logtype.Success);
+
+
+        public void Warning(string message) => Log(message, Logtype.Warning);
+
+        public void Error(string message)  => Log(message, Logtype.Error);
         public void Error(Exception exception)
         {
             var msg =
@@ -55,12 +68,6 @@ namespace gpm.core.Services
             Error(msg);
         }
 
-        public void Info(string s) => LogString(s, Logtype.Important);
-        public void Important(string s) => LogString(s, Logtype.Important);
-
-        public void Warning(string s) => _logger.LogError(s);
-
-        public void Error(string msg) => LogString(msg, Logtype.Error);
-
+        public void Critical(string message)  => Log(message, Logtype.Critical);
     }
 }

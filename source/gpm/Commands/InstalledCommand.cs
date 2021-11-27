@@ -1,8 +1,6 @@
-using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using gpm.core.Services;
-using Microsoft.Extensions.DependencyInjection;
+using gpm.Tasks;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands
@@ -18,29 +16,7 @@ namespace gpm.Commands
                 "Use optional search pattern (e.g. *.ink), if both regex and pattern is defined, pattern will be prioritized."));
             AddOption(new Option<string>(new[] { "--regex", "-r" }, "Use optional regex pattern."));
 
-            Handler = CommandHandler.Create<string, string, IHost>(Action);
-        }
-
-        private void Action(string pattern, string regex, IHost host)
-        {
-            var serviceProvider = host.Services;
-            var logger = serviceProvider.GetRequiredService<ILoggerService>();
-            var library = serviceProvider.GetRequiredService<ILibraryService>();
-
-            logger.Info("Installed packages:");
-
-            foreach (var (key, model) in library)
-            {
-                if (library.IsInstalled(key))
-                {
-                    Console.WriteLine($"{model.Key}");
-                    foreach (var (slotIdx, manifest) in model.Slots)
-                    {
-                        // print installed slots
-                        Console.WriteLine($"[Slot {slotIdx.ToString()}]\t{manifest.Version}\t{manifest.FullPath}");
-                    }
-                }
-            }
+            Handler = CommandHandler.Create<string, string, IHost>(Installed.Action);
         }
     }
 }
