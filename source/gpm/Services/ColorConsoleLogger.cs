@@ -69,8 +69,8 @@ namespace gpm.Services
 
         public Dictionary<LogLevel, ConsoleColor> LogLevels { get; set; } = new()
         {
-            [LogLevel.Information] = ConsoleColor.Green,
-            [LogLevel.Debug] = ConsoleColor.DarkYellow
+            //[LogLevel.Information] = ConsoleColor.Green,    //Success
+            [LogLevel.Debug] = ConsoleColor.Green           //Sucess
         };
     }
 
@@ -106,37 +106,19 @@ namespace gpm.Services
                 return;
             }
 
-            string logLevelStr;
-            switch (logLevel)
+            string logLevelStr = logLevel switch
             {
-                case LogLevel.Trace:
-                    logLevelStr = "Trace";
-                    break;
+                LogLevel.Trace => "Trace",
 
-                case LogLevel.Debug:
-                    logLevelStr = "Information";
-                    break;
-                case LogLevel.Information:
-                    logLevelStr = "Success";
-                    break;
+                LogLevel.Debug => "Success",
 
-                case LogLevel.Warning:
-                    logLevelStr = "Warning";
-                    break;
-                case LogLevel.Error:
-                    logLevelStr = "Error";
-                    break;
-                case LogLevel.Critical:
-                    logLevelStr = "Critical";
-                    break;
-
-
-                case LogLevel.None:
-                    logLevelStr = "None";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
-            }
+                LogLevel.Information => "Information",
+                LogLevel.Warning => "Warning",
+                LogLevel.Error => "Error",
+                LogLevel.Critical => "Critical",
+                LogLevel.None => "None",
+                _ => throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null)
+            };
 
             if (_config.EventId == 0 || _config.EventId == eventId.Id)
             {

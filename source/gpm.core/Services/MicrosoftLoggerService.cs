@@ -22,12 +22,12 @@ namespace gpm.core.Services
                 case Logtype.Debug:
                     _logger.LogTrace("{Message}", message);
                     break;
-
                 case Logtype.Information:
-                    _logger.LogDebug("{Message}", message);
+                    _logger.LogInformation("{Message}", message);
+
                     break;
                 case Logtype.Success:
-                    _logger.LogInformation("{Message}", message);
+                    _logger.LogDebug("{Message}", message);
                     break;
 
                 case Logtype.Warning:

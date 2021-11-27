@@ -211,7 +211,7 @@ namespace gpm.core.Services
             _loggerService.Warning($"[{package.Id}] Partially removed package. Could not delete:");
             foreach (var fail in failed)
             {
-                Console.WriteLine(fail);
+                _loggerService.Debug(fail);
             }
 
             return false;
