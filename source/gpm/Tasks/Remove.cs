@@ -1,6 +1,7 @@
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace gpm.Tasks
 {
@@ -9,13 +10,14 @@ namespace gpm.Tasks
         public static void Action(string name, int slot, bool all, IHost host)
         {
             var serviceProvider = host.Services;
-            var logger = serviceProvider.GetRequiredService<ILoggerService>();
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger(nameof(Remove));
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
 
             if (string.IsNullOrEmpty(name))
             {
-                logger.Warning($"No package name specified to install.");
+                logger.LogWarning("No package name specified to install");
                 return;
             }
 
@@ -24,17 +26,17 @@ namespace gpm.Tasks
             var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
-                logger.Warning($"package {name} not found in database");
+                logger.LogWarning("package {Name} not found in database", name);
                 return;
             }
             if (!libraryService.TryGetValue(package.Id, out var model))
             {
-                logger.Warning($"[{package.Id}] Package is not installed.");
+                logger.LogWarning("[{Package}] Package is not installed", package);
                 return;
             }
             if (!libraryService.IsInstalled(package))
             {
-                logger.Warning($"[{package.Id}] Package is not installed.");
+                logger.LogWarning("[{Package}] Package is not installed", package);
                 return;
             }
 

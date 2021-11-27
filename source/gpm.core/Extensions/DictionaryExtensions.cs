@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using DynamicData.Kernel;
-using LibGit2Sharp;
 
 namespace gpm.core.Extensions
 {

@@ -1,14 +1,8 @@
-using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
-using System.Threading.Tasks;
 using gpm.core.Services;
-using gpm.core.Util;
-using LibGit2Sharp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Octokit;
 
 namespace gpm.Commands
 {

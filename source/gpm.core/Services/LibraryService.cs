@@ -5,15 +5,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using gpm.core.Models;
+using Microsoft.Extensions.Logging;
 using ProtoBuf;
 
 namespace gpm.core.Services
 {
     public class LibraryService : ILibraryService
     {
-        private readonly ILoggerService _loggerService;
+        private readonly ILogger<LibraryService> _loggerService;
 
-        public LibraryService(ILoggerService loggerService)
+        public LibraryService(ILogger<LibraryService> loggerService)
         {
             _loggerService = loggerService;
 
@@ -165,11 +166,13 @@ namespace gpm.core.Services
 
             if (!model.Slots.TryGetValue(slotIdx, out var slot))
             {
-                _loggerService.Warning($"[{package.Id}] No package installed in slot {slotIdx.ToString()}.");
+                _loggerService.LogWarning("[{Package}] No package installed in slot {SlotIdx}", package,
+                    slotIdx.ToString());
                 return true;
             }
 
-            _loggerService.Information($"[{package.Id}] Removing package from slot {slotIdx.ToString()}.");
+            _loggerService.LogInformation("[{Package}] Removing package from slot {SlotIdx}", package,
+                slotIdx.ToString());
 
             var files = slot.Files
                 .Select(x => x.Name)
@@ -180,7 +183,8 @@ namespace gpm.core.Services
             {
                 if (!File.Exists(file))
                 {
-                    _loggerService.Warning($"[{package.Id}] Could not find file {file} to delete. Skipping.");
+                    _loggerService.LogWarning("[{Package}] Could not find file {File} to delete. Skipping", package,
+                        file);
                     continue;
                 }
 
@@ -190,8 +194,7 @@ namespace gpm.core.Services
                 }
                 catch (Exception e)
                 {
-                    _loggerService.Warning($"[{package.Id}] Could not delete file {file}. Skipping.");
-                    _loggerService.Error(e);
+                    _loggerService.LogError(e, "[{Package}] Could not delete file {File}. Skipping", package, file);
                     failed.Add(file);
                 }
             }
@@ -204,14 +207,14 @@ namespace gpm.core.Services
 
             if (failed.Count == 0)
             {
-                _loggerService.Success($"[{package.Id}] Successfully removed package.");
+                _loggerService.LogDebug("[{Package}] Successfully removed package", package);
                 return true;
             }
 
-            _loggerService.Warning($"[{package.Id}] Partially removed package. Could not delete:");
+            _loggerService.LogWarning("[{Package}] Partially removed package. Could not delete:", package);
             foreach (var fail in failed)
             {
-                _loggerService.Debug(fail);
+                _loggerService.LogWarning("Filename: {File}", fail);
             }
 
             return false;

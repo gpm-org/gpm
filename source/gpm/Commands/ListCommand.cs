@@ -1,4 +1,3 @@
-using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using gpm.core.Services;
@@ -24,10 +23,7 @@ namespace gpm.Commands
         private void Action(string pattern, string regex, IHost host)
         {
             var serviceProvider = host.Services;
-            var logger = serviceProvider.GetRequiredService<ILoggerService>();
             var db = serviceProvider.GetRequiredService<IDataBaseService>();
-
-            logger.Success("Available packages:");
 
             db.ListAllPackages();
         }

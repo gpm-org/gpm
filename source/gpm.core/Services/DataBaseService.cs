@@ -8,15 +8,16 @@ using System.Text.Json;
 using gpm.core.Models;
 using gpm.core.Util;
 using LibGit2Sharp;
+using Microsoft.Extensions.Logging;
 using ProtoBuf;
 
 namespace gpm.core.Services
 {
     public class DataBaseService : IDataBaseService
     {
-        private readonly ILoggerService _loggerService;
+        private readonly ILogger<DataBaseService> _loggerService;
 
-        public DataBaseService(ILoggerService loggerService)
+        public DataBaseService(ILogger<DataBaseService> loggerService)
         {
             _loggerService = loggerService;
 
@@ -41,7 +42,7 @@ namespace gpm.core.Services
 
             if (packages is null)
             {
-                _loggerService.Warning("No Database loaded, try gpm update.");
+                _loggerService.LogWarning("No Database loaded, try gpm update");
                 return;
             }
 
@@ -86,7 +87,7 @@ namespace gpm.core.Services
                 catch (Exception e)
                 {
                     package = null;
-                    _loggerService.Error(e);
+                    _loggerService.LogError(e, "Deserialization of database failed");
                 }
 
                 if (package is not null)
@@ -109,7 +110,7 @@ namespace gpm.core.Services
                 throw;
             }
 
-            _loggerService.Success("Database updated");
+            _loggerService.LogDebug("Database updated");
 
             Load();
         }
@@ -122,7 +123,7 @@ namespace gpm.core.Services
             using var sw = new ScopedStopwatch();
 
             // update database
-            var status = GitDatabaseUtil.UpdateGitDatabase(_loggerService);
+            var status = UpdateGitDatabase();
 
             // init database
             if (!File.Exists(IAppSettings.GetDbFile()))
@@ -154,14 +155,85 @@ namespace gpm.core.Services
         /// <summary>
         /// Lists all packages in the database
         /// </summary>
-        /// <param name="db"></param>
         public void ListAllPackages()
         {
+            _loggerService.LogInformation("Available packages:");
             Console.WriteLine("Id\tUrl");
             foreach (var (key, package) in this)
             {
-                Console.WriteLine($"{key}\t{package.Url}");
+                Console.WriteLine("{0}\t{1}", key, package.Url);
+                //_loggerService.LogInformation("{Key}\t{Package}", key, package.Url);
             }
+        }
+
+        /// <summary>
+        /// Fetch and Pull git database
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        private MergeStatus? UpdateGitDatabase()
+        {
+            //var commonSettings = settings.CommonSettings.Value;
+            //ArgumentNullException.ThrowIfNull(commonSettings);
+
+            // check if git is initialized
+            try
+            {
+                using (new Repository(IAppSettings.GetGitDbFolder()))
+                {
+                }
+                //commonSettings.IsInitialized = true;
+                //settings.Save();
+            }
+            catch (RepositoryNotFoundException)
+            {
+                // git clone
+                Repository.Clone(Constants.GPMDB, IAppSettings.GetGitDbFolder());
+            }
+
+            MergeStatus? status;
+            using var repo = new Repository(IAppSettings.GetGitDbFolder());
+            var statusItems = repo.RetrieveStatus(new StatusOptions());
+            if (statusItems.Any())
+            {
+                throw new NotSupportedException("working tree not clean");
+            }
+
+            // fetch
+            var logMessage = "";
+            {
+                var remote = repo.Network.Remotes["origin"];
+                var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
+                Commands.Fetch(repo, remote.Name, refSpecs, null, logMessage);
+            }
+            _loggerService.LogTrace("Fetch log: {LogMessage}", logMessage);
+
+            // Pull -ff
+            var options = new PullOptions()
+            {
+                MergeOptions = new MergeOptions()
+                {
+                    FailOnConflict = true,
+                    FastForwardStrategy = FastForwardStrategy.FastForwardOnly,
+                }
+            };
+            // TODO dummy user information to create a merge commit
+            var signature = new Signature(
+                new Identity("MERGE_USER_NAME", "MERGE_USER_EMAIL"), DateTimeOffset.Now);
+
+            var result = Commands.Pull(repo, signature, options);
+            if (result is not null)
+            {
+                status = result.Status;
+                _loggerService.LogInformation("Status: {Status}", status);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(result));
+            }
+
+            return status;
         }
 
         #endregion
@@ -186,17 +258,19 @@ namespace gpm.core.Services
             if (Path.GetExtension(name) == ".git")
             {
                 var packages = LookupByUrl(name).ToList();
-                if (packages.Count == 1)
+                switch (packages.Count)
                 {
-                    return packages.First();
-                }
-                else if (packages.Count > 1)
-                {
-                    // log results
-                    foreach (var item in packages)
+                    case 1:
+                        return packages.First();
+                    case > 1:
                     {
-                        _loggerService.Warning($"Multiple packages found in repository {name}:");
-                        _loggerService.Information(item.Id);
+                        _loggerService.LogWarning("Multiple packages found in repository {Name}", name);
+                        foreach (var item in packages)
+                        {
+                            _loggerService.LogInformation("Id: {ID}", item.Id);
+                        }
+
+                        break;
                     }
                 }
             }
@@ -218,17 +292,19 @@ namespace gpm.core.Services
                 {
                     // try name
                     var packages = LookupByName(name).ToList();
-                    if (packages.Count == 1)
+                    switch (packages.Count)
                     {
-                        return packages.First();
-                    }
-                    else if (packages.Count > 1)
-                    {
-                        // log results
-                        foreach (var item in packages)
+                        case 1:
+                            return packages.First();
+                        case > 1:
                         {
-                            _loggerService.Warning($"Multiple packages found for name {name}:");
-                            _loggerService.Information(item.Id);
+                            _loggerService.LogWarning("Multiple packages found in repository {Name}", name);
+                            foreach (var item in packages)
+                            {
+                                _loggerService.LogInformation("Id: {ID}", item.Id);
+                            }
+
+                            break;
                         }
                     }
                 }
@@ -236,17 +312,19 @@ namespace gpm.core.Services
                 {
                     // try owner
                     var packages = LookupByOwner(name).ToList();
-                    if (packages.Count == 1)
+                    switch (packages.Count)
                     {
-                        return packages.First();
-                    }
-                    else if (packages.Count > 1)
-                    {
-                        // log results
-                        foreach (var item in packages)
+                        case 1:
+                            return packages.First();
+                        case > 1:
                         {
-                            _loggerService.Warning($"Multiple packages found for owner {name}:");
-                            _loggerService.Information(item.Id);
+                            _loggerService.LogWarning("Multiple packages found in repository {Name}", name);
+                            foreach (var item in packages)
+                            {
+                                _loggerService.LogInformation("Id: {ID}", item.Id);
+                            }
+
+                            break;
                         }
                     }
                 }

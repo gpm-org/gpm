@@ -69,8 +69,8 @@ namespace gpm.Services
 
         public Dictionary<LogLevel, ConsoleColor> LogLevels { get; set; } = new()
         {
-            //[LogLevel.Information] = ConsoleColor.Green,    //Success
-            [LogLevel.Debug] = ConsoleColor.Green           //Sucess
+            //[LogLevel.Information] = ConsoleColor.Green,
+            //[LogLevel.Debug] = ConsoleColor.Green           //Sucess
         };
     }
 

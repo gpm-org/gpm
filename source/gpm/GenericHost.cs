@@ -16,7 +16,7 @@ namespace gpm
     {
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, configuration) =>
+                .ConfigureAppConfiguration((_, configuration) =>
                 {
                     var appData = IAppSettings.GetAppDataFolder();
                     var provider = new PhysicalFileProvider(appData);
@@ -31,15 +31,17 @@ namespace gpm
                     logging.ClearProviders();
                     logging.AddColorConsoleLogger(configuration =>
                     {
-                        configuration.LogLevels.Add(LogLevel.Warning, ConsoleColor.DarkYellow);
-                        configuration.LogLevels.Add(LogLevel.Error, ConsoleColor.DarkMagenta);
-                        configuration.LogLevels.Add(LogLevel.Critical, ConsoleColor.Red);
+                        configuration.LogLevels.Add(LogLevel.Debug, ConsoleColor.Green); //success
+                        configuration.LogLevels.Add(LogLevel.Information, ConsoleColor.DarkYellow);
+                        configuration.LogLevels.Add(LogLevel.Warning, ConsoleColor.DarkMagenta);
+                        configuration.LogLevels.Add(LogLevel.Error, ConsoleColor.Red);
+                        configuration.LogLevels.Add(LogLevel.Critical, ConsoleColor.DarkRed);
                     });
                 })
                 .ConfigureServices((hostContext, services) =>
                     {
                         services.AddScoped<IAppSettings, AppSettings>();
-                        services.AddScoped<ILoggerService, MicrosoftLoggerService>();
+                        //services.AddScoped<ILoggerService, MicrosoftLoggerService>();
                         services.AddScoped<IProgressService<double>, PercentProgressService>();
 
                         services.AddSingleton<ILibraryService, LibraryService>();

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using DynamicData.Kernel;
 using gpm.core.Models;
 
 namespace gpm.core.Services

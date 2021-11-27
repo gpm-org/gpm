@@ -1,13 +1,6 @@
-using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using gpm.core.Extensions;
-using gpm.core.Services;
 using gpm.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands

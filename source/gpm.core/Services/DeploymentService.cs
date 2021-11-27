@@ -6,6 +6,7 @@ using System.Linq;
 using gpm.core.Extensions;
 using gpm.core.Models;
 using gpm.core.Util;
+using Microsoft.Extensions.Logging;
 
 namespace gpm.core.Services
 {
@@ -15,9 +16,9 @@ namespace gpm.core.Services
     public class DeploymentService : IDeploymentService
     {
         private readonly ILibraryService _libraryService;
-        private readonly ILoggerService _loggerService;
+        private readonly ILogger<DeploymentService> _loggerService;
 
-        public DeploymentService(ILibraryService libraryService, ILoggerService loggerService)
+        public DeploymentService(ILibraryService libraryService, ILogger<DeploymentService> loggerService)
         {
             _libraryService = libraryService;
             _loggerService = loggerService;
@@ -36,7 +37,7 @@ namespace gpm.core.Services
         {
             using var ssc = new ScopedStopwatch();
 
-            _loggerService.Information($"[{package.Id}] Installing from cache...");
+            _loggerService.LogInformation("[{Package}] Installing from cache...", package);
 
             // checks
             var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
@@ -56,12 +57,12 @@ namespace gpm.core.Services
             }
             if (cacheManifest.Files is null)
             {
-                _loggerService.Warning($"[{package.Id}] No files to install.");
+                _loggerService.LogWarning("[{Package}] No files to install", package);
                 return false;
             }
             if (cacheManifest.Files.Length < 1)
             {
-                _loggerService.Warning($"[{package.Id}] No files to install.");
+                _loggerService.LogWarning("[{Package}] No files to install", package);
                 return false;
             }
 
@@ -76,7 +77,7 @@ namespace gpm.core.Services
             var installedVersion = slotManifest.Version;
             if (installedVersion is not null && installedVersion.Equals(version))
             {
-                _loggerService.Information($"[{package.Id}] Version {version} already installed.");
+                _loggerService.LogInformation("[{Package}] Version {Version} already installed", package, version);
                 return false;
             }
 
@@ -134,7 +135,7 @@ namespace gpm.core.Services
 
             if (installedFiles is null)
             {
-                _loggerService.Warning($"[{package.Id}] No files installed. Aborting.");
+                _loggerService.LogWarning("[{Package}] No files installed. Aborting", package);
                 return false;
             }
 
@@ -159,7 +160,7 @@ namespace gpm.core.Services
 
             File.Copy(sourceFileName, destinationFileName, overwrite);
 
-            _loggerService.Success($"Installed package to {destinationFileName}.");
+            _loggerService.LogDebug("Installed package to {DestinationFileName}", destinationFileName);
 
             return new List<HashedFile> { new HashedFile(destinationFileName, null, null) };
         }
@@ -212,11 +213,12 @@ namespace gpm.core.Services
             }
             catch (Exception e)
             {
-                _loggerService.Error(e);
+                _loggerService.LogError(e, "Extracting to {DestinationDirectoryName} failed", destinationDirectoryName);
                 return null;
             }
 
-            _loggerService.Success($"Installed {sourceArchiveFileName} to {destinationDirectoryName}.");
+            _loggerService.LogDebug("Installed {SourceArchiveFileName} to {DestinationDirectoryName}",
+                sourceArchiveFileName, destinationDirectoryName);
 
             return files
                 .Select(x => new HashedFile(x, null, null))

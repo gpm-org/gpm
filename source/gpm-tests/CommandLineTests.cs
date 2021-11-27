@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using gpm;
 using gpm.core.Services;
 using gpm.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -122,7 +121,7 @@ namespace gpm_tests
             var serviceProvider = _host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
 
-            var logger = serviceProvider.GetRequiredService<ILoggerService>();
+            //var logger = serviceProvider.GetRequiredService<ILogger<CommandLineTests>>();
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
             dataBaseService.FetchAndUpdateSelf();
 

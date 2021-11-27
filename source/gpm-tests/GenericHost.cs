@@ -1,12 +1,9 @@
-using System;
-using System.IO;
 using gpm.core.Models;
 using gpm.core.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm
+namespace gpm_tests
 {
     internal static class GenericHost
     {
@@ -32,7 +29,7 @@ namespace gpm
                 .ConfigureServices((hostContext, services) =>
                     {
                         //services.AddScoped<IAppSettings, AppSettings>();
-                        services.AddScoped<ILoggerService, MicrosoftLoggerService>();
+                        //services.AddScoped<ILoggerService, MicrosoftLoggerService>();
                         services.AddScoped<IProgressService<double>, PercentProgressService>();
 
                         services.AddSingleton<ILibraryService, LibraryService>();

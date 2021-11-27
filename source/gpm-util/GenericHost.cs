@@ -11,12 +11,12 @@ namespace gpm_util
     {
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, configuration) =>
-                {
-                    // var baseFolder = Path.GetDirectoryName(AppContext.BaseDirectory);
-                    // configuration.SetBasePath(baseFolder);
-                    // configuration.AddJsonFile("appsettings.json");
-                })
+                // .ConfigureAppConfiguration((hostingContext, configuration) =>
+                // {
+                //     // var baseFolder = Path.GetDirectoryName(AppContext.BaseDirectory);
+                //     // configuration.SetBasePath(baseFolder);
+                //     // configuration.AddJsonFile("appsettings.json");
+                // })
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
@@ -30,7 +30,7 @@ namespace gpm_util
                 .ConfigureServices((hostContext, services) =>
                     {
                         //services.AddScoped<IAppSettings, AppSettings>();
-                        services.AddScoped<ILoggerService, MicrosoftLoggerService>();
+                        //services.AddScoped<ILoggerService, MicrosoftLoggerService>();
                         services.AddScoped<IProgressService<double>, PercentProgressService>();
 
                         services.AddSingleton<ILibraryService, LibraryService>();

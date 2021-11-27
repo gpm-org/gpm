@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using gpm.core.Models;
-using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace gpm_util.Commands
 {
@@ -28,7 +28,7 @@ namespace gpm_util.Commands
         private void Action(string url, string? name, IHost host)
         {
             var serviceProvider = host.Services;
-            var logger = serviceProvider.GetRequiredService<ILoggerService>();
+            var logger = serviceProvider.GetRequiredService<ILogger<NewCommand>>();
 
             var fi = new FileInfo(url);
             if (fi.Directory is null)
@@ -72,7 +72,7 @@ namespace gpm_util.Commands
             var jsonString = JsonSerializer.Serialize(package, options);
             File.WriteAllText(path, jsonString);
 
-            logger.Success($"created new package {path}");
+            logger.LogDebug("Created new package {Path}", path);
         }
     }
 }
