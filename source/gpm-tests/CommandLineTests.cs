@@ -5,6 +5,7 @@ using gpm.core.Services;
 using gpm.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace gpm_tests
@@ -121,31 +122,31 @@ namespace gpm_tests
             var serviceProvider = _host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
 
-            //var logger = serviceProvider.GetRequiredService<ILogger<CommandLineTests>>();
+            var logger = serviceProvider.GetRequiredService<ILogger<CommandLineTests>>();
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
             dataBaseService.FetchAndUpdateSelf();
 
-            // test installing a nonexisting package
+            logger.LogInformation("\ntest installing a nonexisting package");
             await Install.Action(TESTNAMEWRONG, "", "", _host);
 
-            // test installing latest -> PASS
+            logger.LogInformation("\ntest installing latest -> PASS");
             await Install.Action(TESTNAME, "", "", _host);
-            // test installing again -> FAIL
+            logger.LogInformation("\ntest installing again -> FAIL");
             await Install.Action(TESTNAME, "", "", _host);
-            // test installing a wrong version -> FAIL
+            logger.LogInformation("\ntest installing a wrong version -> FAIL");
             await Install.Action(TESTNAME, TESTVERSIONWRONG, "", _host);
-            // test installing a previous version into default slot  -> FAIL
+            logger.LogInformation("\ntest installing a previous version into default slot  -> FAIL");
             await Install.Action(TESTNAME, TESTVERSION2, "", _host);
 
-            // test installing a previous version into new slot -> PASS
+            logger.LogInformation("\ntest installing a previous version into new slot -> PASS");
             await Install.Action(TESTNAME, TESTVERSION1, TESTSLOT, _host);
-            // test installing another version into new slot -> FAIL
+            logger.LogInformation("\ntest installing another version into new slot -> FAIL");
             await Install.Action(TESTNAME, TESTVERSION2, TESTSLOT, _host);
 
 
-            // test installing another repo into default slot -> PASS
+            logger.LogInformation("\ntest installing another repo into default slot -> PASS");
             await Install.Action(TESTNAME2, "", "", _host);
-            // test installing another repo over an existing default slot -> FAIL
+            logger.LogInformation("\ntest installing another repo over an existing default slot -> FAIL");
             await Install.Action(TESTNAME2, "", TESTSLOT, _host);
 
         }
@@ -189,6 +190,7 @@ namespace gpm_tests
         }
 
 
-        private static void LogBeginOfTest([CallerMemberName] string methodName = "") => Console.WriteLine(methodName);
+        private static void LogBeginOfTest([CallerMemberName] string methodName = "")
+            => Console.WriteLine("\n=== {0} ===", methodName);
     }
 }

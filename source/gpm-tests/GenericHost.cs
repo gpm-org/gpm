@@ -2,6 +2,7 @@ using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace gpm_tests
 {
@@ -25,6 +26,11 @@ namespace gpm_tests
                 //         configuration.LogLevels.Add(LogLevel.Error, ConsoleColor.DarkMagenta);
                 //         configuration.LogLevels.Add(LogLevel.Critical, ConsoleColor.Red);
                 //     });
+                // })
+                // .ConfigureLogging(logging =>
+                // {
+                //     logging.ClearProviders();
+                //     logging.UseSerilog();
                 // })
                 .ConfigureServices((hostContext, services) =>
                     {

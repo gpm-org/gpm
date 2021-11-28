@@ -36,29 +36,59 @@ namespace gpm.core.Models
         [ProtoMember(2)]
         public string? Identifier { get; set; }
 
+        // METADATA
+
+        /// <summary>
+        /// GitHub tags
+        /// </summary>
+        [ProtoMember(10)]
+        public string[]? Tags { get; set; }
+
+        // Description
+        // Owner
+        // License?
+        // if package > package type
+
         // LOGIC
+
+        // DOWNLOAD-LOGIC
+
+        // Asset name pattern
+        // *.zip, *%reponame%*?
+
+        // useafter? only use
+
+        // blacklist versions
+
+        // whitelist versions
+
+
+
 
 
         /// <summary>
         /// Asset index to download
         /// </summary>
-        [ProtoMember(3)]
+        [ProtoMember(103)]
         public int AssetIndex { get; set; }
 
-        // Install Directories
-        // TODO
+
+        // INSTALL-LOGIC
+
+        // Ignore tags
+        // tags are the lowest prio: any other logic is provided
+
+        // install dir patterns
+        // support custom local env vars
+        // e.g. %cp77root% for
 
         /// <summary>
         /// Content Type
         /// </summary>
-        [ProtoMember(8)]
+        [ProtoMember(208)]
         public EContentType? ContentType { get; set; }
 
-        /// <summary>
-        /// GitHub tags
-        /// </summary>
-        [ProtoMember(9)]
-        public string[]? Tags { get; set; }
+
 
 
 
