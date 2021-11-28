@@ -10,7 +10,7 @@ using gpm.core.Extensions;
 using gpm.core.Models;
 using Octokit;
 using gpm.core.Util;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gpm.core.Services
 {
@@ -24,15 +24,12 @@ namespace gpm.core.Services
         private readonly AsyncLock _loadingLock = new();
 
         private readonly ILibraryService _libraryService;
-        private readonly ILogger<GitHubService> _loggerService;
         private readonly IDeploymentService _deploymentService;
 
         public GitHubService(ILibraryService libraryService,
-            ILogger<GitHubService> loggerService,
             IDeploymentService deploymentService)
         {
             _libraryService = libraryService;
-            _loggerService = loggerService;
             _deploymentService = deploymentService;
         }
 
@@ -56,7 +53,7 @@ namespace gpm.core.Services
                 }
                 catch (Exception e)
                 {
-                    _loggerService.LogError(e, "Fetching github releases failed");
+                    Log.Error(e, "Fetching github releases failed");
                     releases = null;
                 }
             }
@@ -77,12 +74,12 @@ namespace gpm.core.Services
 
             if (releases is null || !releases.Any())
             {
-                _loggerService.LogWarning("No releases found for package {Package}", package);
+                Log.Warning("No releases found for package {Package}", package);
                 return false;
             }
             if (!releases.Any(x => x.TagName.Equals(installedVersion)))
             {
-                _loggerService.LogWarning("No releases found with version {InstalledVersion} for package {Package}",
+                Log.Warning("No releases found with version {InstalledVersion} for package {Package}",
                     installedVersion, package);
                 return false;
             }
@@ -93,7 +90,7 @@ namespace gpm.core.Services
                 return true;
             }
 
-            _loggerService.LogInformation($"Latest release already installed");
+            Log.Information($"Latest release already installed");
             return false;
         }
 
@@ -121,7 +118,7 @@ namespace gpm.core.Services
 
             if (release == null)
             {
-                _loggerService.LogWarning("No release found for version {RequestedVersion}", requestedVersion);
+                Log.Warning("No release found for version {RequestedVersion}", requestedVersion);
                 return false;
             }
 
@@ -134,7 +131,7 @@ namespace gpm.core.Services
             var asset = release.Assets[idx];
             if (asset is null)
             {
-                _loggerService.LogWarning("No release asset found for version {RequestedVersion} and index {Idx}",
+                Log.Warning("No release asset found for version {RequestedVersion} and index {Idx}",
                     requestedVersion, idx.ToString());
                 return false;
             }
@@ -149,7 +146,7 @@ namespace gpm.core.Services
                 var installedVersion = slotManifest.Version;
                 if (installedVersion is not null && installedVersion.Equals(version))
                 {
-                    _loggerService.LogInformation("[{Package}] Version {Version} already installed", package, version);
+                    Log.Information("[{Package}] Version {Version} already installed", package, version);
                     return false;
                 }
             }
@@ -157,7 +154,7 @@ namespace gpm.core.Services
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(version);
             if (!await DownloadAssetToCache(package, asset, version))
             {
-                _loggerService.LogWarning("Failed to download package {Package}", package);
+                Log.Warning("Failed to download package {Package}", package);
                 return false;
             }
 
@@ -166,7 +163,7 @@ namespace gpm.core.Services
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
             if (! _deploymentService.InstallPackageFromCache(package, version, slot))
             {
-                _loggerService.LogWarning("Failed to install package {Package}", package);
+                Log.Warning("Failed to install package {Package}", package);
                 return false;
             }
 
@@ -194,7 +191,7 @@ namespace gpm.core.Services
             // check if already exists
             if (CheckIfCachedFileExists())
             {
-                _loggerService.LogInformation("Asset exists in cache: {AssetCacheFile}. Using cached file",
+                Log.Information("Asset exists in cache: {AssetCacheFile}. Using cached file",
                     assetCacheFile);
                 return true;
             }
@@ -203,7 +200,7 @@ namespace gpm.core.Services
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(url);
             try
             {
-                _loggerService.LogInformation("Downloading asset from {Url} ...", url);
+                Log.Information("Downloading asset from {Url} ...", url);
 
                 var response = await s_client.GetAsync(new Uri(url));
                 response.EnsureSuccessStatusCode();
@@ -225,9 +222,9 @@ namespace gpm.core.Services
                 await using var fs = new FileStream(assetCacheFile, System.IO.FileMode.Create, FileAccess.Write);
                 await ms.CopyToAsync(fs);
 
-                _loggerService.LogDebug("Downloaded asset {ReleaseFilename} with hash {Hash}", releaseFilename,
+                Log.Debug("Downloaded asset {ReleaseFilename} with hash {Hash}", releaseFilename,
                     HashUtil.BytesToString(sha));
-                _loggerService.LogInformation("Saving file to local cache: {AssetCacheFile}", assetCacheFile);
+                Log.Information("Saving file to local cache: {AssetCacheFile}", assetCacheFile);
 
                 // cache manifest
                 var cacheManifest = new CacheManifest()
@@ -246,12 +243,12 @@ namespace gpm.core.Services
             }
             catch (HttpRequestException httpRequestException)
             {
-                _loggerService.LogError(httpRequestException, "Downloading asset from {Url} failed", url);
+                Log.Error(httpRequestException, "Downloading asset from {Url} failed", url);
                 return false;
             }
             catch (Exception e)
             {
-                _loggerService.LogError(e, "Downloading asset from {Url} failed", url);
+                Log.Error(e, "Downloading asset from {Url} failed", url);
                 return false;
             }
 

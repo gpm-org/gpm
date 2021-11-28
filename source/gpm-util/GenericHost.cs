@@ -4,6 +4,7 @@ using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gpm_util
 {
@@ -20,12 +21,7 @@ namespace gpm_util
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
-                    logging.AddColorConsoleLogger(configuration =>
-                    {
-                        configuration.LogLevels.Add(LogLevel.Warning, ConsoleColor.DarkYellow);
-                        configuration.LogLevels.Add(LogLevel.Error, ConsoleColor.DarkMagenta);
-                        configuration.LogLevels.Add(LogLevel.Critical, ConsoleColor.Red);
-                    });
+                    logging.AddSerilog();
                 })
                 .ConfigureServices((hostContext, services) =>
                     {

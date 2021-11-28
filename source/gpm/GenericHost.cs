@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gpm
 {
@@ -26,18 +26,18 @@ namespace gpm
                     configuration.SetBasePath(baseFolder);
                     configuration.AddJsonFile("appsettings.json");
                 })
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddColorConsoleLogger(configuration =>
-                    {
-                        configuration.LogLevels.Add(LogLevel.Debug, ConsoleColor.Green); //success
-                        configuration.LogLevels.Add(LogLevel.Information, ConsoleColor.DarkYellow);
-                        configuration.LogLevels.Add(LogLevel.Warning, ConsoleColor.DarkMagenta);
-                        configuration.LogLevels.Add(LogLevel.Error, ConsoleColor.Red);
-                        configuration.LogLevels.Add(LogLevel.Critical, ConsoleColor.DarkRed);
-                    });
-                })
+                // .ConfigureLogging(logging =>
+                // {
+                //     logging.ClearProviders();
+                //     logging.AddColorConsoleLogger(configuration =>
+                //     {
+                //         configuration.LogLevels.Add(LogLevel.Debug, ConsoleColor.Green); //success
+                //         configuration.LogLevels.Add(LogLevel.Information, ConsoleColor.DarkYellow);
+                //         configuration.LogLevels.Add(LogLevel.Warning, ConsoleColor.DarkMagenta);
+                //         configuration.LogLevels.Add(LogLevel.Error, ConsoleColor.Red);
+                //         configuration.LogLevels.Add(LogLevel.Critical, ConsoleColor.DarkRed);
+                //     });
+                // })
                 .ConfigureServices((hostContext, services) =>
                     {
                         services.AddScoped<IAppSettings, AppSettings>();

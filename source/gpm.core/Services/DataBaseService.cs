@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -8,19 +9,40 @@ using System.Text.Json;
 using gpm.core.Models;
 using gpm.core.Util;
 using LibGit2Sharp;
-using Microsoft.Extensions.Logging;
 using ProtoBuf;
+using Serilog;
 
 namespace gpm.core.Services
 {
+    [ProtoContract]
+    public class DataBaseServiceDto
+    {
+        public DataBaseServiceDto()
+        {
+
+        }
+        public DataBaseServiceDto(int version, IEnumerable<Package> packages)
+        {
+            Packages = packages;
+            Version = version;
+        }
+
+        [ProtoMember(1)]
+        public int Version { get; set; }
+
+        [ProtoMember(2)]
+        public IEnumerable<Package>? Packages { get; set; }
+    }
+
+
     public class DataBaseService : IDataBaseService
     {
-        private readonly ILogger<DataBaseService> _loggerService;
+        private int _loadAttempts = 5;
 
-        public DataBaseService(ILogger<DataBaseService> loggerService)
+        private const int VERSION = 1;
+
+        public DataBaseService()
         {
-            _loggerService = loggerService;
-
             Load();
         }
 
@@ -33,21 +55,52 @@ namespace gpm.core.Services
         /// </summary>
         public void Load()
         {
-            IEnumerable<Package>? packages = null;
             if (File.Exists(IAppSettings.GetDbFile()))
             {
-                using var file = File.OpenRead(IAppSettings.GetDbFile());
-                packages = Serializer.Deserialize<IEnumerable<Package>>(file);
-            }
+                try
+                {
+                    using var file = File.OpenRead(IAppSettings.GetDbFile());
+                    var dto = Serializer.Deserialize<DataBaseServiceDto>(file);
 
-            if (packages is null)
+                    ArgumentNullException.ThrowIfNull(dto);
+                    ArgumentNullException.ThrowIfNull(dto.Packages);
+
+                    _packages = dto.Packages.ToDictionary(x => x.Id);
+
+                    if (dto.Version != VERSION)
+                    {
+                        throw new VersionNotFoundException();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "Failed to deserialize database");
+                    if (File.Exists(IAppSettings.GetDbFile()))
+                    {
+                        File.Delete(IAppSettings.GetDbFile());
+                    }
+                    AttemptReload();
+                }
+            }
+            else
             {
-                _loggerService.LogWarning("No Database loaded, try gpm update");
-                return;
+                AttemptReload();
+            }
+        }
+
+        private void AttemptReload()
+        {
+            // delete local db and try again
+            if (_loadAttempts <= 0)
+            {
+                throw new ProtoException();
             }
 
-            _packages = packages.ToDictionary(x => x.Id);
+            Log.Information("No local database found, Attempting reload. Attempts left: {LoadAttempts}", _loadAttempts);
+            _loadAttempts--;
+            FetchAndUpdateSelf();
         }
+
 
         /// <summary>
         /// Serialize to file
@@ -57,7 +110,7 @@ namespace gpm.core.Services
             try
             {
                 using var file = File.Create(IAppSettings.GetDbFile());
-                Serializer.Serialize(file, _packages);
+                Serializer.Serialize(file, new DataBaseServiceDto(VERSION, _packages.Values));
             }
             catch (Exception)
             {
@@ -87,7 +140,7 @@ namespace gpm.core.Services
                 catch (Exception e)
                 {
                     package = null;
-                    _loggerService.LogError(e, "Deserialization of database failed");
+                    Log.Error(e, "Deserialization of package {Package} failed", package);
                 }
 
                 if (package is not null)
@@ -96,10 +149,11 @@ namespace gpm.core.Services
                 }
             }
 
+            _packages = packages.ToDictionary(x => x.Id);
+
             try
             {
-                using var file = File.Create(IAppSettings.GetDbFile());
-                Serializer.Serialize(file, packages);
+                Save();
             }
             catch (Exception)
             {
@@ -110,7 +164,7 @@ namespace gpm.core.Services
                 throw;
             }
 
-            _loggerService.LogDebug("Database updated");
+            Log.Information("Database updated");
 
             Load();
         }
@@ -143,6 +197,8 @@ namespace gpm.core.Services
                             // re-create database
                             UpdateSelf();
                             break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
                 else
@@ -157,12 +213,12 @@ namespace gpm.core.Services
         /// </summary>
         public void ListAllPackages()
         {
-            _loggerService.LogInformation("Available packages:");
+            Log.Information("Available packages:");
             Console.WriteLine("Id\tUrl");
             foreach (var (key, package) in this)
             {
                 Console.WriteLine("{0}\t{1}", key, package.Url);
-                //_loggerService.LogInformation("{Key}\t{Package}", key, package.Url);
+                //Log.Information("{Key}\t{Package}", key, package.Url);
             }
         }
 
@@ -207,7 +263,7 @@ namespace gpm.core.Services
                 var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
                 Commands.Fetch(repo, remote.Name, refSpecs, null, logMessage);
             }
-            _loggerService.LogTrace("Fetch log: {LogMessage}", logMessage);
+            Log.Debug("Fetch log: {LogMessage}", logMessage);
 
             // Pull -ff
             var options = new PullOptions()
@@ -226,7 +282,7 @@ namespace gpm.core.Services
             if (result is not null)
             {
                 status = result.Status;
-                _loggerService.LogInformation("Status: {Status}", status);
+                Log.Information("Status: {Status}", status);
             }
             else
             {
@@ -264,10 +320,10 @@ namespace gpm.core.Services
                         return packages.First();
                     case > 1:
                     {
-                        _loggerService.LogWarning("Multiple packages found in repository {Name}", name);
+                        Log.Warning("Multiple packages found in repository {Name}", name);
                         foreach (var item in packages)
                         {
-                            _loggerService.LogInformation("Id: {ID}", item.Id);
+                            Log.Information("Id: {ID}", item.Id);
                         }
 
                         break;
@@ -298,10 +354,10 @@ namespace gpm.core.Services
                             return packages.First();
                         case > 1:
                         {
-                            _loggerService.LogWarning("Multiple packages found in repository {Name}", name);
+                            Log.Warning("Multiple packages found in repository {Name}", name);
                             foreach (var item in packages)
                             {
-                                _loggerService.LogInformation("Id: {ID}", item.Id);
+                                Log.Information("Id: {ID}", item.Id);
                             }
 
                             break;
@@ -318,10 +374,10 @@ namespace gpm.core.Services
                             return packages.First();
                         case > 1:
                         {
-                            _loggerService.LogWarning("Multiple packages found in repository {Name}", name);
+                            Log.Warning("Multiple packages found in repository {Name}", name);
                             foreach (var item in packages)
                             {
-                                _loggerService.LogInformation("Id: {ID}", item.Id);
+                                Log.Information("Id: {ID}", item.Id);
                             }
 
                             break;

@@ -5,24 +5,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using gpm.core.Models;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using ProtoBuf;
 
 namespace gpm.core.Services
 {
     public class LibraryService : ILibraryService
     {
-        private readonly ILogger<LibraryService> _loggerService;
-
-        public LibraryService(ILogger<LibraryService> loggerService)
+        public LibraryService()
         {
-            _loggerService = loggerService;
-
             Load();
-
-            //TODO check self
-
-
         }
 
         private Dictionary<string, PackageModel> _packages = new();
@@ -37,18 +29,19 @@ namespace gpm.core.Services
                 {
                     using var file = File.OpenRead(IAppSettings.GetLocalDbFile());
                     _packages = Serializer.Deserialize<Dictionary<string, PackageModel>>(file);
+
+                    // check self
+
                 }
                 catch (Exception)
                 {
                     _packages = new Dictionary<string, PackageModel>();
                 }
-
             }
             else
             {
                 _packages = new Dictionary<string, PackageModel>();
             }
-
         }
 
         public void Save()
@@ -168,12 +161,12 @@ namespace gpm.core.Services
 
             if (!model.Slots.TryGetValue(slotIdx, out var slot))
             {
-                _loggerService.LogWarning("[{Package}] No package installed in slot {SlotIdx}", package,
+                Log.Warning("[{Package}] No package installed in slot {SlotIdx}", package,
                     slotIdx.ToString());
                 return true;
             }
 
-            _loggerService.LogInformation("[{Package}] Removing package from slot {SlotIdx}", package,
+            Log.Information("[{Package}] Removing package from slot {SlotIdx}", package,
                 slotIdx.ToString());
 
             var files = slot.Files
@@ -185,7 +178,7 @@ namespace gpm.core.Services
             {
                 if (!File.Exists(file))
                 {
-                    _loggerService.LogWarning("[{Package}] Could not find file {File} to delete. Skipping", package,
+                    Log.Warning("[{Package}] Could not find file {File} to delete. Skipping", package,
                         file);
                     continue;
                 }
@@ -196,7 +189,7 @@ namespace gpm.core.Services
                 }
                 catch (Exception e)
                 {
-                    _loggerService.LogError(e, "[{Package}] Could not delete file {File}. Skipping", package, file);
+                    Log.Error(e, "[{Package}] Could not delete file {File}. Skipping", package, file);
                     failed.Add(file);
                 }
             }
@@ -209,14 +202,14 @@ namespace gpm.core.Services
 
             if (failed.Count == 0)
             {
-                _loggerService.LogDebug("[{Package}] Successfully removed package", package);
+                Log.Debug("[{Package}] Successfully removed package", package);
                 return true;
             }
 
-            _loggerService.LogWarning("[{Package}] Partially removed package. Could not delete:", package);
+            Log.Warning("[{Package}] Partially removed package. Could not delete:", package);
             foreach (var fail in failed)
             {
-                _loggerService.LogWarning("Filename: {File}", fail);
+                Log.Warning("Filename: {File}", fail);
             }
 
             return false;

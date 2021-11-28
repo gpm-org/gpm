@@ -1,7 +1,7 @@
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gpm.Tasks
 {
@@ -10,14 +10,12 @@ namespace gpm.Tasks
         public static void Action(string name, int slot, bool all, IHost host)
         {
             var serviceProvider = host.Services;
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger(nameof(Remove));
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
 
             if (string.IsNullOrEmpty(name))
             {
-                logger.LogWarning("No package name specified to install");
+                Log.Warning("No package name specified to install");
                 return;
             }
 
@@ -26,17 +24,17 @@ namespace gpm.Tasks
             var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
-                logger.LogWarning("package {Name} not found in database", name);
+                Log.Warning("package {Name} not found in database", name);
                 return;
             }
             if (!libraryService.TryGetValue(package.Id, out var model))
             {
-                logger.LogWarning("[{Package}] Package is not installed", package);
+                Log.Warning("[{Package}] Package is not installed", package);
                 return;
             }
             if (!libraryService.IsInstalled(package))
             {
-                logger.LogWarning("[{Package}] Package is not installed", package);
+                Log.Warning("[{Package}] Package is not installed", package);
                 return;
             }
 

@@ -2,7 +2,7 @@ using System;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gpm.Tasks
 {
@@ -11,11 +11,9 @@ namespace gpm.Tasks
         public static void Action(string pattern, string regex, IHost host)
         {
             var serviceProvider = host.Services;
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger(nameof(Installed));
             var library = serviceProvider.GetRequiredService<ILibraryService>();
 
-            logger.LogInformation("Installed packages:");
+            Log.Information("Installed packages:");
 
             foreach (var (key, model) in library)
             {

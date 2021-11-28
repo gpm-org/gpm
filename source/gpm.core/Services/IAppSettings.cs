@@ -11,24 +11,12 @@ namespace gpm.core.Services
 
         void Save();
 
-
-        public static string GetAppSettingsFile() => Path.Combine(GetAppDataFolder(), Constants.APPSETTINGS);
-
-        public static string GetDbFile() => Path.Combine(GetAppDataFolder(), Constants.DB);
-
-        public static string GetLocalDbFile() => Path.Combine(GetAppDataFolder(), Constants.LOCALDB);
-
-        public static string GetCacheFolder() => Path.Combine(GetAppDataFolder(), Constants.CACHE);
-
-        public static string GetLibraryFolder() => GetDocumentsFolder();
-
-
         public static string GetAppDataFolder()
         {
             var folder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "gpm"
-                );
+                Constants.APPDATA
+            );
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
@@ -36,12 +24,43 @@ namespace gpm.core.Services
             return folder;
         }
 
-        public static string GetDocumentsFolder()
+        public static string GetLibraryFolder()
         {
             var folder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "gpm"
-                );
+                Constants.MYDOCUMENTS
+            );
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            return folder;
+        }
+
+        public static string GetAppSettingsFile() => Path.Combine(GetAppDataFolder(), Constants.APPSETTINGS);
+
+        public static string GetDbFile() => Path.Combine(GetAppDataFolder(), Constants.DB);
+
+        public static string GetLocalDbFile() => Path.Combine(GetAppDataFolder(), Constants.LOCALDB);
+
+
+        public static string GetCacheFolder()
+        {
+            var folder = Path.Combine(GetAppDataFolder(),
+                Constants.APPDATA_CACHE
+            );
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            return folder;
+        }
+
+        public static string GetLogsFolder()
+        {
+            var folder = Path.Combine(GetAppDataFolder(),
+                Constants.APPDATA_LOGS
+            );
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
@@ -52,7 +71,7 @@ namespace gpm.core.Services
         public static string GetGitDbFolder()
         {
             var folder = Path.Combine(GetAppDataFolder(),
-                "db"
+                Constants.APPDATA_DB
                 );
             if (!Directory.Exists(folder))
             {

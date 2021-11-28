@@ -8,6 +8,7 @@ using gpm.core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gpm_util.Commands
 {
@@ -72,7 +73,7 @@ namespace gpm_util.Commands
             var jsonString = JsonSerializer.Serialize(package, options);
             File.WriteAllText(path, jsonString);
 
-            logger.LogDebug("Created new package {Path}", path);
+            Log.Information("Created new package {Path}", path);
         }
     }
 }

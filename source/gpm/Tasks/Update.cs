@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gpm.Tasks
 {
@@ -16,8 +16,6 @@ namespace gpm.Tasks
             ArgumentNullException.ThrowIfNull(serviceProvider);
 
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger(nameof(Update));
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
             var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
 
@@ -42,7 +40,7 @@ namespace gpm.Tasks
             {
                 if (string.IsNullOrEmpty(name))
                 {
-                    logger.LogWarning("No package name specified. To update all installed packages use gpm update --all");
+                    Log.Warning("No package name specified. To update all installed packages use gpm update --all");
                     return;
                 }
                 // update package in slot
@@ -55,22 +53,22 @@ namespace gpm.Tasks
                 var package = dataBaseService.GetPackageFromName(nameInner);
                 if (package is null)
                 {
-                    logger.LogWarning("Package {NameInner} not found in database", nameInner);
+                    Log.Warning("Package {NameInner} not found in database", nameInner);
                     return;
                 }
                 if (!libraryService.TryGetValue(package.Id, out var model))
                 {
-                    logger.LogWarning("[{Package}] Package not found in library. Use gpm install to install a package", package);
+                    Log.Warning("[{Package}] Package not found in library. Use gpm install to install a package", package);
                     return;
                 }
                 if (!libraryService.IsInstalled(package))
                 {
-                    logger.LogWarning("[{Package}] Package not installed. Use gpm install to install a package", package);
+                    Log.Warning("[{Package}] Package not installed. Use gpm install to install a package", package);
                     return;
                 }
                 if (!libraryService.IsInstalledInSlot(package, slotIdx))
                 {
-                    logger.LogWarning(
+                    Log.Warning(
                         "[{Package}] Package not installed in slot {SlotIdx}. Use gpm install to install a package",
                         package, slotIdx.ToString());
                     return;
@@ -80,7 +78,7 @@ namespace gpm.Tasks
                 var releases = await gitHubService.GetReleasesForPackage(package);
                 if (releases is null || !releases.Any())
                 {
-                    logger.LogWarning("[{Package}] No releases found for package", package);
+                    Log.Warning("[{Package}] No releases found for package", package);
                     return;
                 }
 
@@ -92,28 +90,28 @@ namespace gpm.Tasks
 
                 if (cleanInner)
                 {
-                    logger.LogInformation("[{Package}] Removing installed package ...", package);
+                    Log.Information("[{Package}] Removing installed package ...", package);
                     if (libraryService.UninstallPackage(package, slotIdx))
                     {
-                        logger.LogDebug("[{Package}] Old package successfully removed", package);
+                        Log.Information("[{Package}] Old package successfully removed", package);
                     }
                     else
                     {
-                        logger.LogWarning("[{Package}] Failed to remove installed package. Aborting", package);
+                        Log.Warning("[{Package}] Failed to remove installed package. Aborting", package);
                         return;
                     }
                 }
 
-                logger.LogInformation("[{Package}] Updating package ...", package);
+                Log.Information("[{Package}] Updating package ...", package);
 
                 if (await gitHubService.InstallReleaseAsync(package, releases, null, slotIdx))
                 {
-                    logger.LogDebug("[{Package}] Package successfully updated to version {Version}", package,
+                    Log.Information("[{Package}] Package successfully updated to version {Version}", package,
                         model.Slots[slotIdx].Version);
                 }
                 else
                 {
-                    logger.LogWarning("[{Package}] Failed to update package", package);
+                    Log.Warning("[{Package}] Failed to update package", package);
                 }
             }
         }

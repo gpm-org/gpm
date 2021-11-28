@@ -1,9 +1,11 @@
+using Serilog;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.Parsing;
 using gpm;
 using gpm.Commands;
+using gpm.core.Services;
 
 var rootCommand = new RootCommand
 {
@@ -14,6 +16,12 @@ var rootCommand = new RootCommand
     new InstalledCommand(),
     new UpgradeCommand()
 };
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .WriteTo.File(IAppSettings.GetLogsFolder(), rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 var parser = new CommandLineBuilder(rootCommand)
     .UseDefaults()

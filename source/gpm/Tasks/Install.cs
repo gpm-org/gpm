@@ -6,7 +6,7 @@ using gpm.core.Extensions;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace gpm.Tasks
 {
@@ -17,21 +17,19 @@ namespace gpm.Tasks
             var serviceProvider = host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
 
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger(nameof(Install));
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
             var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
 
             if (string.IsNullOrEmpty(name))
             {
-                logger.LogWarning($"No package name specified to install.");
+                Log.Warning($"No package name specified to install.");
                 return;
             }
             var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
-                logger.LogWarning("[{Package}] Package {Name} not found", package, name);
+                Log.Warning("[{Package}] Package {Name} not found", package, name);
                 return;
             }
 
@@ -40,7 +38,7 @@ namespace gpm.Tasks
             {
                 if (!Directory.Exists(slot))
                 {
-                    logger.LogWarning("[{Package}] No valid directory path given for slot {Slot}", package, slot);
+                    Log.Warning("[{Package}] No valid directory path given for slot {Slot}", package, slot);
                     return;
                 }
 
@@ -61,23 +59,23 @@ namespace gpm.Tasks
                 }
                 else
                 {
-                    logger.LogWarning("[{Package}] Already installed in slot {Slot} - Use gpm update or gpm repair",
+                    Log.Warning("[{Package}] Already installed in slot {Slot} - Use gpm update or gpm repair",
                         package, slot);
                     return;
                 }
             }
 
-            logger.LogInformation("[{Package}] Installing package ...", package);
+            Log.Information("[{Package}] Installing package ...", package);
             var releases = await gitHubService.GetReleasesForPackage(package);
             if (releases is null || !releases.Any())
             {
-                logger.LogWarning("No releases found for package {Package}", package);
+                Log.Warning("No releases found for package {Package}", package);
                 return;
             }
 
             if (await gitHubService.InstallReleaseAsync(package, releases, version, slotId))
             {
-                logger.LogDebug("[{Package}] Package successfully installed", package);
+                Log.Information("[{Package}] Package successfully installed", package);
             }
         }
     }

@@ -10,8 +10,17 @@ namespace gpm.core
 
         public const string LOCALDB = "gpm-lib.bin";
 
-        public const string CACHE = "cache";
 
+        public const string APPDATA = @"gpm-24f61971-86e8-4197-8f1e-a40a5c3315ae";
+
+        public const string APPDATA_CACHE = "cache";
+
+        public const string APPDATA_DB = @"db";
+
+        public const string APPDATA_LOGS = "logs";
+
+
+        public const string MYDOCUMENTS = @"gpm";
 
     }
 }
