@@ -1,6 +1,6 @@
 namespace gpm.core.Models
 {
-    public class CommonSettings
+    public sealed class CommonSettings
     {
         public bool IsInitialized { get; set; }
     }

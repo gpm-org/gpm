@@ -11,6 +11,7 @@ using Serilog;
 var rootCommand = new RootCommand
 {
     new UpdateCommand(),
+    new UpgradeCommand(),
     new NewCommand(),
 };
 

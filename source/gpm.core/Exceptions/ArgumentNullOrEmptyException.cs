@@ -2,7 +2,7 @@ using System;
 
 namespace gpm.core.Exceptions
 {
-    public class ArgumentNullOrEmptyException : ArgumentNullException
+    public sealed class ArgumentNullOrEmptyException : ArgumentNullException
     {
         public static void ThrowIfNullOrEmpty(object? argument)
             => ThrowIfNull(argument: argument);

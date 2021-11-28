@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using gpm.core.Models;
+using Octokit;
 
 namespace gpm.core.Services
 {
@@ -21,5 +24,20 @@ namespace gpm.core.Services
         /// <param name="package"></param>
         /// <param name="slotIdx"></param>
         bool UninstallPackage(Package package, int slotIdx = 0);
+
+        /// <summary>
+        /// Download and install an asset file from a Github repo.
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="releases"></param>
+        /// <param name="requestedVersion"></param>
+        /// <param name="slot"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <returns></returns>
+        Task<bool> InstallReleaseAsync(
+            Package package,
+            IReadOnlyList<Release> releases,
+            string? requestedVersion,
+            int slot = 0);
     }
 }

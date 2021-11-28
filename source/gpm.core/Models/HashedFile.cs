@@ -3,7 +3,7 @@ using ProtoBuf;
 namespace gpm.core.Models
 {
     [ProtoContract]
-    public record HashedFile
+    public sealed record HashedFile
     {
 #pragma warning disable 8618
         public HashedFile()

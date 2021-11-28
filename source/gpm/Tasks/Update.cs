@@ -104,7 +104,7 @@ namespace gpm.Tasks
 
                 Log.Information("[{Package}] Updating package ...", package);
 
-                if (await gitHubService.InstallReleaseAsync(package, releases, null, slotIdx))
+                if (await libraryService.InstallReleaseAsync(package, releases, null, slotIdx))
                 {
                     Log.Information("[{Package}] Package successfully updated to version {Version}", package,
                         model.Slots[slotIdx].Version);

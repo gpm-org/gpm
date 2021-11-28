@@ -38,15 +38,18 @@ namespace gpm.core.Models
 
         // METADATA
 
-        /// <summary>
-        /// GitHub tags
-        /// </summary>
         [ProtoMember(10)]
-        public string[]? Tags { get; set; }
+        public string[]? Topics { get; set; }
 
-        // Description
-        // Owner
-        // License?
+        [ProtoMember(11)]
+        public string? Description { get; set; }
+
+        [ProtoMember(12)]
+        public string? Homepage { get; set; }
+
+        [ProtoMember(13)]
+        public string? License { get; set; }
+
         // if package > package type
 
         // LOGIC
@@ -92,16 +95,11 @@ namespace gpm.core.Models
 
 
 
-
-
-
-
         public string Id => string.IsNullOrEmpty(Identifier) ? $"{RepoOwner}/{RepoName}" : $"{RepoOwner}/{RepoName}/{Identifier.ToLower()}";
 
         public string RepoOwner => GetRepoOwner();
 
         public string RepoName => GetRepoName();
-
 
 
 

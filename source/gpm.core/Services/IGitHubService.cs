@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using gpm.core.Models;
@@ -8,21 +7,6 @@ namespace gpm.core.Services
 {
     public interface IGitHubService
     {
-        /// <summary>
-        /// Download and install an asset file from a Github repo.
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="releases"></param>
-        /// <param name="requestedVersion"></param>
-        /// <param name="slot"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        /// <returns></returns>
-        Task<bool> InstallReleaseAsync(
-            Package package,
-            IReadOnlyList<Release> releases,
-            string? requestedVersion,
-            int slot = 0);
-
         /// <summary>
         /// Check if a release exists that
         /// </summary>
@@ -38,5 +22,11 @@ namespace gpm.core.Services
         /// <param name="package"></param>
         /// <returns></returns>
         Task<IReadOnlyList<Release>?> GetReleasesForPackage(Package package);
+
+        /// <summary>
+        /// Get metadata for a github repo
+        /// </summary>
+        /// <param name="url"></param>
+        Task<(Repository? repo, RepositoryTopics? topics)> GetInfo(string url);
     }
 }

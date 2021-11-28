@@ -7,7 +7,7 @@ namespace gpm.core.Models
     /// Holds deployment info for specific slots
     /// </summary>
     [ProtoContract]
-    public record SlotManifest
+    public sealed record SlotManifest
     {
         /// <summary>
         /// Deployed Files in slot

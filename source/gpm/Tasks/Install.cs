@@ -73,7 +73,7 @@ namespace gpm.Tasks
                 return;
             }
 
-            if (await gitHubService.InstallReleaseAsync(package, releases, version, slotId))
+            if (await libraryService.InstallReleaseAsync(package, releases, version, slotId))
             {
                 Log.Information("[{Package}] Package successfully installed", package);
             }
