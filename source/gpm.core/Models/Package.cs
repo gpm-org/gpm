@@ -73,7 +73,7 @@ namespace gpm.core.Models
         /// Asset index to download
         /// </summary>
         [ProtoMember(103)]
-        public int AssetIndex { get; set; }
+        public int? AssetIndex { get; set; }
 
 
         // INSTALL-LOGIC

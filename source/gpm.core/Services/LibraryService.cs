@@ -258,12 +258,16 @@ namespace gpm.core.Services
 
             // TODO support asset get logic
 
-            var idx = package.AssetIndex;
-            var asset = release.Assets[idx];
+            var assets = release.Assets;
+            ArgumentNullException.ThrowIfNull(assets);
+
+            var assetBuilder = AssetHost.CreateDefaultBuilder(package).Build();
+            var asset = assetBuilder.GetAsset(release.Assets);
+
             if (asset is null)
             {
-                Log.Warning("No release asset found for version {RequestedVersion} and index {Idx}",
-                    requestedVersion, idx.ToString());
+                Log.Warning("No release asset found for version {RequestedVersion}",
+                    requestedVersion);
                 return false;
             }
 
