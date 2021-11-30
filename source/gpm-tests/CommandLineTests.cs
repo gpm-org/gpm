@@ -23,7 +23,18 @@ namespace gpm_tests
         private const string TESTVERSION1 = "8.4.2";
         private const string TESTVERSION2 = "8.4.1";
         private const string TESTVERSIONWRONG = "xxxx";
-        private const string TESTSLOT = "/Users/ghost/gpm2";
+
+        private static string GetTestSlot()
+        {
+            var folder = Path.Combine(IAppSettings.GetAppDataFolder(),
+                "TESTSLOT"
+            );
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            return folder;
+        }
 
         public CommandLineTests()
         {
@@ -49,6 +60,8 @@ namespace gpm_tests
 
             await Remove.Action(TESTNAME, 0, true, _host);
             await Remove.Action(TESTNAME2, 0, true, _host);
+
+            Directory.Delete(GetTestSlot(),true);
         }
 
 
@@ -156,15 +169,15 @@ namespace gpm_tests
             Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSION2, "", _host));
 
             Log.Information("\n\n=> test installing a previous version into new slot -> PASS");
-            Assert.IsTrue(await Install.Action(TESTNAME, TESTVERSION1, TESTSLOT, _host));
+            Assert.IsTrue(await Install.Action(TESTNAME, TESTVERSION1, GetTestSlot(), _host));
             Log.Information("\n\n=> test installing another version into new slot -> FAIL");
-            Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSION2, TESTSLOT, _host));
+            Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSION2, GetTestSlot(), _host));
 
 
             Log.Information("\n\n=> test installing another repo into default slot -> PASS");
             Assert.IsTrue(await Install.Action(TESTNAME2, "", "", _host));
             Log.Information("\n\n=> test installing another repo over an existing default slot -> FAIL");
-            Assert.IsFalse(await Install.Action(TESTNAME2, "", TESTSLOT, _host));
+            Assert.IsFalse(await Install.Action(TESTNAME2, "", GetTestSlot(), _host));
 
         }
 
