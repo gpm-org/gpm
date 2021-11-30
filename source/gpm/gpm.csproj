@@ -20,10 +20,15 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>gpm, GitHub</PackageTags>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-        <DebugType>embedded</DebugType>
         <AssemblyName>gpm</AssemblyName>
         <RootNamespace>gpm</RootNamespace>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <PublishSingleFile>true</PublishSingleFile>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
 
     <ItemGroup>
         <None Remove="appsettings.json" />
