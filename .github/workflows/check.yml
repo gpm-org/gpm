@@ -18,11 +18,11 @@ jobs:
       with:
         dotnet-version: 6.x
     - name: Restore dependencies
-      run: dotnet restore gpm.sln
+      run: dotnet restore source/gpm.sln
     - name: Build
-      run: dotnet build gpm.sln --no-restore
+      run: dotnet build source/gpm.sln --no-restore
     - name: Test
-      run: dotnet test gpm.sln --no-build --verbosity normal
+      run: dotnet test source/gpm.sln --no-build --verbosity normal
 
   build-windows:
 
@@ -35,8 +35,8 @@ jobs:
       with:
         dotnet-version: 6.x
     - name: Restore dependencies
-      run: dotnet restore gpm.sln
+      run: dotnet restore source/gpm.sln
     - name: Build
-      run: dotnet build gpm.sln --no-restore
+      run: dotnet build source/gpm.sln --no-restore
     - name: Test
-      run: dotnet test gpm.sln --no-build --verbosity normal
+      run: dotnet test source/pm.sln --no-build --verbosity normal
