@@ -28,5 +28,15 @@ namespace gpm.core.Services
         /// </summary>
         /// <param name="url"></param>
         Task<(Repository? repo, RepositoryTopics? topics)> GetInfo(string url);
+
+        /// <summary>
+        /// Downloads a given release asset from GitHub and saves it to the cache location
+        /// Creates a CacheManifest inside the library
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="asset"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        Task<bool> DownloadAssetToCache(Package package, ReleaseAsset asset, string version);
     }
 }

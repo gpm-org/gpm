@@ -54,10 +54,7 @@ namespace gpm.core.Models
 
         // LOGIC
 
-        // DOWNLOAD-LOGIC
-
-        // Asset name pattern
-        // *.zip, *%reponame%*?
+        // VERSION LOGIC
 
         // useafter? only use
 
@@ -65,9 +62,12 @@ namespace gpm.core.Models
 
         // whitelist versions
 
+        // ASSET LOGIC
 
-
-
+        // Asset name pattern
+        // *.zip, *%reponame%*?
+        [ProtoMember(102)]
+        public string? AssetNamePattern { get; set; }
 
         /// <summary>
         /// Asset index to download
@@ -95,11 +95,11 @@ namespace gpm.core.Models
 
 
 
-        public string Id => string.IsNullOrEmpty(Identifier) ? $"{RepoOwner}/{RepoName}" : $"{RepoOwner}/{RepoName}/{Identifier.ToLower()}";
+        public string Id => string.IsNullOrEmpty(Identifier) ? $"{Owner}/{Name}" : $"{Owner}/{Name}/{Identifier.ToLower()}";
 
-        public string RepoOwner => GetRepoOwner();
+        public string Owner => GetRepoOwner();
 
-        public string RepoName => GetRepoName();
+        public string Name => GetRepoName();
 
 
 

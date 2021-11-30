@@ -4,13 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using gpm.core.Exceptions;
-using gpm.core.Extensions;
 using gpm.core.Models;
-using gpm.core.Util;
-using Octokit;
 using Serilog;
 using ProtoBuf;
 
@@ -18,15 +12,10 @@ namespace gpm.core.Services
 {
     public sealed class LibraryService : ILibraryService
     {
-        private readonly IDeploymentService _deploymentService;
-        private static readonly HttpClient s_client = new();
-
         private Dictionary<string, PackageModel> _packages = new();
 
-        public LibraryService(IDeploymentService deploymentService)
+        public LibraryService()
         {
-            _deploymentService = deploymentService;
-
             Load();
         }
 
@@ -223,209 +212,6 @@ namespace gpm.core.Services
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Download and install an asset file from a Github repo.
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="releases"></param>
-        /// <param name="requestedVersion"></param>
-        /// <param name="slot"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        /// <returns></returns>
-        public async Task<bool> InstallReleaseAsync(
-            Package package,
-            IReadOnlyList<Release> releases,
-            string? requestedVersion,
-            int slot = 0)
-        {
-            using var ssc = new ScopedStopwatch();
-
-            // get correct release
-            var release = string.IsNullOrEmpty(requestedVersion)
-                ? releases[0] //latest
-                : releases.FirstOrDefault(x => x.TagName.Equals(requestedVersion));
-
-            if (release == null)
-            {
-                Log.Warning("No release found for version {RequestedVersion}", requestedVersion);
-                return false;
-            }
-
-            // get correct release asset
-            // TODO support multiple asset files?
-
-            // TODO support asset get logic
-
-            var assets = release.Assets;
-            ArgumentNullException.ThrowIfNull(assets);
-
-            var assetBuilder = AssetHost.CreateDefaultBuilder(package).Build();
-            var asset = assetBuilder.GetAsset(release.Assets);
-
-            if (asset is null)
-            {
-                Log.Warning("No release asset found for version {RequestedVersion}",
-                    requestedVersion);
-                return false;
-            }
-
-            // get download paths
-            var version = release.TagName;
-
-            // check if version is already installed
-            if (TryGetValue(package.Id, out var model) && IsInstalledInSlot(package, slot))
-            {
-                var slotManifest = model.Slots[slot];
-                var installedVersion = slotManifest.Version;
-                if (installedVersion is not null && installedVersion.Equals(version))
-                {
-                    Log.Information("[{Package}] Version {Version} already installed", package, version);
-                    return false;
-                }
-            }
-
-            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(version);
-            if (!await DownloadAssetToCache(package, asset, version))
-            {
-                Log.Warning("Failed to download package {Package}", package);
-                return false;
-            }
-
-            // install asset
-            var releaseFilename = asset.Name;
-            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
-            if (! _deploymentService.InstallPackageFromCache(package, version, slot))
-            {
-                Log.Warning("Failed to install package {Package}", package);
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Downloads a given release asset from GitHub and saves it to the cache location
-        /// Creates a CacheManifest inside the library
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="asset"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        private async Task<bool> DownloadAssetToCache(Package package, ReleaseAsset asset, string version)
-        {
-            using var ssc = new ScopedStopwatch();
-
-            var releaseFilename = asset.Name;
-            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
-
-            var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
-            string assetCacheFile = Path.Combine(packageCacheFolder, releaseFilename);
-
-            // check if already exists
-            if (CheckIfCachedFileExists())
-            {
-                Log.Information("Asset exists in cache: {AssetCacheFile}. Using cached file",
-                    assetCacheFile);
-                return true;
-            }
-
-            var url = asset.BrowserDownloadUrl;
-            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(url);
-            try
-            {
-                Log.Information("Downloading asset from {Url} ...", url);
-
-                var response = await s_client.GetAsync(new Uri(url));
-                response.EnsureSuccessStatusCode();
-
-                if (!Directory.Exists(packageCacheFolder))
-                {
-                    Directory.CreateDirectory(packageCacheFolder);
-                }
-
-                await using var ms = new MemoryStream();
-                await response.Content.CopyToAsync(ms);
-
-                // sha and size the ms
-                var size = ms.Length;
-                var sha = HashUtil.Sha512Bytes(ms);
-
-                // write to file
-                ms.Seek(0, SeekOrigin.Begin);
-                await using var fs = new FileStream(assetCacheFile, System.IO.FileMode.Create, FileAccess.Write);
-                await ms.CopyToAsync(fs);
-
-                Log.Debug("Downloaded asset {ReleaseFilename} with hash {Hash}", releaseFilename,
-                    HashUtil.BytesToString(sha));
-                Log.Information("Saving file to local cache: {AssetCacheFile}", assetCacheFile);
-
-                // cache manifest
-                var cacheManifest = new CacheManifest()
-                {
-                    Files = new[]
-                    {
-                        new HashedFile(releaseFilename, sha, size)
-                    }
-                };
-
-                var model = GetOrAdd(package);
-                model.CacheData.AddOrUpdate(version, cacheManifest);
-                Save();
-
-                return true;
-            }
-            catch (HttpRequestException httpRequestException)
-            {
-                Log.Error(httpRequestException, "Downloading asset from {Url} failed", url);
-                return false;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Downloading asset from {Url} failed", url);
-                return false;
-            }
-
-            bool CheckIfCachedFileExists()
-            {
-                if (!File.Exists(assetCacheFile))
-                {
-                    return false;
-                }
-
-                if (!TryGetValue(package.Id, out var existingModel))
-                {
-                    return false;
-                }
-
-                var cacheManifest = existingModel.CacheData.GetOptional(version);
-                if (!cacheManifest.HasValue)
-                {
-                    return false;
-                }
-                if (cacheManifest.Value.Files is null)
-                {
-                    return false;
-                }
-
-                // if the cache manifest contains a file with this name
-                var fileInCache = cacheManifest.Value.Files
-                    .FirstOrDefault(x => Path.Combine(packageCacheFolder, x.Name).Equals(assetCacheFile));
-                if (fileInCache is { })
-                {
-                    // size and hash
-                    using var fs = new FileStream(assetCacheFile, System.IO.FileMode.Open, FileAccess.Read);
-                    var size = fs.Length;
-                    var sha = HashUtil.Sha512Bytes(fs);
-                    if (fileInCache.Sha512 != null && fileInCache.Sha512.SequenceEqual(sha) && fileInCache.Size == size)
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
         }
     }
 }

@@ -302,11 +302,11 @@ namespace gpm.core.Services
         public bool ContainsUrl(string url) => _packages.Any(x => x.Value.Url.Equals(url));
         public IEnumerable<Package> LookupByUrl(string url) => ContainsUrl(url) ? _packages.Values.Where(x => x.Url.Equals(url)) : new List<Package>();
 
-        public bool ContainsName(string name) => _packages.Any(x => x.Value.RepoName.Equals(name));
-        public IEnumerable<Package> LookupByName(string name) => ContainsName(name) ? _packages.Values.Where(x => x.RepoName.Equals(name)) : new List<Package>();
+        public bool ContainsName(string name) => _packages.Any(x => x.Value.Name.Equals(name));
+        public IEnumerable<Package> LookupByName(string name) => ContainsName(name) ? _packages.Values.Where(x => x.Name.Equals(name)) : new List<Package>();
 
-        public bool ContainsOwner(string name) => _packages.Any(x => x.Value.RepoOwner.Equals(name));
-        public IEnumerable<Package> LookupByOwner(string name) => ContainsOwner(name) ? _packages.Values.Where(x => x.RepoOwner.Equals(name)) : new List<Package>();
+        public bool ContainsOwner(string name) => _packages.Any(x => x.Value.Owner.Equals(name));
+        public IEnumerable<Package> LookupByOwner(string name) => ContainsOwner(name) ? _packages.Values.Where(x => x.Owner.Equals(name)) : new List<Package>();
 
 
         public Package? GetPackageFromName(string name)

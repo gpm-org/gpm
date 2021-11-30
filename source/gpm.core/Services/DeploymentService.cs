@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
+using gpm.core.Exceptions;
 using gpm.core.Extensions;
 using gpm.core.Models;
 using gpm.core.Util;
+using gpm.core.Util.Builders;
+using Octokit;
 using Serilog;
 
 namespace gpm.core.Services
@@ -16,10 +20,92 @@ namespace gpm.core.Services
     public class DeploymentService : IDeploymentService
     {
         private readonly ILibraryService _libraryService;
+        private readonly IGitHubService _gitHubService;
 
-        public DeploymentService(ILibraryService libraryService)
+        public DeploymentService(ILibraryService libraryService, IGitHubService gitHubService)
         {
             _libraryService = libraryService;
+            _gitHubService = gitHubService;
+        }
+
+        /// <summary>
+        /// Download and install an asset file from a Github repo.
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="releases"></param>
+        /// <param name="requestedVersion"></param>
+        /// <param name="slot"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <returns></returns>
+        public async Task<bool> InstallReleaseAsync(
+            Package package,
+            IReadOnlyList<Release> releases,
+            string? requestedVersion,
+            int slot = 0)
+        {
+            using var ssc = new ScopedStopwatch();
+
+            // get correct release
+            var release = string.IsNullOrEmpty(requestedVersion)
+                ? releases[0] //latest
+                : releases.FirstOrDefault(x => x.TagName.Equals(requestedVersion));
+
+            if (release == null)
+            {
+                Log.Warning("No release found for version {RequestedVersion}", requestedVersion);
+                return false;
+            }
+
+            // get correct release asset
+            // TODO support multiple asset files?
+
+            // TODO support asset get logic
+
+            var assets = release.Assets;
+            ArgumentNullException.ThrowIfNull(assets);
+
+            var assetBuilder = IPackageBuilder.CreateDefaultBuilder<AssetBuilder>(package);
+            var asset = assetBuilder.Build(release.Assets);
+
+            if (asset is null)
+            {
+                Log.Warning("No release asset found for version {RequestedVersion}",
+                    requestedVersion);
+                return false;
+            }
+
+            // get download paths
+            var version = release.TagName;
+
+            // check if version is already installed
+            if (_libraryService.TryGetValue(package.Id, out var model) && _libraryService.IsInstalledInSlot(package, slot))
+            {
+                var slotManifest = model.Slots[slot];
+                var installedVersion = slotManifest.Version;
+                if (installedVersion is not null /*&& installedVersion.Equals(version)*/)
+                {
+                    Log.Information("[{Package}] Version {Version} already installed. Use gpm update or repair", package, version);
+                    return false;
+                }
+            }
+
+            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(version);
+            if (!await _gitHubService.DownloadAssetToCache(package, asset, version))
+            {
+                Log.Warning("Failed to download package {Package}", package);
+                return false;
+            }
+
+            // install asset
+            var releaseFilename = asset.Name;
+            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
+            if (! InstallPackageFromCache(package, version, slot))
+            {
+                Log.Warning("Failed to install package {Package}", package);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

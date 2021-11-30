@@ -3,6 +3,7 @@ using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.Parsing;
+using System.IO;
 using gpm;
 using gpm.Commands;
 using gpm.core.Services;
@@ -20,7 +21,7 @@ var rootCommand = new RootCommand
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .WriteTo.Console()
-    .WriteTo.File(IAppSettings.GetLogsFolder(), rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(IAppSettings.GetLogsFolder(), "gpm-log.txt"), rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 var parser = new CommandLineBuilder(rootCommand)

@@ -10,7 +10,7 @@ namespace gpm.Tasks
 {
     public static class Update
     {
-        public static async Task Action(string name, bool all, int slot, bool clean, IHost host)
+        public static async Task<bool> Action(string name, bool all, int slot, bool clean, IHost host)
         {
             var serviceProvider = host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -18,6 +18,7 @@ namespace gpm.Tasks
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
             var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
+            var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
 
             // checks
             if (all)
@@ -29,11 +30,13 @@ namespace gpm.Tasks
                     {
                         await UpdatePackage(key, clean);
                     }
+
+                    return true;
                 }
                 else
                 {
                     // ignore all
-                    await UpdatePackage(name, clean, slot);
+                    return await UpdatePackage(name, clean, slot);
                 }
             }
             else
@@ -41,37 +44,37 @@ namespace gpm.Tasks
                 if (string.IsNullOrEmpty(name))
                 {
                     Log.Warning("No package name specified. To update all installed packages use gpm update --all");
-                    return;
+                    return false;
                 }
                 // update package in slot
-                await UpdatePackage(name, clean, slot);
+                return await UpdatePackage(name, clean, slot);
             }
 
-            async Task UpdatePackage(string nameInner, bool cleanInner, int slotIdx = 0)
+            async Task<bool> UpdatePackage(string nameInner, bool cleanInner, int slotIdx = 0)
             {
                 // checks
                 var package = dataBaseService.GetPackageFromName(nameInner);
                 if (package is null)
                 {
                     Log.Warning("Package {NameInner} not found in database", nameInner);
-                    return;
+                    return false;
                 }
                 if (!libraryService.TryGetValue(package.Id, out var model))
                 {
                     Log.Warning("[{Package}] Package not found in library. Use gpm install to install a package", package);
-                    return;
+                    return false;
                 }
                 if (!libraryService.IsInstalled(package))
                 {
                     Log.Warning("[{Package}] Package not installed. Use gpm install to install a package", package);
-                    return;
+                    return false;
                 }
                 if (!libraryService.IsInstalledInSlot(package, slotIdx))
                 {
                     Log.Warning(
                         "[{Package}] Package not installed in slot {SlotIdx}. Use gpm install to install a package",
                         package, slotIdx.ToString());
-                    return;
+                    return false;
                 }
 
                 var slotInner = model.Slots[slotIdx];
@@ -79,13 +82,13 @@ namespace gpm.Tasks
                 if (releases is null || !releases.Any())
                 {
                     Log.Warning("[{Package}] No releases found for package", package);
-                    return;
+                    return false;
                 }
 
                 ArgumentNullException.ThrowIfNull(slotInner.Version);
                 if (!gitHubService.IsUpdateAvailable(package, releases, slotInner.Version))
                 {
-                    return;
+                    return false;
                 }
 
                 if (cleanInner)
@@ -98,20 +101,22 @@ namespace gpm.Tasks
                     else
                     {
                         Log.Warning("[{Package}] Failed to remove installed package. Aborting", package);
-                        return;
+                        return false;
                     }
                 }
 
                 Log.Information("[{Package}] Updating package ...", package);
 
-                if (await libraryService.InstallReleaseAsync(package, releases, null, slotIdx))
+                if (await deploymentService.InstallReleaseAsync(package, releases, null, slotIdx))
                 {
                     Log.Information("[{Package}] Package successfully updated to version {Version}", package,
                         model.Slots[slotIdx].Version);
+                    return true;
                 }
                 else
                 {
                     Log.Warning("[{Package}] Failed to update package", package);
+                    return false;
                 }
             }
         }

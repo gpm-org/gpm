@@ -1,7 +1,9 @@
 using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using gpm.core.Services;
+using gpm.core.Util.Builders;
 using gpm.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,11 +27,34 @@ namespace gpm_tests
 
         public CommandLineTests()
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File(Path.Combine(IAppSettings.GetLogsFolder(), "gpm-tests-log.txt"), rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
             _host = GenericHost.CreateHostBuilder(null).Build();
+
+            var serviceProvider = _host.Services;
+            ArgumentNullException.ThrowIfNull(serviceProvider);
+
+            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
+            dataBaseService.FetchAndUpdateSelf();
         }
 
         [TestCleanup]
-        public void Cleanup()
+        public async Task Cleanup()
+        {
+            LogBeginOfTest();
+
+            await Remove.Action(TESTNAME, 0, true, _host);
+            await Remove.Action(TESTNAME2, 0, true, _host);
+        }
+
+
+
+        [TestMethod]
+        public async Task TestBuilders()
         {
             LogBeginOfTest();
 
@@ -37,10 +62,24 @@ namespace gpm_tests
             ArgumentNullException.ThrowIfNull(serviceProvider);
 
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            dataBaseService.FetchAndUpdateSelf();
+            var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
 
-            Remove.Action(TESTNAME, 0, true, _host);
-            Remove.Action(TESTNAME2, 0, true, _host);
+            var package = dataBaseService.GetPackageFromName(TESTNAME);
+            ArgumentNullException.ThrowIfNull(package);
+
+            var releases = await gitHubService.GetReleasesForPackage(package);
+            ArgumentNullException.ThrowIfNull(releases);
+
+            // test releasebuilder
+
+            // test versionBuilder
+            var release = releases[0];
+
+            // test asset builder
+            var assetBuilder = IPackageBuilder.CreateDefaultBuilder<AssetBuilder>(package);
+            var asset = assetBuilder.Build(release.Assets);
+
+
         }
 
         [TestMethod]
@@ -48,18 +87,12 @@ namespace gpm_tests
         {
             LogBeginOfTest();
 
-            var serviceProvider = _host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            dataBaseService.FetchAndUpdateSelf();
-
             TestUpgrade();
 
             TestList();
 
             // cleanup
-            TestRemove();
+            await TestRemove();
             TestInstalled();
 
             await TestInstall();
@@ -68,7 +101,7 @@ namespace gpm_tests
 
             TestInstalled();
 
-            TestRemove();
+            await TestRemove();
             TestInstalled();
         }
 
@@ -92,9 +125,7 @@ namespace gpm_tests
 
             var serviceProvider = _host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
-
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            dataBaseService.FetchAndUpdateSelf();
 
             dataBaseService.ListAllPackages();
         }
@@ -104,13 +135,6 @@ namespace gpm_tests
         {
             LogBeginOfTest();
 
-            var serviceProvider = _host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-
-            dataBaseService.FetchAndUpdateSelf();
-
             Installed.Action("", "", _host);
         }
 
@@ -119,47 +143,34 @@ namespace gpm_tests
         {
             LogBeginOfTest();
 
-            var serviceProvider = _host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
+            Log.Information("\n\n=> test installing a nonexisting package -> FAIL");
+            Assert.IsFalse(await Install.Action(TESTNAMEWRONG, "", "", _host));
 
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            dataBaseService.FetchAndUpdateSelf();
+            Log.Information("\n\n=> test installing latest -> PASS");
+            Assert.IsTrue(await Install.Action(TESTNAME, "", "", _host));
+            Log.Information("\n\n=> test installing again -> FAIL");
+            Assert.IsFalse(await Install.Action(TESTNAME, "", "", _host));
+            Log.Information("\n\n=> test installing a wrong version -> FAIL");
+            Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSIONWRONG, "", _host));
+            Log.Information("\n\n=> test installing a previous version into default slot  -> FAIL");
+            Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSION2, "", _host));
 
-            Log.Information("\ntest installing a nonexisting package");
-            await Install.Action(TESTNAMEWRONG, "", "", _host);
-
-            Log.Information("\ntest installing latest -> PASS");
-            await Install.Action(TESTNAME, "", "", _host);
-            Log.Information("\ntest installing again -> FAIL");
-            await Install.Action(TESTNAME, "", "", _host);
-            Log.Information("\ntest installing a wrong version -> FAIL");
-            await Install.Action(TESTNAME, TESTVERSIONWRONG, "", _host);
-            Log.Information("\ntest installing a previous version into default slot  -> FAIL");
-            await Install.Action(TESTNAME, TESTVERSION2, "", _host);
-
-            Log.Information("\ntest installing a previous version into new slot -> PASS");
-            await Install.Action(TESTNAME, TESTVERSION1, TESTSLOT, _host);
-            Log.Information("\ntest installing another version into new slot -> FAIL");
-            await Install.Action(TESTNAME, TESTVERSION2, TESTSLOT, _host);
+            Log.Information("\n\n=> test installing a previous version into new slot -> PASS");
+            Assert.IsTrue(await Install.Action(TESTNAME, TESTVERSION1, TESTSLOT, _host));
+            Log.Information("\n\n=> test installing another version into new slot -> FAIL");
+            Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSION2, TESTSLOT, _host));
 
 
-            Log.Information("\ntest installing another repo into default slot -> PASS");
-            await Install.Action(TESTNAME2, "", "", _host);
-            Log.Information("\ntest installing another repo over an existing default slot -> FAIL");
-            await Install.Action(TESTNAME2, "", TESTSLOT, _host);
+            Log.Information("\n\n=> test installing another repo into default slot -> PASS");
+            Assert.IsTrue(await Install.Action(TESTNAME2, "", "", _host));
+            Log.Information("\n\n=> test installing another repo over an existing default slot -> FAIL");
+            Assert.IsFalse(await Install.Action(TESTNAME2, "", TESTSLOT, _host));
 
         }
 
         [TestMethod]
         public async Task TestUpdate()
-        {
-            var serviceProvider = _host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            dataBaseService.FetchAndUpdateSelf();
-
-            // test updating default
+        {   // test updating default
             await Update.Action(TESTNAME, false, 0, false, _host);
 
             // test updating default
@@ -172,20 +183,13 @@ namespace gpm_tests
         }
 
         [TestMethod]
-        public void TestRemove()
+        public async Task TestRemove()
         {
             LogBeginOfTest();
 
-            var serviceProvider = _host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
+            await Remove.Action(TESTNAME, 1, false, _host);
 
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-
-            dataBaseService.FetchAndUpdateSelf();
-
-            Remove.Action(TESTNAME, 1, false, _host);
-
-            Remove.Action(TESTNAME, 0, true, _host);
+            await Remove.Action(TESTNAME, 0, true, _host);
         }
 
 

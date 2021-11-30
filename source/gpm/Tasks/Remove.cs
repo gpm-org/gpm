@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,7 +8,7 @@ namespace gpm.Tasks
 {
     public static class Remove
     {
-        public static void Action(string name, int slot, bool all, IHost host)
+        public static async Task<bool> Action(string name, int slot, bool all, IHost host)
         {
             var serviceProvider = host.Services;
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
@@ -16,7 +17,7 @@ namespace gpm.Tasks
             if (string.IsNullOrEmpty(name))
             {
                 Log.Warning("No package name specified to install");
-                return;
+                return false;
             }
 
             // what if a package is removed from the database?
@@ -25,31 +26,34 @@ namespace gpm.Tasks
             if (package is null)
             {
                 Log.Warning("package {Name} not found in database", name);
-                return;
+                return false;
             }
             if (!libraryService.TryGetValue(package.Id, out var model))
             {
                 Log.Warning("[{Package}] Package is not installed", package);
-                return;
+                return false;
             }
             if (!libraryService.IsInstalled(package))
             {
                 Log.Warning("[{Package}] Package is not installed", package);
-                return;
+                return false;
             }
 
             // check if all is set
+            var result = true;
             if (all)
             {
                 foreach (var (slotIdx, _) in model.Slots)
                 {
-                    libraryService.UninstallPackage(package, slotIdx);
+                    result &= libraryService.UninstallPackage(package, slotIdx);
                 }
             }
             else
             {
-                libraryService.UninstallPackage(package, slot);
+                result = libraryService.UninstallPackage(package, slot);
             }
+
+            return await Task.FromResult(result);
         }
     }
 }

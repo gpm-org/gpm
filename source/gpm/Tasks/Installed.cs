@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,6 +31,5 @@ namespace gpm.Tasks
                 }
             }
         }
-
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using Nito.AsyncEx;
 using System.Threading.Tasks;
+using gpm.core.Exceptions;
 using gpm.core.Extensions;
 using gpm.core.Models;
 using Octokit;
@@ -18,9 +19,16 @@ namespace gpm.core.Services
     /// </summary>
     public class GitHubService : IGitHubService
     {
-        private readonly GitHubClient _gitHubClient = new(new ProductHeaderValue("gpm"));
+        private readonly ILibraryService _libraryService;
 
+        private readonly GitHubClient _gitHubClient = new(new ProductHeaderValue("gpm"));
+        private static readonly HttpClient s_client = new();
         private readonly AsyncLock _loadingLock = new();
+
+        public GitHubService(ILibraryService libraryService)
+        {
+            _libraryService = libraryService;
+        }
 
         /// <summary>
         /// Fetch all github releases for a given package.
@@ -38,7 +46,7 @@ namespace gpm.core.Services
             {
                 try
                 {
-                    releases = await _gitHubClient.Repository.Release.GetAll(package.RepoOwner, package.RepoName);
+                    releases = await _gitHubClient.Repository.Release.GetAll(package.Owner, package.Name);
                 }
                 catch (Exception e)
                 {
@@ -137,6 +145,129 @@ namespace gpm.core.Services
                 .ConfigureAwait(false);
 
             return data ?? new RepositoryTopics();
+        }
+
+        /// <summary>
+        /// Downloads a given release asset from GitHub and saves it to the cache location
+        /// Creates a CacheManifest inside the library
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="asset"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public async Task<bool> DownloadAssetToCache(Package package, ReleaseAsset asset, string version)
+        {
+            using var ssc = new ScopedStopwatch();
+
+            var releaseFilename = asset.Name;
+            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
+
+            var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
+            string assetCacheFile = Path.Combine(packageCacheFolder, releaseFilename);
+
+            // check if already exists
+            if (CheckIfCachedFileExists())
+            {
+                Log.Information("Asset exists in cache: {AssetCacheFile}. Using cached file",
+                    assetCacheFile);
+                return true;
+            }
+
+            var url = asset.BrowserDownloadUrl;
+            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(url);
+            try
+            {
+                Log.Information("Downloading asset from {Url} ...", url);
+
+                var response = await s_client.GetAsync(new Uri(url));
+                response.EnsureSuccessStatusCode();
+
+                if (!Directory.Exists(packageCacheFolder))
+                {
+                    Directory.CreateDirectory(packageCacheFolder);
+                }
+
+                await using var ms = new MemoryStream();
+                await response.Content.CopyToAsync(ms);
+
+                // sha and size the ms
+                var size = ms.Length;
+                var sha = HashUtil.Sha512Bytes(ms);
+
+                // write to file
+                ms.Seek(0, SeekOrigin.Begin);
+                await using var fs = new FileStream(assetCacheFile, System.IO.FileMode.Create, FileAccess.Write);
+                await ms.CopyToAsync(fs);
+
+                Log.Debug("Downloaded asset {ReleaseFilename} with hash {Hash}", releaseFilename,
+                    HashUtil.BytesToString(sha));
+                Log.Information("Saving file to local cache: {AssetCacheFile}", assetCacheFile);
+
+                // cache manifest
+                var cacheManifest = new CacheManifest()
+                {
+                    Files = new[]
+                    {
+                        new HashedFile(releaseFilename, sha, size)
+                    }
+                };
+
+                var model =  _libraryService.GetOrAdd(package);
+                model.CacheData.AddOrUpdate(version, cacheManifest);
+                _libraryService.Save();
+
+                return true;
+            }
+            catch (HttpRequestException httpRequestException)
+            {
+                Log.Error(httpRequestException, "Downloading asset from {Url} failed", url);
+                return false;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Downloading asset from {Url} failed", url);
+                return false;
+            }
+
+            bool CheckIfCachedFileExists()
+            {
+                if (!File.Exists(assetCacheFile))
+                {
+                    return false;
+                }
+
+                if (!_libraryService.TryGetValue(package.Id, out var existingModel))
+                {
+                    return false;
+                }
+
+                var cacheManifest = existingModel.CacheData.GetOptional(version);
+                if (!cacheManifest.HasValue)
+                {
+                    return false;
+                }
+                if (cacheManifest.Value.Files is null)
+                {
+                    return false;
+                }
+
+                // if the cache manifest contains a file with this name
+                var fileInCache = cacheManifest.Value.Files
+                    .FirstOrDefault(x => Path.Combine(packageCacheFolder, x.Name).Equals(assetCacheFile));
+                if (fileInCache is { })
+                {
+                    // size and hash
+                    using var fs = new FileStream(assetCacheFile, System.IO.FileMode.Open, FileAccess.Read);
+                    var size = fs.Length;
+                    var sha = HashUtil.Sha512Bytes(fs);
+                    if (fileInCache.Sha512 != null && fileInCache.Sha512.SequenceEqual(sha) && fileInCache.Size == size)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace gpm.Tasks
 {
     public static class Install
     {
-        public static async Task Action(string name, string version, string slot, IHost host)
+        public static async Task<bool> Action(string name, string version, string slot, IHost host)
         {
             var serviceProvider = host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -20,17 +20,18 @@ namespace gpm.Tasks
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
             var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
+            var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
 
             if (string.IsNullOrEmpty(name))
             {
                 Log.Warning($"No package name specified to install.");
-                return;
+                return false;
             }
             var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
                 Log.Warning("[{Package}] Package {Name} not found", package, name);
-                return;
+                return false;
             }
 
             var slotId = 0;
@@ -39,7 +40,19 @@ namespace gpm.Tasks
                 if (!Directory.Exists(slot))
                 {
                     Log.Warning("[{Package}] No valid directory path given for slot {Slot}", package, slot);
-                    return;
+                    return false;
+                }
+
+                //TODO: do I wanna allow that?
+                // check if that slot is used by another package
+                var isUsedByOtherPackage = libraryService.Values
+                    .SelectMany(x => x.Slots.Values)
+                    .Any(x => x.FullPath != null && x.FullPath.Equals(slot));
+                if (isUsedByOtherPackage)
+                {
+                    Log.Warning("[{Package}] Already installed in slot {Slot} - Use gpm update or gpm repair",
+                        package, slot);
+                    return false;
                 }
 
                 // check if package is in local library
@@ -61,7 +74,7 @@ namespace gpm.Tasks
                 {
                     Log.Warning("[{Package}] Already installed in slot {Slot} - Use gpm update or gpm repair",
                         package, slot);
-                    return;
+                    return false;
                 }
             }
 
@@ -70,13 +83,19 @@ namespace gpm.Tasks
             if (releases is null || !releases.Any())
             {
                 Log.Warning("No releases found for package {Package}", package);
-                return;
+                return false;
             }
 
-            if (await libraryService.InstallReleaseAsync(package, releases, version, slotId))
+            if (await deploymentService.InstallReleaseAsync(package, releases, version, slotId))
             {
                 Log.Information("[{Package}] Package successfully installed", package);
             }
+            else
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
