@@ -6,26 +6,7 @@ on:
   pull_request:
     branches: [ main ]
 
-jobs:
-  build-ubuntu:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.x
-    - name: Restore dependencies
-      run: dotnet restore source/gpm.sln
-    - name: Build
-      run: dotnet build source/gpm.sln --no-restore
-    - name: Test
-      run: dotnet test source/gpm.sln --no-build --verbosity normal
-    - name: Publish
-      run: dotnet publish gpm.sln -o publish -r linux-x64 --self-contained true
-      
+jobs:    
 
   build-windows:
 
@@ -41,10 +22,10 @@ jobs:
       run: dotnet restore source/gpm.sln
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
+    - name: Publish
+      run: dotnet publish source/gpm.sln -o publish -r win-x64 --self-contained true
     - name: Test
       run: dotnet test source/gpm.sln --no-build --verbosity normal
-    - name: Publish
-      run: dotnet publish gpm.sln -o publish -r win-x64 --self-contained true
 
   build-osx:
 
@@ -60,7 +41,8 @@ jobs:
       run: dotnet restore source/gpm.sln
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
+    - name: Publish
+      run: dotnet publish source/gpm.sln -o publish -r osx-x64 --self-contained true
     - name: Test
       run: dotnet test source/gpm.sln --no-build --verbosity normal
-    - name: Publish
-      run: dotnet publish gpm.sln -o publish -r osx-x64 --self-contained true
+   
