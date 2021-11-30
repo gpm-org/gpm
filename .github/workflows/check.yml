@@ -23,6 +23,9 @@ jobs:
       run: dotnet build source/gpm.sln --no-restore
     - name: Test
       run: dotnet test source/gpm.sln --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish gpm.sln -o publish -r linux-x64 --self-contained true
+      
 
   build-windows:
 
@@ -39,4 +42,25 @@ jobs:
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
     - name: Test
-      run: dotnet test source/pm.sln --no-build --verbosity normal
+      run: dotnet test source/gpm.sln --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish gpm.sln -o publish -r win-x64 --self-contained true
+
+  build-osx:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.x
+    - name: Restore dependencies
+      run: dotnet restore source/gpm.sln
+    - name: Build
+      run: dotnet build source/gpm.sln --no-restore
+    - name: Test
+      run: dotnet test source/gpm.sln --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish gpm.sln -o publish -r osx-x64 --self-contained true
