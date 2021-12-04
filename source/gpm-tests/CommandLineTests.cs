@@ -170,8 +170,8 @@ namespace gpm_tests
             Log.Information("\n\n=> test installing a previous version into default slot  -> FAIL");
             Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSION2, "", _host));
 
-            Log.Information("\n\n=> test installing a previous version into new slot -> PASS");
-            Assert.IsTrue(await Install.Action(TESTNAME, TESTVERSION1, GetTestSlot(), _host));
+            Log.Information("\n\n=> test installing a previous version into new slot -> FAIL");
+            Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSION1, GetTestSlot(), _host));
             Log.Information("\n\n=> test installing another version into new slot -> FAIL");
             Assert.IsFalse(await Install.Action(TESTNAME, TESTVERSION2, GetTestSlot(), _host));
 
