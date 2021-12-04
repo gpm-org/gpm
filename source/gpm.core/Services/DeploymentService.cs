@@ -296,6 +296,10 @@ namespace gpm.core.Services
             try
             {
                 ZipFile.ExtractToDirectory(sourceArchiveFileName, destinationDirectoryName, overwriteFiles);
+                foreach (var file in files)
+                {
+                    Log.Debug("Extracting file {File}", file);
+                }
             }
             catch (Exception e)
             {
@@ -303,7 +307,7 @@ namespace gpm.core.Services
                 return null;
             }
 
-            Log.Debug("Installed {SourceArchiveFileName} to {DestinationDirectoryName}",
+            Log.Information("Installed {SourceArchiveFileName} to {DestinationDirectoryName}",
                 sourceArchiveFileName, destinationDirectoryName);
 
             return files

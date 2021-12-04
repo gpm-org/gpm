@@ -199,7 +199,7 @@ namespace gpm.core.Services
                 await using var fs = new FileStream(assetCacheFile, System.IO.FileMode.Create, FileAccess.Write);
                 await ms.CopyToAsync(fs);
 
-                Log.Debug("Downloaded asset {ReleaseFilename} with hash {Hash}", releaseFilename,
+                Log.Information("Downloaded asset {ReleaseFilename} with hash {Hash}", releaseFilename,
                     HashUtil.BytesToString(sha));
                 Log.Information("Saving file to local cache: {AssetCacheFile}", assetCacheFile);
 

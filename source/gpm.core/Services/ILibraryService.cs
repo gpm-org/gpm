@@ -24,5 +24,22 @@ namespace gpm.core.Services
         /// <param name="package"></param>
         /// <param name="slotIdx"></param>
         bool UninstallPackage(Package package, int slotIdx = 0);
+
+        /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="slotIdx"></param>
+        /// <returns></returns>
+        bool UninstallPackage(string key, int slotIdx = 0);
+
+        /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="slotIdx"></param>
+        bool UninstallPackage(PackageModel model, int slotIdx = 0);
+
+        bool IsInstalledInSlot(string key, int slot);
     }
 }

@@ -82,7 +82,7 @@ namespace gpm.core.Services
 
         public bool IsInstalledInSlot(Package package, int slot) => IsInstalledInSlot(package.Id, slot);
 
-        private bool IsInstalledInSlot(string key, int slot)
+        public bool IsInstalledInSlot(string key, int slot)
         {
             if (!TryGetValue(key, out var model))
             {
@@ -149,23 +149,36 @@ namespace gpm.core.Services
         /// <summary>
         /// Uninstalls a package from the system by slot
         /// </summary>
+        /// <param name="key"></param>
+        /// <param name="slotIdx"></param>
+        /// <returns></returns>
+        public bool UninstallPackage(string key, int slotIdx = 0) =>
+            TryGetValue(key, out var model) && UninstallPackage(model, slotIdx);
+
+        /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
         /// <param name="package"></param>
         /// <param name="slotIdx"></param>
-        public bool UninstallPackage(Package package, int slotIdx = 0)
-        {
-            if (!TryGetValue(package.Id, out var model))
-            {
-                return false;
-            }
+        /// <returns></returns>
+        public bool UninstallPackage(Package package, int slotIdx = 0) =>
+            TryGetValue(package.Id, out var model) && UninstallPackage(model);
 
+        /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="slotIdx"></param>
+        public bool UninstallPackage(PackageModel model, int slotIdx = 0)
+        {
             if (!model.Slots.TryGetValue(slotIdx, out var slot))
             {
-                Log.Warning("[{Package}] No package installed in slot {SlotIdx}", package,
+                Log.Warning("[{Package}] No package installed in slot {SlotIdx}", model,
                     slotIdx.ToString());
                 return true;
             }
 
-            Log.Information("[{Package}] Removing package from slot {SlotIdx}", package,
+            Log.Information("[{Package}] Removing package from slot {SlotIdx}", model,
                 slotIdx.ToString());
 
             var files = slot.Files
@@ -177,19 +190,19 @@ namespace gpm.core.Services
             {
                 if (!File.Exists(file))
                 {
-                    Log.Warning("[{Package}] Could not find file {File} to delete. Skipping", package,
+                    Log.Warning("[{Package}] Could not find file {File} to delete. Skipping", model,
                         file);
                     continue;
                 }
 
                 try
                 {
-                    Log.Debug("[{Package}] Removing {File}", package, file);
+                    Log.Debug("[{Package}] Removing {File}", model, file);
                     File.Delete(file);
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, "[{Package}] Could not delete file {File}. Skipping", package, file);
+                    Log.Error(e, "[{Package}] Could not delete file {File}. Skipping", model, file);
                     failed.Add(file);
                 }
             }
@@ -202,11 +215,11 @@ namespace gpm.core.Services
 
             if (failed.Count == 0)
             {
-                Log.Information("[{Package}] Successfully removed package", package);
+                Log.Information("[{Package}] Successfully removed package", model);
                 return true;
             }
 
-            Log.Warning("[{Package}] Partially removed package. Could not delete:", package);
+            Log.Warning("[{Package}] Partially removed package. Could not delete:", model);
             foreach (var fail in failed)
             {
                 Log.Warning("Filename: {File}", fail);

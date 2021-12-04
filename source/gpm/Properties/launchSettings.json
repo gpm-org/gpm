@@ -10,11 +10,11 @@
     },
     "gpm install": {
       "commandName": "Project",
-      "commandLineArgs": "install wolvenkit -v 8.4.1"
+      "commandLineArgs": "install betterlootmarkers-cyberpunk-mod"
     },
     "gpm remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove wolvenkit"
+      "commandLineArgs": "remove all"
     },
     "gpm installed": {
       "commandName": "Project",

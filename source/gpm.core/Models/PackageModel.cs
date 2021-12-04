@@ -42,5 +42,7 @@ namespace gpm.core.Models
         /// </summary>
         [ProtoMember(7)]
         public Dictionary<string, CacheManifest> CacheData { get; set; } = new();
+
+        public override string ToString() => this.Key;
     }
 }

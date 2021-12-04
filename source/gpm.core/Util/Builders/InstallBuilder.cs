@@ -55,7 +55,8 @@ namespace gpm.core.Util.Builders
                 List<string> topicList = new() { "cyberpunk2077", "mod" };
                 if (topics.Select(x => x.ToLower()).Any(x => topicList.Contains(x)))
                 {
-                    throw new NotImplementedException();
+                    // TODO support user defined install dirs
+                    //throw new NotImplementedException();
                 }
 
                 return inPath;

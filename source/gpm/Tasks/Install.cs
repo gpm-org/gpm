@@ -22,11 +22,11 @@ namespace gpm.Tasks
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
             var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
 
-            if (string.IsNullOrEmpty(name))
+            if (Ensure.IsNotNullOrEmpty(name, () => Log.Warning($"No package name specified to install.")))
             {
-                Log.Warning($"No package name specified to install.");
                 return false;
             }
+
             var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
@@ -93,6 +93,33 @@ namespace gpm.Tasks
             else
             {
                 return false;
+            }
+
+            // dependencies
+            var dependencies = package.Dependencies;
+            if (dependencies is null)
+            {
+                return true;
+            }
+
+            var dependencyResult = true;
+            if (dependencies.Length > 0)
+            {
+                // TODO install dependencies: versions, paths?
+                Log.Information("[{Package}] Found {Count} dependencies. Installing...", package, dependencies.Length);
+                foreach (var dep in dependencies)
+                {
+                    dependencyResult = await Action(dep, "", "", host);
+                }
+            }
+
+            if (!dependencyResult)
+            {
+                Log.Warning("[{Package}] Some dependencies failed to install correctly", package);
+            }
+            else
+            {
+                Log.Information("[{Package}] All dependencies installed successfully", package);
             }
 
             return true;
