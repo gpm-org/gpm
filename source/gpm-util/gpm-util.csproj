@@ -3,9 +3,39 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
-        <RootNamespace>gpm_util</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AssemblyName>gpm-util</AssemblyName>
+        <AssemblyVersion>0.1</AssemblyVersion>
+        <RootNamespace>gpm_util</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Title>gpm-util</Title>
+        <Authors>Moritz Baron</Authors>
+        <FileVersion>0.1</FileVersion>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>gpm-util</ToolCommandName>
+        <PackageTags>gpm, GitHub</PackageTags>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PackageId>gpm-util</PackageId>
+        <Product>gpm-util</Product>
+        <Description>GitHub package manager</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/rfuzzo/gpm</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/rfuzzo/gpm</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PublishSingleFile>false</PublishSingleFile>
+        <DebugType>embedded</DebugType>
     </PropertyGroup>
 
     <ItemGroup>

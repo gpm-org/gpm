@@ -5,31 +5,39 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyVersion>0.1</AssemblyVersion>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AssemblyName>gpm</AssemblyName>
+        <AssemblyVersion>0.1</AssemblyVersion>
+        <RootNamespace>gpm</RootNamespace>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <Title>gpm</Title>
+        <Authors>Moritz Baron</Authors>
+        <FileVersion>0.1</FileVersion>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>gpm</ToolCommandName>
+        <PackageTags>gpm, GitHub</PackageTags>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>gpm</PackageId>
-        <Product>gpm.cli</Product>
+        <Product>gpm</Product>
         <Description>GitHub package manager</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/rfuzzo/gpm</PackageProjectUrl>
         <RepositoryUrl>https://github.com/rfuzzo/gpm</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>gpm, GitHub</PackageTags>
-        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-        <AssemblyName>gpm</AssemblyName>
-        <RootNamespace>gpm</RootNamespace>
     </PropertyGroup>
-
+    
     <PropertyGroup>
-        <PublishSingleFile>true</PublishSingleFile>
+        <PublishSingleFile>false</PublishSingleFile>
         <DebugType>embedded</DebugType>
     </PropertyGroup>
-
-
+    
     <ItemGroup>
         <None Remove="appsettings.json" />
     </ItemGroup>
