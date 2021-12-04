@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using gpm.core.Models;
 using gpm.core.Services;
@@ -49,7 +50,7 @@ namespace gpm_util.Commands
                 Identifier = id,
                 Description = repo.Description,
                 Homepage = repo.Homepage,
-                License = repo.License.Name,
+                License = repo.License?.Name,
                 Topics = topics.Names.ToArray()
             };
 
@@ -73,8 +74,13 @@ namespace gpm_util.Commands
                 }
             }
 
-            var path = Path.Combine(outDirectory, $"{repo.Owner.Name}_{repo.Name}_{id}.gpak");
-            var options = new JsonSerializerOptions { WriteIndented = true };
+            var filename = $"{repo.Owner?.Login}_{repo.Name}_{id}".TrimEnd('_');
+            var path = Path.Combine(outDirectory, $"{filename}.gpak");
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
             var jsonString = JsonSerializer.Serialize(package, options);
             await File.WriteAllTextAsync(path, jsonString);
 

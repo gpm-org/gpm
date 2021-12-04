@@ -184,6 +184,7 @@ namespace gpm.core.Services
 
                 try
                 {
+                    Log.Debug("[{Package}] Removing {File}", package, file);
                     File.Delete(file);
                 }
                 catch (Exception e)
@@ -201,7 +202,7 @@ namespace gpm.core.Services
 
             if (failed.Count == 0)
             {
-                Log.Debug("[{Package}] Successfully removed package", package);
+                Log.Information("[{Package}] Successfully removed package", package);
                 return true;
             }
 

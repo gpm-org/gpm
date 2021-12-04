@@ -59,8 +59,6 @@ namespace gpm.core.Services
             // get correct release asset
             // TODO support multiple asset files?
 
-            // TODO support asset get logic
-
             var assets = release.Assets;
             ArgumentNullException.ThrowIfNull(assets);
 
@@ -165,18 +163,22 @@ namespace gpm.core.Services
                 return false;
             }
 
-            // get destination path
+            // default install dirs
             if (slotManifest.FullPath is null)
             {
-                // TODO: installation instructions
-
-                slotManifest.FullPath = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
-                if (!Directory.Exists(slotManifest.FullPath))
-                {
-                    Directory.CreateDirectory(slotManifest.FullPath);
-                }
+                // slotManifest.FullPath = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
+                // if (!Directory.Exists(slotManifest.FullPath))
+                // {
+                //     Directory.CreateDirectory(slotManifest.FullPath);
+                // }
+                slotManifest.FullPath = Directory.GetCurrentDirectory();
             }
             var destinationDir = slotManifest.FullPath;
+
+            // custom builder for install instructions
+            var builder = IPackageBuilder.CreateDefaultBuilder<InstallBuilder>(package);
+            destinationDir = builder.Build(destinationDir);
+
 
 
             // TODO ask or overwrite
@@ -244,7 +246,7 @@ namespace gpm.core.Services
 
             File.Copy(sourceFileName, destinationFileName, overwrite);
 
-            Log.Debug("Installed package to {DestinationFileName}", destinationFileName);
+            Log.Information("Installed package to {DestinationFileName}", destinationFileName);
 
             return new List<HashedFile> { new HashedFile(destinationFileName, null, null) };
         }

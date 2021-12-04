@@ -46,6 +46,8 @@ namespace gpm_tests
 
             _host = GenericHost.CreateHostBuilder(null).Build();
 
+            Environment.CurrentDirectory = Path.GetTempPath();
+
             var serviceProvider = _host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
 

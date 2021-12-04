@@ -3,7 +3,7 @@
   "profiles": {
     "gpm-util new": {
       "commandName": "Project",
-      "commandLineArgs": "new https://github.com/WolvenKit/WolvenKit.git -o /Users/ghost/gpm2"
+      "commandLineArgs": "new https://github.com/rodikh/BetterLootMarkers-Cyberpunk-mod.git -o /Users/ghost/gpm2"
     }
   }
 }

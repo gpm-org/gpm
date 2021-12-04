@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using gpm.core.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace gpm.core.Util.Builders
 {
@@ -22,8 +19,8 @@ namespace gpm.core.Util.Builders
         public IPackageBuilder ConfigureDefaults(Package args);
     }
 
-    public interface IPackageBuilder<T> : IPackageBuilder
+    public interface IPackageBuilder<in TIn, out TOut> : IPackageBuilder
     {
-        T? Build(IReadOnlyList<T> releaseAssets);
+        TOut? Build(TIn releaseAssets);
     }
 }

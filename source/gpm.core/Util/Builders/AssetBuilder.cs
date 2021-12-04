@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using gpm.core.Extensions;
 using gpm.core.Models;
-using Microsoft.Extensions.DependencyInjection;
 using Octokit;
 
 namespace gpm.core.Util.Builders
 {
-    public class AssetBuilder : IPackageBuilder<ReleaseAsset>
+    public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAsset>,ReleaseAsset>
     {
         private BuilderContext? _builderContext;
         private Package? _package;
 
-        private List<Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>>>
+        private readonly List<Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>>>
             _configureIndexLogicActions = new();
-        private List<Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>>>
+        private readonly List<Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>>>
             _configureNamePatternLogicActions = new();
 
 
@@ -31,7 +30,6 @@ namespace gpm.core.Util.Builders
             releaseAssets = _configureNamePatternLogicActions.Aggregate(releaseAssets,
                 (current, configureServicesAction)
                     => configureServicesAction(_builderContext, current));
-
 
             return releaseAssets.FirstOrDefault();
 
@@ -75,7 +73,7 @@ namespace gpm.core.Util.Builders
                 .Replace($"%{nameof(Package.Identifier)}%", package.Identifier);
 
 
-        public IPackageBuilder<ReleaseAsset> ConfigureIndexLogic(
+        public IPackageBuilder ConfigureIndexLogic(
             Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>> configureDelegate)
         {
             _configureIndexLogicActions.Add(configureDelegate ??
@@ -84,7 +82,7 @@ namespace gpm.core.Util.Builders
         }
 
 
-        public IPackageBuilder<ReleaseAsset> ConfigureNamePatternLogic(
+        public IPackageBuilder ConfigureNamePatternLogic(
             Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>> configureDelegate)
         {
             _configureNamePatternLogicActions.Add(configureDelegate ??

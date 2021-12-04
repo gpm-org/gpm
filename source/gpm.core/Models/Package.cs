@@ -36,6 +36,9 @@ namespace gpm.core.Models
         [ProtoMember(2)]
         public string? Identifier { get; set; }
 
+        [ProtoMember(9)]
+        public string[]? Dependencies { get; set; }
+
         // METADATA
 
         [ProtoMember(10)]
@@ -84,6 +87,11 @@ namespace gpm.core.Models
         // install dir patterns
         // support custom local env vars
         // e.g. %cp77root% for
+        /// <summary>
+        /// Content Type
+        /// </summary>
+        [ProtoMember(207)]
+        public string? InstallPath { get; set; }
 
         /// <summary>
         /// Content Type
