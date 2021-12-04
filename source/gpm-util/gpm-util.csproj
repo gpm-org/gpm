@@ -18,12 +18,12 @@
     <PropertyGroup>
         <Title>gpm-util</Title>
         <Authors>Moritz Baron</Authors>
-        <FileVersion>0.1</FileVersion>
+        <Version>0.1</Version>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>gpm-util</ToolCommandName>
         <PackageTags>gpm, GitHub</PackageTags>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>gpm-util</PackageId>
         <Product>gpm-util</Product>
         <Description>GitHub package manager</Description>
