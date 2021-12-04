@@ -23,7 +23,9 @@ jobs:
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
     - name: Publish
-      run: dotnet publish source/gpm.sln -o publish -r win-x64 --self-contained true -p:PublishSingleFile=true
+      run: dotnet publish source/gpm.sln -o publish
+    - name: Test
+      run: dotnet test source/gpm.sln --no-build --verbosity normal
 
   build-osx:
 
@@ -40,5 +42,7 @@ jobs:
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
     - name: Publish
-      run: dotnet publish source/gpm.sln -o publish -r osx-x64 --self-contained true -p:PublishSingleFile=true
+      run: dotnet publish source/gpm.sln -o publish
+    - name: Test
+      run: dotnet test source/gpm.sln --no-build --verbosity normal
    
