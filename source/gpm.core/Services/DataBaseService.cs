@@ -330,7 +330,6 @@ namespace gpm.core.Services
             }
             else
             {
-
                 {
                     // try name
                     var packages = LookupByName(name).ToList();

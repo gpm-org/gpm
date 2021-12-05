@@ -174,7 +174,7 @@ namespace gpm.core.Services
             {
                 Log.Warning("[{Package}] No package installed in slot {SlotIdx}", model,
                     slotIdx.ToString());
-                return true;
+                return false;
             }
 
             Log.Information("[{Package}] Removing package from slot {SlotIdx}", model,

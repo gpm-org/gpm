@@ -2,7 +2,7 @@
   "profiles": {
     "gpm update": {
       "commandName": "Project",
-      "commandLineArgs": "update wolvenkit -c"
+      "commandLineArgs": "update wolvenkit/wolvenkit/test1 -c"
     },
     "gpm list": {
       "commandName": "Project",
@@ -10,15 +10,19 @@
     },
     "gpm install": {
       "commandName": "Project",
-      "commandLineArgs": "install betterlootmarkers-cyberpunk-mod"
+      "commandLineArgs": "install wolvenkit/wolvenkit/test1"
     },
     "gpm remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove all"
+      "commandLineArgs": "remove wolvenkit/wolvenkit/test1 -s 2"
     },
-    "gpm installed": {
+    "gpm search": {
       "commandName": "Project",
-      "commandLineArgs": "installed"
+      "commandLineArgs": "search"
+    },
+    "gpm restore": {
+      "commandName": "Project",
+      "commandLineArgs": "restore"
     }
   }
 }

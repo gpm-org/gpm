@@ -24,18 +24,18 @@ namespace gpm.core.Services
             return folder;
         }
 
-        // public static string GetLibraryFolder()
-        // {
-        //     var folder = Path.Combine(
-        //         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        //         Constants.MYDOCUMENTS
-        //     );
-        //     if (!Directory.Exists(folder))
-        //     {
-        //         Directory.CreateDirectory(folder);
-        //     }
-        //     return folder;
-        // }
+        public static string GetLibraryFolder()
+        {
+            var folder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Constants.MYDOCUMENTS
+            );
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            return folder;
+        }
 
         public static string GetAppSettingsFile() => Path.Combine(GetAppDataFolder(), Constants.APPSETTINGS);
 

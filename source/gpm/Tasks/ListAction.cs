@@ -6,9 +6,14 @@ using Serilog;
 
 namespace gpm.Tasks
 {
-    public static class Installed
+    public static class ListAction
     {
-        public static void Action(IHost host)
+        /// <summary>
+        /// Lists all installed packages
+        /// TODO: make this only available globally, and don't save local packages to the library
+        /// </summary>
+        /// <param name="host"></param>
+        public static void List(IHost host)
         {
             var serviceProvider = host.Services;
             var library = serviceProvider.GetRequiredService<ILibraryService>();
