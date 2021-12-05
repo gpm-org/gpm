@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using gpm.core.Models;
-using Octokit;
 
 namespace gpm.core.Services
 {
@@ -40,6 +38,18 @@ namespace gpm.core.Services
         /// <param name="slotIdx"></param>
         bool UninstallPackage(PackageModel model, int slotIdx = 0);
 
+        /// <summary>
+        /// Check if package is installed in slot
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="slot"></param>
+        /// <returns></returns>
         bool IsInstalledInSlot(string key, int slot);
+
+        /// <summary>
+        /// Get all installed packages
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<PackageModel> GetInstalled() => this.Values.Where(x => IsInstalled(x.Key));
     }
 }

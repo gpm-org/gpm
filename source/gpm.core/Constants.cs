@@ -10,8 +10,10 @@ namespace gpm.core
 
         public const string LOCALDB = "gpm-lib.bin";
 
+        public const string GPMLOCK = "gpm-lock.json";
 
-        public const string APPDATA = @"gpm-24f61971-86e8-4197-8f1e-a40a5c3315ae";
+
+        public const string APPDATA = @"gpm-24f61971";//-86e8-4197-8f1e-a40a5c3315ae";
 
         public const string APPDATA_CACHE = "cache";
 
@@ -20,7 +22,7 @@ namespace gpm.core
         public const string APPDATA_LOGS = "logs";
 
 
-        public const string MYDOCUMENTS = @"gpm";
+        public const string MYDOCUMENTS = @"gpm-24f61971";
 
     }
 }

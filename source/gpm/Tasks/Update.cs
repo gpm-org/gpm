@@ -20,6 +20,9 @@ namespace gpm.Tasks
             var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
             var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
 
+            // update here
+            Upgrade.Action(host);
+
             // checks
             if (all)
             {
@@ -33,22 +36,19 @@ namespace gpm.Tasks
 
                     return true;
                 }
-                else
-                {
-                    // ignore all
-                    return await UpdatePackage(name, clean, slot);
-                }
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(name))
-                {
-                    Log.Warning("No package name specified. To update all installed packages use gpm update --all");
-                    return false;
-                }
-                // update package in slot
+
+                // ignore all
                 return await UpdatePackage(name, clean, slot);
             }
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                return await UpdatePackage(name, clean, slot);
+            }
+
+            Log.Warning("No package name specified. To update all installed packages use gpm update --all");
+            return false;
+            // update package in slot
 
             async Task<bool> UpdatePackage(string nameInner, bool cleanInner, int slotIdx = 0)
             {

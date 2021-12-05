@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using gpm.core.Exceptions;
 using gpm.core.Extensions;
@@ -45,11 +47,22 @@ namespace gpm.core.Services
         {
             using var ssc = new ScopedStopwatch();
 
+            // check if any version is already installed, should never trigger
+            if (_libraryService.TryGetValue(package.Id, out var model) && _libraryService.IsInstalledInSlot(package, slot))
+            {
+                var slotManifest = model.Slots[slot];
+                var installedVersion = slotManifest.Version;
+                if (installedVersion is not null /*&& installedVersion.Equals(version)*/)
+                {
+                    Log.Warning("[{Package}] Version {Version} already installed. Use gpm update or repair", package, installedVersion);
+                    return false;
+                }
+            }
+
             // get correct release
             var release = string.IsNullOrEmpty(requestedVersion)
                 ? releases[0] //latest
                 : releases.FirstOrDefault(x => x.TagName.Equals(requestedVersion));
-
             if (release == null)
             {
                 Log.Warning("No release found for version {RequestedVersion}", requestedVersion);
@@ -58,13 +71,10 @@ namespace gpm.core.Services
 
             // get correct release asset
             // TODO support multiple asset files?
-
             var assets = release.Assets;
             ArgumentNullException.ThrowIfNull(assets);
-
             var assetBuilder = IPackageBuilder.CreateDefaultBuilder<AssetBuilder>(package);
             var asset = assetBuilder.Build(release.Assets);
-
             if (asset is null)
             {
                 Log.Warning("No release asset found for version {RequestedVersion}",
@@ -74,19 +84,6 @@ namespace gpm.core.Services
 
             // get download paths
             var version = release.TagName;
-
-            // check if version is already installed
-            if (_libraryService.TryGetValue(package.Id, out var model) && _libraryService.IsInstalledInSlot(package, slot))
-            {
-                var slotManifest = model.Slots[slot];
-                var installedVersion = slotManifest.Version;
-                if (installedVersion is not null /*&& installedVersion.Equals(version)*/)
-                {
-                    Log.Information("[{Package}] Version {Version} already installed. Use gpm update or repair", package, version);
-                    return false;
-                }
-            }
-
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(version);
             if (!await _gitHubService.DownloadAssetToCache(package, asset, version))
             {
@@ -164,25 +161,15 @@ namespace gpm.core.Services
             }
 
             // default install dirs
-            if (slotManifest.FullPath is null)
-            {
-                // slotManifest.FullPath = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
-                // if (!Directory.Exists(slotManifest.FullPath))
-                // {
-                //     Directory.CreateDirectory(slotManifest.FullPath);
-                // }
-                slotManifest.FullPath = Directory.GetCurrentDirectory();
-            }
+            slotManifest.FullPath ??= Directory.GetCurrentDirectory();
             var destinationDir = slotManifest.FullPath;
 
+            // TODO: remove?
             // custom builder for install instructions
             var builder = IPackageBuilder.CreateDefaultBuilder<InstallBuilder>(package);
             destinationDir = builder.Build(destinationDir);
 
-
-
             // TODO ask or overwrite
-
             List<HashedFile>? installedFiles;
             if (package.ContentType is null)
             {
@@ -229,6 +216,38 @@ namespace gpm.core.Services
             slotManifest.Version = version;
             slotManifest.Files = installedFiles;
             _libraryService.Save();
+
+            // create or update package-lock
+            // we use this everywhere (and not only for local packages) to support updaters
+            // TODO: store dependencies
+            var lockFilePath = Path.Combine(destinationDir, Constants.GPMLOCK);
+
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            PackageLock lockfile = new();
+            if (File.Exists(lockFilePath))
+            {
+                try
+                {
+                    var obj = JsonSerializer.Deserialize<PackageLock>(File.ReadAllText(lockFilePath), options);
+                    if (obj is not null)
+                    {
+                        lockfile = obj;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "Failed to read existing lock file");
+                }
+            }
+
+            lockfile.Packages.Add(new(package.Id, version) );
+            File.WriteAllText(lockFilePath, JsonSerializer.Serialize(lockfile, options));
+
             return true;
         }
 

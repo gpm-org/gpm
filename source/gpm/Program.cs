@@ -11,11 +11,12 @@ using gpm.core.Services;
 
 var rootCommand = new RootCommand
 {
-    new ListCommand(),
+    new SearchCommand(),
     new InstallCommand(),
     new UpdateCommand(),
     new RemoveCommand(),
-    new InstalledCommand(),
+    new ListCommand(),
+    new RestoreCommand(),
     new UpgradeCommand()
 };
 
@@ -35,10 +36,20 @@ var parser = new CommandLineBuilder(rootCommand)
     .Build();
 
 #if DEBUG
-Environment.CurrentDirectory = Path.GetTempPath();
+Environment.CurrentDirectory = GetTestSlot();
+static string GetTestSlot()
+{
+    var folder = Path.Combine(IAppSettings.GetAppDataFolder(),
+        "TESTSLOT"
+    );
+    if (!Directory.Exists(folder))
+    {
+        Directory.CreateDirectory(folder);
+    }
+    return folder;
+}
 #endif
 
-// hack to get DI in system.commandline
-parser.Invoke(new UpgradeCommand().Name);
-
 parser.Invoke(args);
+
+
