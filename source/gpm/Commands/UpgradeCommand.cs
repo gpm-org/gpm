@@ -1,7 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using gpm.core.Services;
-using Microsoft.Extensions.DependencyInjection;
+using gpm.Tasks;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands
@@ -13,17 +12,7 @@ namespace gpm.Commands
 
         public UpgradeCommand() : base(Name, Description)
         {
-            Handler = CommandHandler.Create<IHost>(Action);
-        }
-
-        private void Action(IHost host)
-        {
-            var serviceProvider = host.Services;
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-
-            // TODO: check if git is installed
-
-            dataBaseService.FetchAndUpdateSelf();
+            Handler = CommandHandler.Create<IHost>(Upgrade.Action);
         }
     }
 }

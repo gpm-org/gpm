@@ -209,20 +209,6 @@ namespace gpm.core.Services
         }
 
         /// <summary>
-        /// Lists all packages in the database
-        /// </summary>
-        public void ListAllPackages()
-        {
-            Log.Information("Available packages:");
-            Console.WriteLine("Id\tUrl");
-            foreach (var (key, package) in this)
-            {
-                Console.WriteLine("{0}\t{1}", key, package.Url);
-                //Log.Information("{Key}\t{Package}", key, package.Url);
-            }
-        }
-
-        /// <summary>
         /// Fetch and Pull git database
         /// </summary>
         /// <returns></returns>

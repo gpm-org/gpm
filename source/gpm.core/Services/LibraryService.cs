@@ -63,40 +63,6 @@ namespace gpm.core.Services
 
         #endregion
 
-        #region methods
-
-        public PackageModel GetOrAdd(Package package)
-        {
-            var key = package.Id;
-            if (!_packages.ContainsKey(key))
-            {
-                _packages.Add(key, new PackageModel(key));
-            }
-
-            return _packages[key];
-        }
-
-        public bool IsInstalled(Package package) => IsInstalled(package.Id);
-
-        public bool IsInstalled(string key) => ContainsKey(key) && this[key].Slots.Any();
-
-        public bool IsInstalledInSlot(Package package, int slot) => IsInstalledInSlot(package.Id, slot);
-
-        public bool IsInstalledInSlot(string key, int slot)
-        {
-            if (!TryGetValue(key, out var model))
-            {
-                return false;
-            }
-            if (!model.Slots.ContainsKey(slot))
-            {
-                return false;
-            }
-            return model.Slots.TryGetValue(slot, out var manifest) && manifest.Files.Any();
-        }
-
-        #endregion
-
         #region IDictionary
 
         public void Add(string key, PackageModel value) => _packages.Add(key, value);
@@ -146,6 +112,39 @@ namespace gpm.core.Services
 
         #endregion
 
+        #region methods
+
+        public PackageModel GetOrAdd(Package package)
+        {
+            var key = package.Id;
+            if (!_packages.ContainsKey(key))
+            {
+                _packages.Add(key, new PackageModel(key));
+            }
+
+            return _packages[key];
+        }
+
+        public bool IsInstalled(Package package) => IsInstalled(package.Id);
+
+        public bool IsInstalled(string key) => ContainsKey(key) && this[key].Slots.Any();
+
+        public bool IsInstalledInSlot(Package package, int slot) => IsInstalledInSlot(package.Id, slot);
+
+        public bool IsInstalledInSlot(string key, int slot)
+        {
+            if (!TryGetValue(key, out var model))
+            {
+                return false;
+            }
+            if (!model.Slots.ContainsKey(slot))
+            {
+                return false;
+            }
+            return model.Slots.TryGetValue(slot, out var manifest) && manifest.Files.Any();
+        }
+
+
         /// <summary>
         /// Uninstalls a package from the system by slot
         /// </summary>
@@ -162,7 +161,7 @@ namespace gpm.core.Services
         /// <param name="slotIdx"></param>
         /// <returns></returns>
         public bool UninstallPackage(Package package, int slotIdx = 0) =>
-            TryGetValue(package.Id, out var model) && UninstallPackage(model);
+            TryGetValue(package.Id, out var model) && UninstallPackage(model, slotIdx);
 
         /// <summary>
         /// Uninstalls a package from the system by slot
@@ -227,5 +226,7 @@ namespace gpm.core.Services
 
             return false;
         }
+
+        #endregion
     }
 }

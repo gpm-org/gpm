@@ -1,9 +1,10 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using gpm.core.Services;
-using gpm.core.Util.Builders;
+using static gpm_tests.Common;
 using gpm.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +14,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace gpm_tests
 {
     [TestClass]
-    public class CommandLineTests
+    public class IntegrationTests
     {
         private readonly IHost _host;
 
@@ -36,7 +37,7 @@ namespace gpm_tests
             return folder;
         }
 
-        public CommandLineTests()
+        public IntegrationTests()
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -60,41 +61,9 @@ namespace gpm_tests
         {
             LogBeginOfTest();
 
-            await Remove.Action(TESTNAME, 0, true, _host);
-            await Remove.Action(TESTNAME2, 0, true, _host);
+            await Remove.Action("all", 0, true, _host);
 
             Directory.Delete(GetTestSlot(),true);
-        }
-
-
-
-        [TestMethod]
-        public async Task TestBuilders()
-        {
-            LogBeginOfTest();
-
-            var serviceProvider = _host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
-
-            var package = dataBaseService.GetPackageFromName(TESTNAME);
-            ArgumentNullException.ThrowIfNull(package);
-
-            var releases = await gitHubService.GetReleasesForPackage(package);
-            ArgumentNullException.ThrowIfNull(releases);
-
-            // test releasebuilder
-
-            // test versionBuilder
-            var release = releases[0];
-
-            // test asset builder
-            var assetBuilder = IPackageBuilder.CreateDefaultBuilder<AssetBuilder>(package);
-            var asset = assetBuilder.Build(release.Assets);
-
-
         }
 
         [TestMethod]
@@ -102,55 +71,30 @@ namespace gpm_tests
         {
             LogBeginOfTest();
 
-            TestUpgrade();
-
-            TestList();
-
-            // cleanup
-            await TestRemove();
-            TestInstalled();
-
             await TestInstall();
 
             await TestUpdate();
 
-            TestInstalled();
+            await TestInstalled();
 
             await TestRemove();
-            TestInstalled();
         }
 
         [TestMethod]
-        public void TestUpgrade()
+        public async Task TestInstalled()
         {
             LogBeginOfTest();
 
             var serviceProvider = _host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
+            var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
 
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
+            await TestInstall();
 
-            dataBaseService.FetchAndUpdateSelf();
-        }
+            var installed = libraryService.GetInstalled();
 
-        [TestMethod]
-        public void TestList()
-        {
-            LogBeginOfTest();
+            // TODO
 
-            var serviceProvider = _host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-
-            dataBaseService.ListAllPackages();
-        }
-
-        [TestMethod]
-        public void TestInstalled()
-        {
-            LogBeginOfTest();
-
-            Installed.Action("", "", _host);
         }
 
         [TestMethod]
@@ -202,13 +146,16 @@ namespace gpm_tests
         {
             LogBeginOfTest();
 
+            var serviceProvider = _host.Services;
+            ArgumentNullException.ThrowIfNull(serviceProvider);
+            var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
+
             await Remove.Action(TESTNAME, 1, false, _host);
 
             await Remove.Action(TESTNAME, 0, true, _host);
+
+            Assert.AreEqual(0, libraryService.GetInstalled().Count());
         }
 
-
-        private static void LogBeginOfTest([CallerMemberName] string methodName = "")
-            => Console.WriteLine("\n=== {0} ===", methodName);
     }
 }

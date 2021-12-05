@@ -27,6 +27,9 @@ namespace gpm.Tasks
                 return false;
             }
 
+            // update here
+            Upgrade.Action(host);
+
             var package = dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
@@ -52,7 +55,7 @@ namespace gpm.Tasks
                 {
                     Log.Warning("[{Package}] Already installed in slot {Slot} - Use gpm update or gpm repair",
                         package, slot);
-                    return false;
+                    return true;
                 }
 
                 // check if package is in local library

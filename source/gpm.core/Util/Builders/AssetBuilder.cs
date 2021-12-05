@@ -59,8 +59,7 @@ namespace gpm.core.Util.Builders
                     .Select(x => ReplacePlaceHolders(x, context.Package))
                     .MatchesWildcard(x => x, pattern);
 
-                return (IReadOnlyList<ReleaseAsset>)assets.Where(x => matches.Contains(x.Name));
-
+                return assets.Where(x => matches.Contains(x.Name)).ToList();
             });
 
             return this;

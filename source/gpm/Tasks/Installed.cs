@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,7 +8,7 @@ namespace gpm.Tasks
 {
     public static class Installed
     {
-        public static void Action(string pattern, string regex, IHost host)
+        public static void Action(IHost host)
         {
             var serviceProvider = host.Services;
             var library = serviceProvider.GetRequiredService<ILibraryService>();

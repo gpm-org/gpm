@@ -38,7 +38,4 @@ var parser = new CommandLineBuilder(rootCommand)
 Environment.CurrentDirectory = Path.GetTempPath();
 #endif
 
-// hack to get DI in system.commandline
-parser.Invoke(new UpgradeCommand().Name);
-
 parser.Invoke(args);

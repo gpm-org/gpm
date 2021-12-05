@@ -1,7 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using gpm.core.Exceptions;
-using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +14,9 @@ namespace gpm.Tasks
             var serviceProvider = host.Services;
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
+
+            // update here
+            Upgrade.Action(host);
 
             if (string.IsNullOrEmpty(name))
             {

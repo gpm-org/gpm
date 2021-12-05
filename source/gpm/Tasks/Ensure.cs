@@ -48,7 +48,7 @@ namespace gpm.Tasks
                 return obj;
             }
 
-            action?.Invoke();
+            action();
             throw new ArgumentNullException(parameterName, message);
         }
 

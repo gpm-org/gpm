@@ -1,8 +1,11 @@
+using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using gpm.core.Services;
+using gpm.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace gpm.Commands
 {
@@ -23,9 +26,18 @@ namespace gpm.Commands
         private void Action(string pattern, string regex, IHost host)
         {
             var serviceProvider = host.Services;
-            var db = serviceProvider.GetRequiredService<IDataBaseService>();
+            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
 
-            db.ListAllPackages();
+            // update here
+            Upgrade.Action(host);
+
+            Log.Information("Available packages:");
+            Console.WriteLine("Id\tUrl");
+            foreach (var (key, package) in dataBaseService)
+            {
+                Console.WriteLine("{0}\t{1}", key, package.Url);
+                //Log.Information("{Key}\t{Package}", key, package.Url);
+            }
         }
 
 

@@ -12,11 +12,7 @@ namespace gpm.Commands
 
         public InstalledCommand() : base(Name, Description)
         {
-            AddOption(new Option<string>(new[] { "--pattern", "-w" },
-                "Use optional search pattern (e.g. *.ink), if both regex and pattern is defined, pattern will be prioritized."));
-            AddOption(new Option<string>(new[] { "--regex", "-r" }, "Use optional regex pattern."));
-
-            Handler = CommandHandler.Create<string, string, IHost>(Installed.Action);
+            Handler = CommandHandler.Create<IHost>(Installed.Action);
         }
     }
 }
