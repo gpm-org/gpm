@@ -66,7 +66,6 @@ namespace gpm.Tasks
                 Log.Warning("[{Package}] Package {Name} not found", package, name);
                 return false;
             }
-
             // get install path
             if (!GetInstallPath(path, global, libraryService, package, out var slotId))
             {
@@ -81,12 +80,18 @@ namespace gpm.Tasks
                 Log.Warning("No releases found for package {Package}", package);
                 return false;
             }
+
             if (await deploymentService.InstallReleaseAsync(package, releases, version, slotId))
             {
                 Log.Information("[{Package}] Package successfully installed", package);
             }
             else
             {
+                // clean slots for failed install
+                if (libraryService.TryGetValue(package.Id, out var model))
+                {
+                    model.Slots.Remove(slotId);
+                }
                 return false;
             }
 
@@ -170,7 +175,7 @@ namespace gpm.Tasks
             // check if that path matches any existing slot
             var slotForPath = model.Slots.Values
                 .FirstOrDefault(x => x.FullPath != null && x.FullPath.Equals(installPath));
-            if (slotForPath is not null)
+            if (slotForPath is not null && libraryService.IsInstalled(model.Key))
             {
                 // is already installed
                 // TODO: if it is, return because we should use update or repair
@@ -191,7 +196,6 @@ namespace gpm.Tasks
 
             var slotManifest = model.Slots.GetOrAdd(key: slotId);
             slotManifest.FullPath = installPath;
-
 
             return true;
         }

@@ -14,7 +14,7 @@
     },
     "gpm remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove wolvenkit/wolvenkit/test1 -s 2"
+      "commandLineArgs": "remove wolvenkit/wolvenkit/test1 -s 0"
     },
     "gpm search": {
       "commandName": "Project",
