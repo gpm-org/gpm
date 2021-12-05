@@ -10,8 +10,6 @@ using Serilog;
 namespace gpm.Tasks
 {
     /// <summary>
-    /// The dotnet tool uninstall command provides a way for you to uninstall .NET tools from your machine. To use the command, you specify one of the following options:
-
     /// To uninstall a global tool that was installed in the default location, use the --global option.
     /// To uninstall a global tool that was installed in a custom location, use the --tool-path option.
     /// To uninstall a local tool, omit the --global and --tool-path options.

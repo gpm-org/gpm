@@ -11,7 +11,7 @@ namespace gpm.Commands
 {
     public class SearchCommand : Command
     {
-        private new const string Description = "Lists all available packages.";
+        private new const string Description = "Search packages in the gpm registry.";
         private new const string Name = "search";
 
         public SearchCommand() : base(Name, Description)

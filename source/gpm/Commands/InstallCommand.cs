@@ -27,7 +27,7 @@ namespace gpm.Commands
             AddOption(new Option<string>(new[] { "--path", "-p" },
                 "Specifies the location where to install the global package. PATH can be absolute or relative. If PATH doesn't exist, the command tries to create it. Omitting both --global and --path specifies a local package installation."));
             AddOption(new Option<bool>(new[] { "--global", "-g" },
-                "Specifies that the installation is user wide. Can't be combined with the --path option. Omitting both --global and --tool-path specifies a local tool installation."));
+                "Specifies that the installation is user wide. Can't be combined with the --path option. Omitting both --global and --tool-path specifies a local package installation."));
 
             Handler = CommandHandler.Create<string, string, string, bool, IHost>(InstallAction.UpdateAndInstall);
         }
