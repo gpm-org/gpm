@@ -26,7 +26,7 @@
     },
     "gpm help": {
       "commandName": "Project",
-      "commandLineArgs": "search -h"
+      "commandLineArgs": "update -h"
     }
   }
 }

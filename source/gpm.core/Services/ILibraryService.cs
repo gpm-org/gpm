@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using gpm.core.Models;
 
@@ -17,28 +18,6 @@ namespace gpm.core.Services
         bool IsInstalledInSlot(Package package, int slot);
 
         /// <summary>
-        /// Uninstalls a package from the system by slot
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="slotIdx"></param>
-        bool UninstallPackage(Package package, int slotIdx = 0);
-
-        /// <summary>
-        /// Uninstalls a package from the system by slot
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="slotIdx"></param>
-        /// <returns></returns>
-        bool UninstallPackage(string key, int slotIdx = 0);
-
-        /// <summary>
-        /// Uninstalls a package from the system by slot
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="slotIdx"></param>
-        bool UninstallPackage(PackageModel model, int slotIdx = 0);
-
-        /// <summary>
         /// Check if package is installed in slot
         /// </summary>
         /// <param name="key"></param>
@@ -51,5 +30,8 @@ namespace gpm.core.Services
         /// </summary>
         /// <returns></returns>
         IEnumerable<PackageModel> GetInstalled() => this.Values.Where(x => IsInstalled(x.Key));
+
+        bool IsInstalledAtLocation(Package package, string path, [NotNullWhen(true)] out int? idx);
+        bool IsInstalledAtLocation(string key, string path, [NotNullWhen(true)] out int? idx);
     }
 }

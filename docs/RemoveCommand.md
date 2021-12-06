@@ -36,13 +36,13 @@ The `gpm remove` command provides a way for you to uninstall gpm packages from y
 
 ## Options
 
-* **`-p|--path <PATH>`**
-
-    Specifies the location where to uninstall the package. `PATH` can be absolute or relative. Can't be combined with the `--global` option. Omitting both `--global` and `--path` specifies that the package to be removed is a local package.
-
 * **`-g|--global`**
 
     Specifies that the package to be removed is from a user-wide installation. Can't be combined with the `--path` option. Omitting both `--global` and `--path` specifies that the package to be removed is a local package.
+
+* **`-p|--path <PATH>`**
+
+    Specifies the location where to uninstall the package. `PATH` can be absolute or relative. Can't be combined with the `--global` option. Omitting both `--global` and `--path` specifies that the package to be removed is a local package.
 
 * **`-s|--slot <SLOT>`**
 

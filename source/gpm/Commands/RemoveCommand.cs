@@ -15,13 +15,12 @@ namespace gpm.Commands
             AddArgument(new Argument<string>("name",
                 "The package name. Can be a github repo url, a repo name or in the form of owner/name/id"));
 
-
-            AddOption(new Option<string>(new[] { "--path", "-p" },
-                "Specifies the location where to uninstall the package. PATH can be absolute or relative. Can't be combined with the --global option. Omitting both --global and --path specifies that the package to be removed is a local package."));
             AddOption(new Option<bool>(new[] { "--global", "-g" },
                 "Specifies that the package to be removed is from a user-wide installation. Can't be combined with the --path option. Omitting both --global and --path specifies that the package to be removed is a local package."));
+            AddOption(new Option<string>(new[] { "--path", "-p" },
+                "Specifies the location where to uninstall the package. PATH can be absolute or relative. Can't be combined with the --global option. Omitting both --global and --path specifies that the package to be removed is a local package."));
             AddOption(new Option<int?>(new[] { "--slot", "-s" },
-                "The package slot to uninstall."));
+                "Specify a slot to uninstall."));
 
             Handler = CommandHandler.Create<string, bool, string, int?, IHost>(RemoveAction.UpdateAndRemove);
         }

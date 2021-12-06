@@ -1,10 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using gpm.core;
 using gpm.core.Exceptions;
 using gpm.core.Extensions;
 using gpm.core.Models;
@@ -70,10 +67,37 @@ namespace gpm.Tasks
                 return false;
             }
             // get install path
-            if (!GetInstallPath(path, global, libraryService, package, out var slotId))
+            if (!TryGetInstallPath(package, path, global , out var installPath))
             {
                 return false;
             }
+            // install package as a local tool in a specified location
+            // check if that path matches any existing slot
+            var model = libraryService.GetOrAdd(package);
+            var slotForPath = model.Slots.Values
+                .FirstOrDefault(x => x.FullPath != null && x.FullPath.Equals(installPath));
+            if (slotForPath is not null && libraryService.IsInstalled(model.Key))
+            {
+                // is already installed
+                // TODO: if it is, return because we should use update or repair
+                Log.Warning("[{Package}] Already installed in slot {Path} - Use gpm update or gpm repair",
+                    package, installPath);
+                return false;
+            }
+
+            // if not, add to a new slot2
+            var slotId = 0;
+            foreach (var (key, _) in model.Slots)
+            {
+                if (key != slotId)
+                {
+                    break;
+                }
+                slotId++;
+            }
+            var slotManifest = model.Slots.GetOrAdd(key: slotId);
+            slotManifest.FullPath = installPath;
+
 
             // install package
             Log.Information("[{Package}] Installing package ...", package);
@@ -91,7 +115,7 @@ namespace gpm.Tasks
             else
             {
                 // clean slots for failed install
-                if (libraryService.TryGetValue(package.Id, out var model))
+                //if (libraryService.TryGetValue(package.Id, out var model))
                 {
                     model.Slots.Remove(slotId);
                 }
@@ -133,14 +157,19 @@ namespace gpm.Tasks
             return false;
         }
 
-        private static bool GetInstallPath(string path, bool global, ILibraryService libraryService, Package package,
-            out int slotId)
+        /// <summary>
+        /// Gets the install path for a given global or local tool configuration
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="global"></param>
+        /// <param name="package"></param>
+        /// <param name="installPath"></param>
+        /// <returns>false if invalid tool configuration</returns>
+        public static bool TryGetInstallPath(Package package, string path, bool global, out string installPath)
         {
             // check if package is in local library
             // if not it just goes to slot 0
-            var model = libraryService.GetOrAdd(package);
-            slotId = 0;
-            string installPath = "";
+            installPath = "";
             var isPathEmpty = string.IsNullOrEmpty(path);
             switch (global)
             {
@@ -156,7 +185,7 @@ namespace gpm.Tasks
                 case false when !isPathEmpty:
                 {
                     installPath = isPathEmpty
-                        ? Path.Combine(IAppSettings.GetLibraryFolder(), package.Id)
+                        ? IAppSettings.GetDefaultInstallDir(package)
                         : path;
                     if (!Directory.Exists(installPath))
                     {
@@ -171,34 +200,6 @@ namespace gpm.Tasks
                     break;
                 }
             }
-
-            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(installPath);
-
-            // install package as a local tool in a specified location
-            // check if that path matches any existing slot
-            var slotForPath = model.Slots.Values
-                .FirstOrDefault(x => x.FullPath != null && x.FullPath.Equals(installPath));
-            if (slotForPath is not null && libraryService.IsInstalled(model.Key))
-            {
-                // is already installed
-                // TODO: if it is, return because we should use update or repair
-                Log.Warning("[{Package}] Already installed in slot {Path} - Use gpm update or gpm repair",
-                    package, installPath);
-                return false;
-            }
-
-            // if not, add to a new slot2
-            foreach (var (key, _) in model.Slots)
-            {
-                if (key != slotId)
-                {
-                    break;
-                }
-                slotId++;
-            }
-
-            var slotManifest = model.Slots.GetOrAdd(key: slotId);
-            slotManifest.FullPath = installPath;
 
             return true;
         }

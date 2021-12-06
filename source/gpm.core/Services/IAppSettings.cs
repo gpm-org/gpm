@@ -38,6 +38,8 @@ namespace gpm.core.Services
             return folder;
         }
 
+        public static string GetDefaultInstallDir(Package package) => Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
+
         public static string GetAppSettingsFile() => Path.Combine(GetAppDataFolder(), Constants.APPSETTINGS);
 
         public static string GetDbFile() => Path.Combine(GetAppDataFolder(), Constants.DB);

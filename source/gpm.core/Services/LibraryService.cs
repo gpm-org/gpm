@@ -144,84 +144,24 @@ namespace gpm.core.Services
             return model.Slots.TryGetValue(slot, out var manifest) && manifest.Files.Any();
         }
 
+        public bool IsInstalledAtLocation(Package package, string path, [NotNullWhen(true)] out int? idx) =>
+            IsInstalledAtLocation(package.Id, path, out idx);
 
-        /// <summary>
-        /// Uninstalls a package from the system by slot
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="slotIdx"></param>
-        /// <returns></returns>
-        public bool UninstallPackage(string key, int slotIdx = 0) =>
-            TryGetValue(key, out var model) && UninstallPackage(model, slotIdx);
-
-        /// <summary>
-        /// Uninstalls a package from the system by slot
-        /// </summary>
-        /// <param name="package"></param>
-        /// <param name="slotIdx"></param>
-        /// <returns></returns>
-        public bool UninstallPackage(Package package, int slotIdx = 0) =>
-            TryGetValue(package.Id, out var model) && UninstallPackage(model, slotIdx);
-
-        /// <summary>
-        /// Uninstalls a package from the system by slot
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="slotIdx"></param>
-        public bool UninstallPackage(PackageModel model, int slotIdx = 0)
+        public bool IsInstalledAtLocation(string key, string path, [NotNullWhen(true)] out int? idx)
         {
-            if (!model.Slots.TryGetValue(slotIdx, out var slot))
+            idx = null;
+            if (!TryGetValue(key, out var model))
             {
-                Log.Warning("[{Package}] No package installed in slot {SlotIdx}", model,
-                    slotIdx.ToString());
                 return false;
             }
 
-            Log.Information("[{Package}] Removing package from slot {SlotIdx}", model,
-                slotIdx.ToString());
-
-            var files = slot.Files
-                .Select(x => x.Name)
-                .ToList();
-            var failed = new List<string>();
-
-            foreach (var file in files)
+            foreach (var (i,value) in model.Slots)
             {
-                if (!File.Exists(file))
+                if (value.FullPath is not null && value.FullPath.Equals(path) && value.Files.Any())
                 {
-                    Log.Warning("[{Package}] Could not find file {File} to delete. Skipping", model,
-                        file);
-                    continue;
+                    idx = i;
+                    return true;
                 }
-
-                try
-                {
-                    Log.Debug("[{Package}] Removing {File}", model, file);
-                    File.Delete(file);
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "[{Package}] Could not delete file {File}. Skipping", model, file);
-                    failed.Add(file);
-                }
-            }
-
-            // remove deploy manifest from library
-            model.Slots.Remove(slotIdx);
-
-            // TODO: remove cached files as well?
-            Save();
-
-            if (failed.Count == 0)
-            {
-                Log.Information("[{Package}] Successfully removed package", model);
-                return true;
-            }
-
-            Log.Warning("[{Package}] Partially removed package. Could not delete:", model);
-            foreach (var fail in failed)
-            {
-                Log.Warning("Filename: {File}", fail);
             }
 
             return false;

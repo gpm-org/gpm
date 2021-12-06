@@ -128,6 +128,7 @@ namespace gpm.core.Services
                     Log.Error(e, "Failed to read existing lock file");
                 }
             }
+
             if (!lockfile.Packages.Any(x => x.Id.Equals(package.Id)))
             {
                 lockfile.Packages.Add(new PackageMeta(package.Id,
@@ -282,7 +283,7 @@ namespace gpm.core.Services
         /// <param name="overwriteFiles"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        private List<HashedFile>? ExtractZipArchiveTo(string sourceArchiveFileName, string destinationDirectoryName,
+        private static List<HashedFile>? ExtractZipArchiveTo(string sourceArchiveFileName, string destinationDirectoryName,
             bool overwriteFiles = true)
         {
             var extension = Path.GetExtension(sourceArchiveFileName).ToLower();
@@ -339,79 +340,114 @@ namespace gpm.core.Services
         }
 
 
-        //    private async Task DownloadUpdateAsync(Manifest manifest)
-        //    {
-        //        var latestVersion = manifest.Version;
+       /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="slotIdx"></param>
+        /// <returns></returns>
+        public async Task<bool> UninstallPackage(string key, int slotIdx = 0) =>
+            _libraryService.TryGetValue(key, out var model) && await UninstallPackage(model, slotIdx);
 
-        //        if (!b)
-        //        {
-        //            return true;
-        //        }
+        /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="slotIdx"></param>
+        /// <returns></returns>
+        public async Task<bool> UninstallPackage(Package package, int slotIdx = 0) =>
+            _libraryService.TryGetValue(package.Id, out var model) && await UninstallPackage(model, slotIdx);
 
-        //        using (var wc = new WebClient())
-        //        {
-        //            var dlObservable = Observable.FromEventPattern<DownloadProgressChangedEventHandler, DownloadProgressChangedEventArgs>(
-        //                handler => wc.DownloadProgressChanged += handler,
-        //                handler => wc.DownloadProgressChanged -= handler);
-        //            var dlCompleteObservable = Observable.FromEventPattern<AsyncCompletedEventHandler, AsyncCompletedEventArgs>(
-        //                handler => wc.DownloadFileCompleted += handler,
-        //                handler => wc.DownloadFileCompleted -= handler);
+        /// <summary>
+        /// Uninstalls a package from the system by slot
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="slotIdx"></param>
+        public async Task<bool> UninstallPackage(PackageModel model, int slotIdx = 0)
+        {
+            if (!model.Slots.TryGetValue(slotIdx, out var slot))
+            {
+                Log.Warning("[{Package}] No package installed in slot {SlotIdx}", model,
+                    slotIdx.ToString());
+                return false;
+            }
 
-        //            _ = dlObservable
-        //                .Select(_ => (double)_.EventArgs.ProgressPercentage)
-        //                .Subscribe(d =>
-        //                {
-        //                    Report(d / 100);
-        //                });
+            Log.Information("[{Package}] Removing package from slot {SlotIdx}", model,
+                slotIdx.ToString());
 
-        //            _ = dlCompleteObservable
-        //                .Select(_ => _.EventArgs)
-        //                .Subscribe(c =>
-        //                {
-        //                    OnDownloadCompletedCallback(c, manifest, type);
-        //                });
+            var files = slot.Files
+                .Select(x => x.Name)
+                .ToList();
+            var failed = new List<string>();
 
-        //            var uri = new Uri($"{GetUpdateUri().TrimEnd('/')}/{manifest.Get(type).Key}");
-        //            var physicalPath = Path.Combine(Path.GetTempPath(), manifest.Get(type).Key);
-        //            wc.DownloadFileAsync(uri, physicalPath);
-        //        }
-        //        await Task.CompletedTask;
-        //    }
+            foreach (var file in files)
+            {
+                if (!File.Exists(file))
+                {
+                    Log.Warning("[{Package}] Could not find file {File} to delete. Skipping", model,
+                        file);
+                    continue;
+                }
 
-        //    private void OnDownloadCompletedCallback(AsyncCompletedEventArgs e, Manifest manifest, EIncludedFiles type)
-        //    {
-        //        if (e.Cancelled)
-        //        {
-        //            Console.WriteLine("File download cancelled.");
-        //        }
+                try
+                {
+                    Log.Debug("[{Package}] Removing {File}", model, file);
+                    File.Delete(file);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "[{Package}] Could not delete file {File}. Skipping", model, file);
+                    failed.Add(file);
+                }
+            }
 
-        //        if (e.Error != null)
-        //        {
-        //            Console.WriteLine(e.Error);
-        //        }
+            // update package lock file
+            var destinationDir = model.Slots[slotIdx].FullPath.NotNullOrEmpty();
+            var lockFilePath = Path.Combine(destinationDir, Constants.GPMLOCK);
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
 
-        //        // check downloaded file
-        //        var physicalPath = new FileInfo(Path.Combine(Path.GetTempPath(), manifest.Get(type).Key));
-        //        if (physicalPath.Exists)
-        //        {
-        //            using (var mySha256 = SHA256.Create())
-        //            {
-        //                var hash = Helpers.HashFile(physicalPath, mySha256);
-        //                if (manifest.Get(type).Value.Equals(hash))
-        //                {
-        //                    HandleUpdateFromFile(physicalPath);
-        //                }
-        //                else
-        //                {
-        //                    Console.WriteLine("Downloaded file does not match expected file.");
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine("File download failed.");
-        //        }
-        //    }
-        //
+            PackageLock lockfile = new();
+            if (File.Exists(lockFilePath))
+            {
+                try
+                {
+                    var obj = JsonSerializer.Deserialize<PackageLock>(await File.ReadAllTextAsync(lockFilePath), options);
+                    if (obj is not null)
+                    {
+                        lockfile = obj;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "Failed to read existing lock file");
+                }
+            }
+            lockfile.Packages.RemoveAll(x => x.Id.Equals(model.Key));
+            await File.WriteAllTextAsync(lockFilePath, JsonSerializer.Serialize(lockfile, options));
+
+            // remove deploy manifest from library
+            model.Slots.Remove(slotIdx);
+
+            // TODO: remove cached files as well?
+            _libraryService.Save();
+
+            if (failed.Count != 0)
+            {
+                Log.Warning("[{Package}] Partially removed package. Could not delete:", model);
+                foreach (var fail in failed)
+                {
+                    Log.Warning("Filename: {File}", fail);
+                }
+
+                return false;
+            }
+
+            Log.Information("[{Package}] Successfully removed package", model);
+            return true;
+        }
     }
 }

@@ -15,15 +15,16 @@ namespace gpm.Commands
             AddArgument(new Argument<string>("name",
                 "The package name. Can be a github repo url, a repo name or in the form of owner/name/id"));
 
-            AddOption(new Option<bool>(new[] { "--all", "-a" },
-                "Update all installed packages (only their default slots)."));
-            AddOption(new Option<int>(new[] { "--slot", "-s" },
+
+            AddOption(new Option<bool>(new[] { "--global", "-g" },
+                "Specifies that the update is for a user-wide package. Can't be combined with the `--path` option. Omitting both `--global` and `--path` specifies that the package to be updated is a local package."));
+            AddOption(new Option<string>(new[] { "--path", "-p" },
+                "Specifies the location where the global package is installed. PATH can be absolute or relative. Can't be combined with the `--global` option. Omitting both `--global` and `--path` specifies that the package to be updated is a local package."));
+            AddOption(new Option<int?>(new[] { "--slot", "-s" },
                 "Update a specific slot. Input the index of the slot, default is 0."));
 
-            AddOption(new Option<bool>(new[] { "--clean", "-c" },
-                "Do a clean install and completely remove the installed package."));
 
-            Handler = CommandHandler.Create<string, bool, int, bool, IHost>(Update.Action);
+            Handler = CommandHandler.Create<string, bool, string, int?, IHost>(UpdateAction.Update);
         }
     }
 }

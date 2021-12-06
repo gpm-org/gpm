@@ -46,6 +46,7 @@ namespace gpm.Tasks
             var serviceProvider = host.Services;
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
+            var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
 
             if (string.IsNullOrEmpty(name))
             {
@@ -92,7 +93,7 @@ namespace gpm.Tasks
                 {
                     if (value.FullPath is not null && value.FullPath.Equals(defaultDir))
                     {
-                        return await Task.FromResult(libraryService.UninstallPackage(package, key));
+                        return await deploymentService.UninstallPackage(package, key);
                     }
                 }
 
@@ -113,7 +114,7 @@ namespace gpm.Tasks
                 {
                     if (value.FullPath is not null && value.FullPath.Equals(path))
                     {
-                        return await Task.FromResult(libraryService.UninstallPackage(package, key));
+                        return await deploymentService.UninstallPackage(package, key);
                     }
                 }
 
@@ -124,7 +125,7 @@ namespace gpm.Tasks
             // try uninstalling from --slot
             if (slot is not null)
             {
-                return await Task.FromResult(libraryService.UninstallPackage(package, slot.Value));
+                return await deploymentService.UninstallPackage(package, slot.Value);
             }
 
             // try uninstalling from current dir
@@ -133,7 +134,7 @@ namespace gpm.Tasks
             {
                 if (value.FullPath is not null && value.FullPath.Equals(currentDir))
                 {
-                    return await Task.FromResult(libraryService.UninstallPackage(package, slotIdx));
+                    return await deploymentService.UninstallPackage(package, slotIdx);
                 }
             }
 
