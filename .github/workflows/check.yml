@@ -22,8 +22,8 @@ jobs:
       run: dotnet restore source/gpm.sln
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
-    - name: Publish
-      run: dotnet publish source/gpm.sln -o publish
+#    - name: Publish
+#      run: dotnet publish source/gpm.sln -o publish
 #    - name: Test
 #      run: dotnet test source/gpm.sln --no-build --verbosity normal
 
@@ -41,8 +41,8 @@ jobs:
       run: dotnet restore source/gpm.sln
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
-    - name: Publish
-      run: dotnet publish source/gpm.sln -o publish
+#    - name: Publish
+#      run: dotnet publish source/gpm.sln -o publish
 #    - name: Test
 #      run: dotnet test source/gpm.sln --no-build --verbosity normal
 
@@ -60,8 +60,8 @@ jobs:
       run: dotnet restore source/gpm.sln
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
-    - name: Publish
-      run: dotnet publish source/gpm.sln -o publish
+#    - name: Publish
+#      run: dotnet publish source/gpm.sln -o publish
 #    - name: Test
 #      run: dotnet test source/gpm.sln --no-build --verbosity normal
    
