@@ -25,16 +25,16 @@ jobs:
     - name: Publish
       run: dotnet publish source/gpm/gpm.csproj -o publish
     - uses: papeloto/action-zip@v1
-        with:
-          files: publish/
-          dest: gpm.zip
+      with:
+        files: publish/
+        dest: gpm.zip
         
     - name: Publish util
       run: dotnet publish source/gpm-util/gpm-util.csproj -o publish-util
     - uses: papeloto/action-zip@v1
-        with:
-          files: publish-util/
-          dest: gpm-util.zip
+      with:
+        files: publish-util/
+        dest: gpm-util.zip
       
 
     - uses: ncipollo/release-action@v1
