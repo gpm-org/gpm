@@ -56,18 +56,18 @@ The `gpm remove` command provides a way for you to uninstall gpm packages from y
 
 * **`gpm remove -g wolvenkit`**
 
-  Uninstalls the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global tool.
+  Uninstalls the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global package.
 
 * **`gpm remove wolvenkit --path c:\global-tools`**
 
-  Uninstalls the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global tool from a specific Windows directory.
+  Uninstalls the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global package from a specific Windows directory.
 
 * **`gpm remove wolvenkit --path ~/bin`**
 
-  Uninstalls the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global tool from a specific Linux/macOS directory.
+  Uninstalls the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global package from a specific Linux/macOS directory.
 
 * **`gpm remove wolvenkit`**
 
-  Uninstalls the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) local tool from the current directory.
+  Uninstalls the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) local package from the current directory.
 
 ## See also

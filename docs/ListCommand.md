@@ -16,19 +16,19 @@ Options:
 
 ## Description
 
-The `gpm list` command provides a way for you to list all global, tool-path, or local packages installed on your machine. The command lists the package id, version installed, and location.
+The `gpm list` command provides a way for you to list all global, custom, or local packages installed on your machine. The command lists the package id, version installed, and location.
 
 ## Options
 
-* `-?|-h|--help`
+* **`-?|-h|--help`**
   
     Prints out a description of how to use the command.
 
 ## Examples
 
-* **`dotnet tool list`**
+* **`gpm list`**
 
-  Lists all tools installed user-wide on your machine (current user profile).
+  Lists all packages installed user-wide on your machine (current user profile).
 
 The output looks like the following example:
 

@@ -7,24 +7,30 @@
 ## Synopsis
 
 ```md
+Arguments:
+  <name>
 
+Options:
+  -g, --global
+  -p, --path <path>
+  -s, --slot <slot>
+  -v, --version <version> 
+  -?, -h, --help
 ```
 
 ## Description
 
-The `gpm update` command provides a way for you to update packages on your machine to the latest stable version of the package. The command uninstalls and reinstalls a tool, effectively updating it. To use the command, you specify one of the following options:
+The `gpm update` command provides a way for you to update packages on your machine to the latest stable version of the package. The command uninstalls and reinstalls a package, effectively updating it. To use the command, you specify one of the following options:
 
-* To update a global tool that was installed in the default location, use the `--global` option
-* To update a global tool that was installed in a custom location, use the `--path` option.
-* To update a local tool, use the `--local` option.
-
-**Local tools are available starting with .NET Core SDK 3.0.**
+* To update a global package that was installed in the default location, use the `--global` option
+* To update a global package that was installed in a custom location, use the `--path` option.
+* To update a local package, omit both `--global` and `--path` options.
 
 ## Arguments
 
 * **`PACKAGE_ID`**
 
-  Name/ID of the NuGet package that contains the .NET global tool to update. You can find the package name using the [gpm list](dotnet-tool-list.md) command.
+  Name/ID of the gpm package to update. You can find the package name using the [gpm list](ListCommand.md) command.
 
 ## Options
 
@@ -36,34 +42,35 @@ The `gpm update` command provides a way for you to update packages on your machi
 
   Specifies the location where the global package is installed. PATH can be absolute or relative. Can't be combined with the `--global` option. Omitting both `--global` and `--path` specifies that the package to be updated is a local package.
 
+* **`-s|--slot <SLOT>`**
+
+    Update a specific slot. Input the index of the slot, default is 0. The package slot to uninstall. You can find the package slot using the [gpm list](ListCommand.md) command.
+
 * **`--version <VERSION>`**
 
-  The version range of the tool package to update to. This cannot be used to downgrade versions, you must `uninstall` newer versions first.
+  The version range of the package to update to. This cannot be used to downgrade versions, you must `uninstall` newer versions first.
 
 ## Examples
 
 * **`gpm update -g wolvenkit`**
 
-  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global tool.
+  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global package.
 
 * **`gpm update wolvenkit --path c:\global-tools`**
 
-  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global tool located in a specific Windows directory.
+  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global package located in a specific Windows directory.
 
 * **`gpm update wolvenkit --path ~/bin`**
 
-  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global tool located in a specific Linux/macOS directory.
+  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global package located in a specific Linux/macOS directory.
 
-- **`gpm update wolvenkit`**
+* **`gpm update wolvenkit`**
 
-  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) local tool installed for the current directory.
+  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) local package installed for the current directory.
 
-- **`gpm update -g wolvenkit --version 2.0.*`**
+* **`gpm update -g wolvenkit --version 8.4.2`**
 
-  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global tool to the latest patch version, with a major version of `2`, and a minor version of `0`.
+  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global package to version `8.4.2`.
 
-- **`gpm update -g wolvenkit --version (2.0.*,2.1.4)`**
-
-  Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global tool to the lowest version within the specified range `(> 2.0.0 && < 2.1.4)`, version `2.1.0` would be installed. For more information on semantic versioning ranges, see [NuGet packaging version ranges](/nuget/concepts/package-versioning#version-ranges).
 
 ## See also

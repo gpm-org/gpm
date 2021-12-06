@@ -11,7 +11,7 @@ namespace gpm.Tasks
 {
     public static class UpdateAction
     {
-        public static async Task<bool> Update(string name, bool global, string path, int? slot, IHost host)
+        public static async Task<bool> Update(string name, bool global, string path, int? slot, string version, IHost host)
         {
             var serviceProvider = host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -139,7 +139,7 @@ namespace gpm.Tasks
 
                 // update to new version
                 Log.Information("[{Package}] Updating package ...", package);
-                if (await deploymentService.InstallReleaseAsync(package, releases, null, slotIdxInner))
+                if (await deploymentService.InstallReleaseAsync(package, releases, version, slotIdxInner))
                 {
                     Log.Information("[{Package}] Package successfully updated to version {Version}", package,
                         model.Slots[slotIdxInner].Version);

@@ -21,7 +21,7 @@ The `gpm search` command provides a way for you to search the gpm registry for p
 
 ## Options
 
-* `-?|-h|--help`
+* **`-?|-h|--help`**
   
     Prints out a description of how to use the command.
 

@@ -24,7 +24,7 @@ The `gpm install` command provides a way for you to install gpm packages on your
 
 * To install a global package in the default location, use the `--global` option.
 * To install a global package in a custom location,  use the `--path` option.
-* To install a local tool, omit the `--global` and `--tool-path` options.
+* To install a local package, omit the `--global` and `--path` options.
 
 Global package are installed in the following directories by default when you specify the `-g` or `--global` option:
 
@@ -43,41 +43,41 @@ Local package are added to a *gpm-lock.json* file in the current directory.
 
 ## Options
 
-* `-v|--version <VERSION>`
+* **`-v|--version <VERSION>`**
 
     The version of the package to install. By default, the latest stable package version is installed. Use this option to install preview or older versions of the package.
 
-* `-p|--path <PATH>`
+* **`-p|--path <PATH>`**
 
     Specifies the location where to install the global package. `PATH` can be absolute or relative. If PATH doesn't exist, the command tries to create it. Omitting both `--global` and `--path` specifies a local package installation.
 
-* `-g|--global`
+* **`-g|--global`**
 
-    Specifies that the installation is user wide. Can't be combined with the --path option. Omitting both --global and --tool-path specifies a local package installation.
+    Specifies that the installation is user wide. Can't be combined with the `--path` option. Omitting both `--global` and `--path` specifies a local package installation.
 
-* `-?|-h|--help`
+* **`-?|-h|--help`**
   
     Prints out a description of how to use the command.
 
 ## Examples
 
-* **`dotnet tool install -g wolvenkit`**
+* **`gpm install -g wolvenkit`**
 
   Installs [wolvenkit](https://github.com/WolvenKit/Wolvenkit) as a global package in the default location.
 
-* **`dotnet tool install wolvenkit --path c:\global-tools`**
+* **`gpm install wolvenkit --path c:\global-tools`**
 
   Installs [wolvenkit](https://github.com/WolvenKit/Wolvenkit) as a global package in a specific Windows directory.
 
-* **`dotnet tool install wolvenkit --tool-path ~/bin`**
+* **`gpm install wolvenkit --path ~/bin`**
 
   Installs [wolvenkit](https://github.com/WolvenKit/Wolvenkit) as a global package in a specific Linux/macOS directory.
 
-* **`dotnet tool install -g wolvenkit --version 8.4.1`**
+* **`gpm install -g wolvenkit --version 8.4.1`**
 
   Installs version 8.4.1 of [wolvenkit](https://github.com/WolvenKit/Wolvenkit) as a global package.
 
-* **`dotnet tool install wolvenkit`**
+* **`gpm install wolvenkit`**
 
   Installs [wolvenkit](https://github.com/WolvenKit/Wolvenkit) as a local package for the current directory.
 

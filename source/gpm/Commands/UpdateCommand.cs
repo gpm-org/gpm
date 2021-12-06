@@ -22,9 +22,10 @@ namespace gpm.Commands
                 "Specifies the location where the global package is installed. PATH can be absolute or relative. Can't be combined with the `--global` option. Omitting both `--global` and `--path` specifies that the package to be updated is a local package."));
             AddOption(new Option<int?>(new[] { "--slot", "-s" },
                 "Update a specific slot. Input the index of the slot, default is 0."));
+            AddOption(new Option<string>(new[] { "--version", "-v" },
+                "The version range of the tool package to update to. This cannot be used to downgrade versions, you must `uninstall` newer versions first."));
 
-
-            Handler = CommandHandler.Create<string, bool, string, int?, IHost>(UpdateAction.Update);
+            Handler = CommandHandler.Create<string, bool, string, int?, string, IHost>(UpdateAction.Update);
         }
     }
 }
