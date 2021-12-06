@@ -10,7 +10,7 @@
     },
     "gpm install": {
       "commandName": "Project",
-      "commandLineArgs": "install wolvenkit/wolvenkit/test1"
+      "commandLineArgs": "install wolvenkit/wolvenkit/test2"
     },
     "gpm remove": {
       "commandName": "Project",

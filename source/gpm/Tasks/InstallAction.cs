@@ -100,7 +100,7 @@ namespace gpm.Tasks
 
 
             // install package
-            Log.Information("[{Package}] Installing package ...", package);
+            Log.Information("[{Package}] Installing package version {Version} ...", package, version);
             var releases = await gitHubService.GetReleasesForPackage(package);
             if (releases is null || !releases.Any())
             {
@@ -135,13 +135,12 @@ namespace gpm.Tasks
             }
 
             var dependencyResult = true;
-            if (dependencies.Length > 0)
+            if (dependencies.Count > 0)
             {
-                // TODO install dependencies: versions, paths?
-                Log.Information("[{Package}] Found {Count} dependencies. Installing...", package, dependencies.Length);
+                Log.Information("[{Package}] Found {Count} dependencies. Installing...", package, dependencies.Count);
                 foreach (var dep in dependencies)
                 {
-                    dependencyResult = await Install(dep, "", path, global, host);
+                    dependencyResult = await Install(dep.Id, dep.Version, path, global, host);
                 }
             }
 

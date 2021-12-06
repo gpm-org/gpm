@@ -165,10 +165,27 @@ namespace gpm_tests
 
         [TestMethod]
         public async Task TestUpdate()
-        {   // test updating default
-            await UpdateAction.Update(TESTNAME1, true, "", null, "", _host);
+        {
+            // test update global tool
+            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, "", true, _host));
+            // default fails
+            Assert.IsFalse(await UpdateAction.Update(TESTNAME1, true, TESTSLOT1, null, TESTVERSION1, _host));
+            Assert.IsFalse(await UpdateAction.Update(TESTNAME1, true, "", 0, TESTVERSION1, _host));
+            Assert.IsFalse(await UpdateAction.Update(TESTNAME1, true, TESTSLOT1, 0, TESTVERSION1, _host));
+            Assert.IsFalse(await UpdateAction.Update(TESTNAME1, false, TESTSLOT1, 0, TESTVERSION1, _host));
 
-            //TODO
+            Assert.IsTrue(await UpdateAction.Update(TESTNAME1, true, "", null, TESTVERSION2, _host));
+            Assert.IsTrue(await UpdateAction.Update(TESTNAME1, true, "", null, "", _host));
+
+            // test updating global custom tool
+            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, false, _host));
+            Assert.IsTrue(await UpdateAction.Update(TESTNAME1, false, TESTSLOT1, null, TESTVERSION2, _host));
+
+            // test updating local tool
+            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, "", false, _host));
+            Assert.IsTrue(await UpdateAction.Update(TESTNAME1, false, "", null, TESTVERSION2, _host));
+
+            // TODO: test dependency updating
 
         }
 

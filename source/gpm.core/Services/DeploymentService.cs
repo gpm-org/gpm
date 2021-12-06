@@ -103,7 +103,7 @@ namespace gpm.core.Services
 
             // create or update package-lock
             // we use this everywhere (and not only for local packages) to support updaters
-            // TODO: store dependencies
+            // TODO: handle dependencies
             var destinationDir = _libraryService[package.Id].Slots[slot].FullPath.NotNullOrEmpty();
             var lockFilePath = Path.Combine(destinationDir, Constants.GPMLOCK);
             var options = new JsonSerializerOptions
@@ -215,6 +215,7 @@ namespace gpm.core.Services
                     case ".zip":
                         installedFiles = ExtractZipArchiveTo(assetCachePath, destinationDir);
                         break;
+                    case ".7z":
                     default:
                         // treat as single file
                         var releaseFilename = Path.GetFileName(assetCachePath);

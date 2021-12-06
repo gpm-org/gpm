@@ -10,7 +10,7 @@ namespace gpm.Tasks
     {
         /// <summary>
         /// Lists all installed packages
-        /// TODO: make this only available globally, and don't save local packages to the library
+        /// TODO: make this only available globally, and don't save local packages to the library?
         /// </summary>
         /// <param name="host"></param>
         public static void List(IHost host)

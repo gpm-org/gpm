@@ -13,7 +13,6 @@ gpm-util new https://github.com/WolvenKit/WolvenKit.git
 ```json
 {
   "Url": "https://github.com/WolvenKit/WolvenKit.git",
-  "Identifier": "",
   "Topics": [
     "witcher-3",
     "game",
@@ -30,10 +29,43 @@ gpm-util new https://github.com/WolvenKit/WolvenKit.git
 }
 ```
 
-The package format supports adding multiple packages from one repository:
+## Multiple packages from one repository
+
+The package format supports adding multiple packages from one repository. You need to specify the `Identifier` property in the package format. The **[gpm-util](/docs/gpm-util.md)** tool can also add a unique identifier:
 
 ```gpm
 gpm-util new <GIT URL> -i <UNIQUE IDENTIFIER>
+```
+
+Example:
+
+```json
+{
+  "Url": "https://github.com/WolvenKit/WolvenKit.git",
+  "Identifier": "test1"
+}
+```
+
+## Dependencies
+
+The package format supports adding dependencies for a package. You need to specify the `Dependencies` property in the package format. A dependency `Id` must specify a package. Optionally you may specify a `Version` as well. Omitting the version will default to the latest version.
+
+Example:
+
+```json
+{
+  "Url": "https://github.com/WolvenKit/WolvenKit.git",
+  "Identifier": "test2",
+  "Dependencies": [
+    {
+      "Id": "wolvenkit/wolvenkit/test1",
+      "Version": "8.4.2"
+    },
+    {
+      "Id": "jac3km4/redscript"
+    }
+  ]
+}
 ```
 
 ## Logic

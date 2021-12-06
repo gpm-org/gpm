@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ProtoBuf;
@@ -37,7 +38,7 @@ namespace gpm.core.Models
         public string? Identifier { get; set; }
 
         [ProtoMember(9)]
-        public string[]? Dependencies { get; set; }
+        public List<PackageMeta>? Dependencies { get; set; }
 
         // METADATA
 

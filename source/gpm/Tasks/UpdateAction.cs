@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using gpm.core.Exceptions;
+using gpm.core.Extensions;
+using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,8 +20,6 @@ namespace gpm.Tasks
 
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
-            var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
-            var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
 
             // update here
             Upgrade.Action(host);
@@ -41,7 +41,7 @@ namespace gpm.Tasks
                 return false;
             }
 
-            if (!libraryService.TryGetValue(package.Id, out var model))
+            if (!libraryService.TryGetValue(package.Id, out _))
             {
                 Log.Warning("[{Package}] Package not found in library. Use gpm install to install a package", package);
                 return false;
@@ -91,7 +91,7 @@ namespace gpm.Tasks
                     return false;
                 }
 
-                return await UpdatePackage(slot.Value);
+                return await UpdatePackageInSlot(package, slot.Value, version, host);
             }
 
             // get slot from path
@@ -106,52 +106,65 @@ namespace gpm.Tasks
                 return false;
             }
 
-            return await UpdatePackage(slotIdx.Value);
+            return await UpdatePackageInSlot(package, slotIdx.Value, version , host);
+        }
 
+        private static async Task<bool> UpdatePackageInSlot(Package package, int slotIdx, string version, IHost host)
+        {
+            var serviceProvider = host.Services;
+            ArgumentNullException.ThrowIfNull(serviceProvider);
 
+            var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
+            var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
+            var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
 
-
-            async Task<bool> UpdatePackage(int slotIdxInner)
+            if (!libraryService.TryGetValue(package.Id, out var model))
             {
-                var releases = await gitHubService.GetReleasesForPackage(package);
-                if (releases is null || !releases.Any())
-                {
-                    Log.Warning("[{Package}] No releases found for package", package);
-                    return false;
-                }
-                if (!gitHubService.IsUpdateAvailable(package, releases, model.Slots[slotIdxInner].Version.NotNull()))
-                {
-                    Log.Warning("[{Package}] No update available for package", package);
-                    return false;
-                }
-
-                // uninstall package in location
-                Log.Debug("[{Package}] Removing installed package ...", package);
-                if (await deploymentService.UninstallPackage(package, slotIdxInner))
-                {
-                    Log.Debug("[{Package}] Old package successfully removed", package);
-                }
-                else
-                {
-                    Log.Warning("[{Package}] Failed to remove installed package. Aborting", package);
-                    return false;
-                }
-
-                // update to new version
-                Log.Information("[{Package}] Updating package ...", package);
-                if (await deploymentService.InstallReleaseAsync(package, releases, version, slotIdxInner))
-                {
-                    Log.Information("[{Package}] Package successfully updated to version {Version}", package,
-                        model.Slots[slotIdxInner].Version);
-                    return true;
-                }
-
-                // handle dependencies
-                // TODO
-
-                Log.Warning("[{Package}] Failed to update package", package);
+                Log.Warning("[{Package}] Package not found in library. Use gpm install to install a package", package);
                 return false;
             }
+
+            var releases = await gitHubService.GetReleasesForPackage(package);
+            if (releases is null || !releases.Any())
+            {
+                Log.Warning("[{Package}] No releases found for package", package);
+                return false;
+            }
+            if (!gitHubService.IsUpdateAvailable(package, releases, model.Slots[slotIdx].Version.NotNull()))
+            {
+                Log.Warning("[{Package}] No update available for package", package);
+                return false;
+            }
+
+            // uninstall package in location
+            // save slot location for later re-install
+            var installPath = model.Slots[slotIdx].FullPath;
+            Log.Debug("[{Package}] Removing installed package ...", package);
+            if (await deploymentService.UninstallPackage(model.Key, slotIdx))
+            {
+                Log.Debug("[{Package}] Old package successfully removed", package);
+            }
+            else
+            {
+                Log.Warning("[{Package}] Failed to remove installed package. Aborting", package);
+                return false;
+            }
+
+            // update to new version
+            model.Slots.AddOrUpdate(slotIdx, new SlotManifest() {FullPath = installPath});
+            Log.Information("[{Package}] Updating package ...", package);
+            if (await deploymentService.InstallReleaseAsync(package, releases, version, slotIdx))
+            {
+                Log.Information("[{Package}] Package successfully updated to version {Version}", package,
+                    model.Slots[slotIdx].Version);
+                return true;
+            }
+
+            // handle dependencies
+            // TODO
+
+            Log.Warning("[{Package}] Failed to update package", package);
+            return false;
         }
     }
 }
