@@ -45,15 +45,15 @@ jobs:
 #        bodyFile: "body.md"
         token: ${{ secrets.GITHUB_TOKEN }}
     - name: publish nuget
-        id: publish_nuget
-        uses: rohith/publish-nuget@v2
-        with:
-          # Filepath of the project to be packaged, relative to root of repository
-          PROJECT_FILE_PATH: source/gpm/gpm.csproj
+      id: publish_nuget
+      uses: rohith/publish-nuget@v2
+      with:
+        # Filepath of the project to be packaged, relative to root of repository
+        PROJECT_FILE_PATH: source/gpm/gpm.csproj
     - name: publish nuget util
-        id: publish_nuget
-        uses: rohith/publish-nuget@v2
-        with:
-          # Filepath of the project to be packaged, relative to root of repository
-          PROJECT_FILE_PATH: source/gpm-util/gpm-util.csproj
+      id: publish_nuget
+      uses: rohith/publish-nuget@v2
+      with:
+        # Filepath of the project to be packaged, relative to root of repository
+        PROJECT_FILE_PATH: source/gpm-util/gpm-util.csproj
 
