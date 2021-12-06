@@ -1,0 +1,45 @@
+name: Releases
+
+on: 
+  workflow_dispatch:
+  push:
+    tags:
+    - '*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.x
+    - name: Restore dependencies
+      run: dotnet restore source/gpm.sln
+    - name: Build
+      run: dotnet build source/gpm.sln --no-restore
+      
+    - name: Publish
+      run: dotnet publish source/gpm/gpm.csproj -o publish
+    - uses: actions/upload-artifact@v2
+      with:
+        name: gpm
+        path: publish/
+        
+    - name: Publish util
+      run: dotnet publish source/gpm-util/gpm-util.csproj -o publish-util
+    - uses: actions/upload-artifact@v2
+      with:
+        name: gpm-util
+        path: publish-util/
+      
+    - uses: ncipollo/release-action@v1
+      with:
+        draft: true
+        generateReleaseNotes: true
+        artifacts: "gpm,gpm-util"
+#        bodyFile: "body.md"
+        token: ${{ secrets.GITHUB_TOKEN }}
+
