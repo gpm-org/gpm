@@ -166,11 +166,9 @@ namespace gpm_tests
         [TestMethod]
         public async Task TestUpdate()
         {   // test updating default
-            await UpdateAction.Update(TESTNAME1, true, "", null, _host);
+            await UpdateAction.Update(TESTNAME1, true, "", null, "", _host);
 
-
-
-
+            //TODO
 
         }
 

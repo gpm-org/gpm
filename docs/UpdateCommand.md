@@ -72,5 +72,4 @@ The `gpm update` command provides a way for you to update packages on your machi
 
   Updates the [wolvenkit](https://github.com/WolvenKit/Wolvenkit) global package to version `8.4.2`.
 
-
 ## See also
