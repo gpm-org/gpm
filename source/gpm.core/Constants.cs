@@ -22,7 +22,7 @@ namespace gpm.core
         public const string APPDATA_LOGS = "logs";
 
 
-        public const string MYDOCUMENTS = @"gpm-24f61971";
+        //public const string MYDOCUMENTS = @".gpm-tools";
 
     }
 }

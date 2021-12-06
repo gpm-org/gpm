@@ -26,19 +26,20 @@ namespace gpm.Tasks
             // checks
             if (all)
             {
-                if (string.IsNullOrEmpty(name))
+                if (!string.IsNullOrEmpty(name))
                 {
-                    // add all installed packages and use default slot
-                    foreach (var (key, _) in libraryService)
-                    {
-                        await UpdatePackage(key, clean);
-                    }
-
-                    return true;
+                    return await UpdatePackage(name, clean, slot);
                 }
 
+                // add all installed packages and use default slot
+                foreach (var (key, _) in libraryService)
+                {
+                    await UpdatePackage(key, clean);
+                }
+
+                return true;
+
                 // ignore all
-                return await UpdatePackage(name, clean, slot);
             }
 
             if (!string.IsNullOrEmpty(name))
@@ -113,11 +114,9 @@ namespace gpm.Tasks
                         model.Slots[slotIdx].Version);
                     return true;
                 }
-                else
-                {
-                    Log.Warning("[{Package}] Failed to update package", package);
-                    return false;
-                }
+
+                Log.Warning("[{Package}] Failed to update package", package);
+                return false;
             }
         }
     }

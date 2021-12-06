@@ -100,6 +100,41 @@ namespace gpm.core.Services
                 return false;
             }
 
+
+            // create or update package-lock
+            // we use this everywhere (and not only for local packages) to support updaters
+            // TODO: store dependencies
+            var destinationDir = _libraryService[package.Id].Slots[slot].FullPath.NotNullOrEmpty();
+            var lockFilePath = Path.Combine(destinationDir, Constants.GPMLOCK);
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            PackageLock lockfile = new();
+            if (File.Exists(lockFilePath))
+            {
+                try
+                {
+                    var obj = JsonSerializer.Deserialize<PackageLock>(await File.ReadAllTextAsync(lockFilePath), options);
+                    if (obj is not null)
+                    {
+                        lockfile = obj;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "Failed to read existing lock file");
+                }
+            }
+            if (!lockfile.Packages.Any(x => x.Id.Equals(package.Id)))
+            {
+                lockfile.Packages.Add(new PackageMeta(package.Id,
+                    _libraryService[package.Id].Slots[slot].Version.NotNullOrEmpty()));
+            }
+            await File.WriteAllTextAsync(lockFilePath, JsonSerializer.Serialize(lockfile, options));
+
             return true;
         }
 
@@ -217,37 +252,6 @@ namespace gpm.core.Services
             slotManifest.Files = installedFiles;
             _libraryService.Save();
 
-            // create or update package-lock
-            // we use this everywhere (and not only for local packages) to support updaters
-            // TODO: store dependencies
-            var lockFilePath = Path.Combine(destinationDir, Constants.GPMLOCK);
-
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            };
-
-            PackageLock lockfile = new();
-            if (File.Exists(lockFilePath))
-            {
-                try
-                {
-                    var obj = JsonSerializer.Deserialize<PackageLock>(File.ReadAllText(lockFilePath), options);
-                    if (obj is not null)
-                    {
-                        lockfile = obj;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "Failed to read existing lock file");
-                }
-            }
-
-            lockfile.Packages.Add(new(package.Id, version) );
-            File.WriteAllText(lockFilePath, JsonSerializer.Serialize(lockfile, options));
-
             return true;
         }
 
@@ -258,7 +262,7 @@ namespace gpm.core.Services
         /// <param name="destinationFileName"></param>
         /// <param name="overwrite"></param>
         /// <returns></returns>
-        private List<HashedFile> DeploySingleFile(string sourceFileName, string destinationFileName,
+        private static List<HashedFile> DeploySingleFile(string sourceFileName, string destinationFileName,
             bool overwrite = true)
         {
             // TODO: conflicts

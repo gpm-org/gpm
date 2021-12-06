@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Linq;
+using gpm.core.Extensions;
+using gpm.core.Models;
 using gpm.core.Services;
 using gpm.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,14 +20,13 @@ namespace gpm.Commands
 
         public SearchCommand() : base(Name, Description)
         {
-            AddOption(new Option<string>(new[] { "--pattern", "-w" },
-                "Use optional search pattern (e.g. *.ink), if both regex and pattern is defined, pattern will be prioritized."));
-            AddOption(new Option<string>(new[] { "--regex", "-r" }, "Use optional regex pattern."));
+            AddArgument(new Argument<string>("pattern",
+                "Filter the available packages by a pattern. E.g. `wolven*`"));
 
-            Handler = CommandHandler.Create<string, string, IHost>(Action);
+            Handler = CommandHandler.Create<string, IHost>(Action);
         }
 
-        private void Action(string pattern, string regex, IHost host)
+        private void Action(string pattern, IHost host)
         {
             var serviceProvider = host.Services;
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
@@ -31,11 +34,26 @@ namespace gpm.Commands
             // update here
             Upgrade.Action(host);
 
+            // check search pattern then regex
+            IEnumerable<Package> available;
+            if (string.IsNullOrEmpty(pattern))
+            {
+                available = dataBaseService.Values;
+            }
+            else
+            {
+                var matches = dataBaseService.Values
+                    .Select(x => x.Name)
+                    .MatchesWildcard(x => x, pattern);
+
+                available = dataBaseService.Values.Where(x => matches.Contains(x.Name)).ToList();
+            }
+
             Log.Information("Available packages:");
             Console.WriteLine("Id\tUrl");
-            foreach (var (key, package) in dataBaseService)
+            foreach (var package in available)
             {
-                Console.WriteLine("{0}\t{1}", key, package.Url);
+                Console.WriteLine("{0}\t{1}", package.Id, package.Url);
                 //Log.Information("{Key}\t{Package}", key, package.Url);
             }
         }

@@ -18,11 +18,15 @@
     },
     "gpm search": {
       "commandName": "Project",
-      "commandLineArgs": "search"
+      "commandLineArgs": "search wolven*"
     },
     "gpm restore": {
       "commandName": "Project",
       "commandLineArgs": "restore"
+    },
+    "gpm help": {
+      "commandName": "Project",
+      "commandLineArgs": "search -h"
     }
   }
 }

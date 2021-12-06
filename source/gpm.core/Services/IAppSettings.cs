@@ -28,7 +28,8 @@ namespace gpm.core.Services
         {
             var folder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Constants.MYDOCUMENTS
+                "gpm",
+                "tools"
             );
             if (!Directory.Exists(folder))
             {
