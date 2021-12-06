@@ -1,4 +1,4 @@
-name: Releases
+name: Release
 
 on: 
   workflow_dispatch:
@@ -9,6 +9,7 @@ on:
 jobs:
 
   build:
+    name: release-ubuntu
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -23,23 +24,36 @@ jobs:
       
     - name: Publish
       run: dotnet publish source/gpm/gpm.csproj -o publish
-    - uses: actions/upload-artifact@v2
-      with:
-        name: gpm
-        path: publish/
+    - uses: papeloto/action-zip@v1
+        with:
+          files: publish/
+          dest: gpm.zip
         
     - name: Publish util
       run: dotnet publish source/gpm-util/gpm-util.csproj -o publish-util
-    - uses: actions/upload-artifact@v2
-      with:
-        name: gpm-util
-        path: publish-util/
+    - uses: papeloto/action-zip@v1
+        with:
+          files: publish-util/
+          dest: gpm-util.zip
       
+
     - uses: ncipollo/release-action@v1
       with:
         draft: true
         generateReleaseNotes: true
-        artifacts: "gpm,gpm-util"
+        artifacts: "gpm.zip,gpm-util.zip"
 #        bodyFile: "body.md"
         token: ${{ secrets.GITHUB_TOKEN }}
+    - name: publish nuget
+        id: publish_nuget
+        uses: rohith/publish-nuget@v2
+        with:
+          # Filepath of the project to be packaged, relative to root of repository
+          PROJECT_FILE_PATH: source/gpm/gpm.csproj
+    - name: publish nuget util
+        id: publish_nuget
+        uses: rohith/publish-nuget@v2
+        with:
+          # Filepath of the project to be packaged, relative to root of repository
+          PROJECT_FILE_PATH: source/gpm-util/gpm-util.csproj
 
