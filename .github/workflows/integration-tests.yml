@@ -1,0 +1,64 @@
+name: integration-tests
+
+on: 
+  workflow_dispatch:
+
+jobs:    
+
+  build-linux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.x
+    - name: Restore dependencies
+      run: dotnet restore source/gpm.sln
+    - name: Build
+      run: dotnet build source/gpm.sln --no-restore
+#    - name: Publish
+#      run: dotnet publish source/gpm.sln -o publish
+    - name: Test
+      run: dotnet test source/gpm.sln --no-build --verbosity normal
+
+  build-windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.x
+    - name: Restore dependencies
+      run: dotnet restore source/gpm.sln
+    - name: Build
+      run: dotnet build source/gpm.sln --no-restore
+#    - name: Publish
+#      run: dotnet publish source/gpm.sln -o publish
+    - name: Test
+      run: dotnet test source/gpm.sln --no-build --verbosity normal
+
+  build-osx:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.x
+    - name: Restore dependencies
+      run: dotnet restore source/gpm.sln
+    - name: Build
+      run: dotnet build source/gpm.sln --no-restore
+#    - name: Publish
+#      run: dotnet publish source/gpm.sln -o publish
+    - name: Test
+      run: dotnet test source/gpm.sln --no-build --verbosity normal
+   

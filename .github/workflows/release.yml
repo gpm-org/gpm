@@ -1,7 +1,6 @@
 name: Release
 
 on: 
-  workflow_dispatch:
   push:
     tags:
     - '*'
@@ -27,7 +26,8 @@ jobs:
     - uses: papeloto/action-zip@v1
       with:
         files: publish/
-        dest: gpm.zip    
+        dest: gpm.zip
+
     - name: Publish util
       run: dotnet publish source/gpm-util/gpm-util.csproj -o publish-util
     - uses: papeloto/action-zip@v1
@@ -47,15 +47,12 @@ jobs:
       id: publish_nuget
       uses: rohith/publish-nuget@v2
       with:
-        # Filepath of the project to be packaged, relative to root of repository
         PROJECT_FILE_PATH: source/gpm/gpm.csproj
         NUGET_KEY: ${{secrets.NUGET_KEY}}
-
     - name: publish nuget util
       id: publish_nuget_util
       uses: rohith/publish-nuget@v2
       with:
-        # Filepath of the project to be packaged, relative to root of repository
         PROJECT_FILE_PATH: source/gpm-util/gpm-util.csproj
         NUGET_KEY: ${{secrets.NUGET_KEY}}
 
