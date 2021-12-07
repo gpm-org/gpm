@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using gpm.core.Models;
 using gpm.core.Util;
 using LibGit2Sharp;
@@ -134,7 +135,12 @@ namespace gpm.core.Services
                 Package? package;
                 try
                 {
-                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    var options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    };
                     package = JsonSerializer.Deserialize<Package>(File.ReadAllText(file), options);
                 }
                 catch (Exception e)

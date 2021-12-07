@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 using ProtoBuf;
 
 namespace gpm.core.Models
@@ -103,11 +104,13 @@ namespace gpm.core.Models
 
 
 
-
+        [JsonIgnore]
         public string Id => string.IsNullOrEmpty(Identifier) ? $"{Owner}/{Name}" : $"{Owner}/{Name}/{Identifier.ToLower()}";
 
+        [JsonIgnore]
         public string Owner => GetRepoOwner();
 
+        [JsonIgnore]
         public string Name => GetRepoName();
 
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using gpm.core.Models;
 using gpm.core.Services;
 using Microsoft.Extensions.Options;
@@ -18,7 +19,12 @@ namespace gpm.Services
 
         public /*static*/ void Save()
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
 
             var sections = new Dictionary<string, object> { { nameof(CommonSettings), CommonSettings.Value } };
 

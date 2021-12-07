@@ -81,7 +81,8 @@ namespace gpm.Commands
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
             var jsonString = JsonSerializer.Serialize(package, options);
             await File.WriteAllTextAsync(path, jsonString);

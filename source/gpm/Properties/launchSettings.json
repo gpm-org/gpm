@@ -14,7 +14,7 @@
     },
     "gpm remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove redscript -s 0"
+      "commandLineArgs": "remove wolvenkit/wolvenkit/test1 -s 0"
     },
     "gpm search": {
       "commandName": "Project",
