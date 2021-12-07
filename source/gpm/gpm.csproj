@@ -11,14 +11,14 @@
 
     <PropertyGroup>
         <AssemblyName>gpm</AssemblyName>
-        <AssemblyVersion>0.2.1</AssemblyVersion>
+        <AssemblyVersion>0.3</AssemblyVersion>
         <RootNamespace>gpm</RootNamespace>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <Title>gpm</Title>
         <Authors>Moritz Baron</Authors>
-        <Version>0.2.1</Version>
+        <Version>0.3</Version>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>gpm</ToolCommandName>
         <PackageTags>gpm, GitHub</PackageTags>
@@ -46,7 +46,7 @@
         <PublishSingleFile>false</PublishSingleFile>
         <DebugType>embedded</DebugType>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <None Remove="appsettings.json" />
     </ItemGroup>
