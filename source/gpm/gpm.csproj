@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -31,8 +31,17 @@
         <PackageProjectUrl>https://github.com/rfuzzo/gpm</PackageProjectUrl>
         <RepositoryUrl>https://github.com/rfuzzo/gpm</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>
-    
+
+
+
+    <ItemGroup>
+        <Content Include="..\..\readme.md" Pack="true" PackagePath="\"/>
+        <Content Include="..\..\docs\*" Pack="true" PackagePath="\docs\" />
+    </ItemGroup>
+
+
     <PropertyGroup>
         <PublishSingleFile>false</PublishSingleFile>
         <DebugType>embedded</DebugType>
