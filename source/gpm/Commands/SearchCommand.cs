@@ -21,6 +21,7 @@ namespace gpm.Commands
         public SearchCommand() : base(Name, Description)
         {
             AddArgument(new Argument<string>("pattern",
+                () => "*",
                 "Filter the available packages by a pattern. E.g. `wolven*`"));
 
             Handler = CommandHandler.Create<string, IHost>(Action);
@@ -30,6 +31,12 @@ namespace gpm.Commands
         {
             var serviceProvider = host.Services;
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
+
+            // some QoL default cases
+            if (string.IsNullOrEmpty(pattern))
+            {
+                pattern = "*";
+            }
 
             // update here
             Upgrade.Action(host);
