@@ -88,7 +88,7 @@ namespace gpm.Tasks
                 }
 
                 // uninstall from default slot
-                var defaultDir = Path.Combine(IAppSettings.GetLibraryFolder(), package.Id);
+                var defaultDir = IAppSettings.GetDefaultInstallDir(package);
                 foreach (var (key, value) in model.Slots)
                 {
                     if (value.FullPath is not null && value.FullPath.Equals(defaultDir))

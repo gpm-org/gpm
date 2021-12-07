@@ -67,7 +67,7 @@ namespace gpm.Tasks
                 return false;
             }
             // get install path
-            if (!TryGetInstallPath(package, path, global , out var installPath))
+            if (!TryGetInstallPath(package, path, global, out var installPath))
             {
                 return false;
             }
@@ -85,7 +85,7 @@ namespace gpm.Tasks
                 return false;
             }
 
-            // if not, add to a new slot2
+            // if not, add to a new slot
             var slotId = 0;
             foreach (var (key, _) in model.Slots)
             {
@@ -100,7 +100,7 @@ namespace gpm.Tasks
 
 
             // install package
-            Log.Information("[{Package}] Installing package version {Version} ...", package, version);
+            Log.Information("[{Package}] Installing package version {Version} ...", package, string.IsNullOrEmpty(version) ? "LATEST" : version);
             var releases = await gitHubService.GetReleasesForPackage(package);
             if (releases is null || !releases.Any())
             {
@@ -117,17 +117,17 @@ namespace gpm.Tasks
                 // clean slots for failed install
                 //if (libraryService.TryGetValue(package.Id, out var model))
                 {
-                    model.Slots.Remove(slotId);
+                    _ = model.Slots.Remove(slotId);
                 }
                 return false;
             }
 
-            return await InstallDependencies(path, global, host, package) || true;
+            // since we don't really have a concept of "global tools", we can pass global = false and the path
+            return await InstallDependencies(package, model.Slots[slotId].FullPath.NotNullOrEmpty(), false, host);
         }
 
-        private static async Task<bool> InstallDependencies(string path, bool global, IHost host, Package package)
+        private static async Task<bool> InstallDependencies(Package package, string path, bool global, IHost host)
         {
-            // dependencies
             var dependencies = package.Dependencies;
             if (dependencies is null)
             {

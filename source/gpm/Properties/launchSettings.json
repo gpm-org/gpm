@@ -2,7 +2,7 @@
   "profiles": {
     "gpm update": {
       "commandName": "Project",
-      "commandLineArgs": "update wolvenkit/wolvenkit/test1 -c"
+      "commandLineArgs": "update wolvenkit/wolvenkit/test1"
     },
     "gpm list": {
       "commandName": "Project",
@@ -10,11 +10,11 @@
     },
     "gpm install": {
       "commandName": "Project",
-      "commandLineArgs": "install redscript -g"
+      "commandLineArgs": "install wolvenkit/wolvenkit/test2 -g"
     },
     "gpm remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove redscript -g"
+      "commandLineArgs": "remove redscript -s 0"
     },
     "gpm search": {
       "commandName": "Project",
