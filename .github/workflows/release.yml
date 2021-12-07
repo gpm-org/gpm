@@ -28,18 +28,11 @@ jobs:
         files: publish/
         dest: gpm.zip
 
-    - name: Publish util
-      run: dotnet publish source/gpm-util/gpm-util.csproj -o publish-util
-    - uses: papeloto/action-zip@v1
-      with:
-        files: publish-util/
-        dest: gpm-util.zip
-
     - uses: ncipollo/release-action@v1
       with:
         draft: true
         generateReleaseNotes: true
-        artifacts: "gpm.zip,gpm-util.zip"
+        artifacts: "gpm.zip"
 #        bodyFile: "body.md"
         token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -48,11 +41,5 @@ jobs:
       uses: rohith/publish-nuget@v2
       with:
         PROJECT_FILE_PATH: source/gpm/gpm.csproj
-        NUGET_KEY: ${{secrets.NUGET_KEY}}
-    - name: publish nuget util
-      id: publish_nuget_util
-      uses: rohith/publish-nuget@v2
-      with:
-        PROJECT_FILE_PATH: source/gpm-util/gpm-util.csproj
         NUGET_KEY: ${{secrets.NUGET_KEY}}
 

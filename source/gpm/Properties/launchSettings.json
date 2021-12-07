@@ -24,6 +24,10 @@
       "commandName": "Project",
       "commandLineArgs": "restore"
     },
+    "gpm new": {
+      "commandName": "Project",
+      "commandLineArgs": "new https://github.com/jac3km4/redscript.git -o /Users/ghost/gpm2"
+    },
     "gpm help": {
       "commandName": "Project",
       "commandLineArgs": "-h"

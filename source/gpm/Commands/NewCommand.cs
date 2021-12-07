@@ -13,7 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
-namespace gpm_util.Commands
+namespace gpm.Commands
 {
     public class NewCommand : Command
     {
@@ -74,8 +74,10 @@ namespace gpm_util.Commands
                 }
             }
 
-            var filename = $"{repo.Owner?.Login}_{repo.Name}_{id}".TrimEnd('_');
-            var path = Path.Combine(outDirectory, $"{filename}.gpak");
+            var filename = $"{repo.Name}@{id}".TrimEnd('@');
+            var packageDbDir = Path.Combine(outDirectory, $"{repo.Owner?.Login}");
+            Directory.CreateDirectory(packageDbDir);
+            var path = Path.Combine(packageDbDir, $"{filename}.gpak");
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,

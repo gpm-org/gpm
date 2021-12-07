@@ -17,7 +17,8 @@ var rootCommand = new RootCommand
     new RemoveCommand(),
     new ListCommand(),
     new RestoreCommand(),
-    new UpgradeCommand()
+    new UpgradeCommand(),
+    new NewCommand()
 };
 
 Log.Logger = new LoggerConfiguration()
