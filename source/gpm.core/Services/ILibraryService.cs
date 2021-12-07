@@ -29,7 +29,7 @@ namespace gpm.core.Services
         /// Get all installed packages
         /// </summary>
         /// <returns></returns>
-        IEnumerable<PackageModel> GetInstalled() => this.Values.Where(x => IsInstalled(x.Key));
+        IEnumerable<PackageModel> GetInstalled() => Values.Where(x => IsInstalled(x.Key));
 
         bool IsInstalledAtLocation(Package package, string path, [NotNullWhen(true)] out int? idx);
         bool IsInstalledAtLocation(string key, string path, [NotNullWhen(true)] out int? idx);

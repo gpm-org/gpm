@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using Nito.AsyncEx;
 using System.Threading.Tasks;
 using gpm.core.Exceptions;
 using gpm.core.Extensions;
 using gpm.core.Models;
-using Octokit;
 using gpm.core.Util;
+using Nito.AsyncEx;
+using Octokit;
 using Serilog;
 
 namespace gpm.core.Services
@@ -163,7 +163,7 @@ namespace gpm.core.Services
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
 
             var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
-            string assetCacheFile = Path.Combine(packageCacheFolder, releaseFilename);
+            var assetCacheFile = Path.Combine(packageCacheFolder, releaseFilename);
 
             // check if already exists
             if (CheckIfCachedFileExists())
@@ -212,7 +212,7 @@ namespace gpm.core.Services
                     }
                 };
 
-                var model =  _libraryService.GetOrAdd(package);
+                var model = _libraryService.GetOrAdd(package);
                 model.CacheData.AddOrUpdate(version, cacheManifest);
                 _libraryService.Save();
 

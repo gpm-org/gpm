@@ -94,7 +94,7 @@ namespace gpm.core.Services
             // install asset
             var releaseFilename = asset.Name;
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
-            if (! InstallPackageFromCache(package, version, slot))
+            if (!InstallPackageFromCache(package, version, slot))
             {
                 Log.Warning("Failed to install package {Package}", package);
                 return false;
@@ -295,11 +295,11 @@ namespace gpm.core.Services
 
             // get the files in the zip archive
             var files = new List<string>();
-            using (ZipArchive archive = ZipFile.OpenRead(sourceArchiveFileName))
+            using (var archive = ZipFile.OpenRead(sourceArchiveFileName))
             {
                 files.AddRange(from entry in archive.Entries
-                    where !string.IsNullOrEmpty(entry.Name)
-                    select entry.FullName);
+                               where !string.IsNullOrEmpty(entry.Name)
+                               select entry.FullName);
             }
 
             // TODO: conflicts
@@ -341,7 +341,7 @@ namespace gpm.core.Services
         }
 
 
-       /// <summary>
+        /// <summary>
         /// Uninstalls a package from the system by slot
         /// </summary>
         /// <param name="key"></param>
@@ -428,7 +428,18 @@ namespace gpm.core.Services
                 }
             }
             lockfile.Packages.RemoveAll(x => x.Id.Equals(model.Key));
-            await File.WriteAllTextAsync(lockFilePath, JsonSerializer.Serialize(lockfile, options));
+            if (lockfile.Packages.Count > 0)
+            {
+                Directory.CreateDirectory(destinationDir);
+                await File.WriteAllTextAsync(lockFilePath, JsonSerializer.Serialize(lockfile, options));
+            }
+            else
+            {
+                if (File.Exists(lockFilePath))
+                {
+                   FileS.TryDeleteFile(lockFilePath);
+                }
+            }
 
             // remove deploy manifest from library
             model.Slots.Remove(slotIdx);

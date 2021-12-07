@@ -22,13 +22,7 @@ namespace gpm.core.Models
         public IReadOnlyList<string> Names { get; protected set; }
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal string DebuggerDisplay
-        {
-            get
-            {
-                return string.Format(CultureInfo.InvariantCulture,
+        internal string DebuggerDisplay => string.Format(CultureInfo.InvariantCulture,
                     "RepositoryTopics: Names: {0}", string.Join(", ", Names));
-            }
-        }
     }
 }

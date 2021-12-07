@@ -13,7 +13,7 @@ namespace gpm.core.Extensions
         /// <param name="value"></param>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
-        public static void AddOrUpdate<TKey,TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        public static void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
             where TKey : notnull
         {
             if (dictionary.ContainsKey(key))
@@ -34,7 +34,7 @@ namespace gpm.core.Extensions
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
-        public static TValue GetOrAdd<TKey,TValue>(this Dictionary<TKey, TValue> dictionary, TKey key)
+        public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key)
             where TKey : notnull where TValue : new()
         {
             if (!dictionary.ContainsKey(key))

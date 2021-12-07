@@ -6,7 +6,7 @@ using gpm.core.Models;
 
 namespace gpm.core.Util.Builders
 {
-    public class InstallBuilder : IPackageBuilder<string,string>
+    public class InstallBuilder : IPackageBuilder<string, string>
     {
         private BuilderContext? _builderContext;
         private Package? _package;
@@ -34,13 +34,10 @@ namespace gpm.core.Util.Builders
             return defaultDir;
 
 
-            void CreateHostBuilderContext()
-            {
-                _builderContext = new BuilderContext(_package);
-            }
+            void CreateHostBuilderContext() => _builderContext = new BuilderContext(_package);
         }
 
-        public IPackageBuilder ConfigureDefaults( Package args)
+        public IPackageBuilder ConfigureDefaults(Package args)
         {
             _package = args;
 

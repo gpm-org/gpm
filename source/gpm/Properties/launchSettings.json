@@ -10,11 +10,11 @@
     },
     "gpm install": {
       "commandName": "Project",
-      "commandLineArgs": "install wolvenkit/wolvenkit/test2"
+      "commandLineArgs": "install redscript -g"
     },
     "gpm remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove wolvenkit/wolvenkit/test1 -s 0"
+      "commandLineArgs": "remove redscript -g"
     },
     "gpm search": {
       "commandName": "Project",

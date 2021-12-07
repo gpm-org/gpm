@@ -7,7 +7,7 @@ using Octokit;
 
 namespace gpm.core.Util.Builders
 {
-    public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAsset>,ReleaseAsset>
+    public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAsset>, ReleaseAsset>
     {
         private BuilderContext? _builderContext;
         private Package? _package;
@@ -34,13 +34,10 @@ namespace gpm.core.Util.Builders
             return releaseAssets.FirstOrDefault();
 
 
-            void CreateHostBuilderContext()
-            {
-                _builderContext = new BuilderContext(_package);
-            }
+            void CreateHostBuilderContext() => _builderContext = new BuilderContext(_package);
         }
 
-        public IPackageBuilder ConfigureDefaults( Package args)
+        public IPackageBuilder ConfigureDefaults(Package args)
         {
             _package = args;
 

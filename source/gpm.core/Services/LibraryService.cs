@@ -5,8 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using gpm.core.Models;
-using Serilog;
 using ProtoBuf;
+using Serilog;
 
 namespace gpm.core.Services
 {
@@ -155,7 +155,7 @@ namespace gpm.core.Services
                 return false;
             }
 
-            foreach (var (i,value) in model.Slots)
+            foreach (var (i, value) in model.Slots)
             {
                 if (value.FullPath is not null && value.FullPath.Equals(path) && value.Files.Any())
                 {
