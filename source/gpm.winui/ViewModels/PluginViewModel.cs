@@ -16,10 +16,8 @@ namespace gpmWinui.ViewModels
     {
         private PackageModel _model;
 
-        /// <summary>
-        /// Gets the <see cref="IGitHubService"/> instance to use.
-        /// </summary>
         private readonly IGitHubService _gitHubService = Ioc.Default.GetRequiredService<IGitHubService>();
+        private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
 
         /// <summary>
         /// An <see cref="AsyncLock"/> instance to avoid concurrent requests.
@@ -40,11 +38,7 @@ namespace gpmWinui.ViewModels
         public string? ID => _model.Key;
         //public string? Url => _model.Url;
 
-        public bool IsInstalled => _model.Manifests.Values.Any(x =>
-        x != null &&
-        x.DeployManifest != null &&
-        x.DeployManifest.Files != null &&
-        x.DeployManifest.Files.Any());
+        public bool IsInstalled => _libraryService.IsInstalled(_model.Key);
 
         public bool IsNotInstalled => !IsInstalled;
 

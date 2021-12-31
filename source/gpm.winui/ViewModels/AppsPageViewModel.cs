@@ -34,7 +34,7 @@ namespace gpmWinui.ViewModels
         {
             //_libraryService.PropertyChanged += LibraryService_PropertyChanged;
 
-            Plugins = new ObservableCollection<PluginViewModel>(_libraryService.GetPackages().Select(x => new PluginViewModel(x)));
+            Plugins = new ObservableCollection<PluginViewModel>(_libraryService.Select(x => new PluginViewModel(x.Value)));
         }
 
         private void LibraryService_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
