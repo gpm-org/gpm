@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using gpm.core.Services;
 using gpm.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands
@@ -25,7 +27,15 @@ namespace gpm.Commands
             AddOption(new Option<string>(new[] { "--version", "-v" },
                 "The version range of the tool package to update to. This cannot be used to downgrade versions, you must `uninstall` newer versions first."));
 
-            Handler = CommandHandler.Create<string, bool, string, int?, string, IHost>(UpdateAction.Update);
+            Handler = CommandHandler.Create<string, bool, string, int?, string, IHost>(Update);
+        }
+
+        private void Update(string name, bool global, string path, int? slot, string version, IHost host)
+        {
+            var serviceProvider = host.Services;
+            var taskService = serviceProvider.GetRequiredService<ITaskService>();
+
+            taskService.Update(name, global, path, slot, version);
         }
     }
 }

@@ -31,6 +31,8 @@ namespace gpm_tests
         private readonly string TESTSLOT2 = GetTestSlot(2);
         private readonly string TESTSLOT3 = GetTestSlot(3);
 
+        private ITaskService taskService;
+
         private static string GetTestSlot(int i)
         {
             var folder = Path.Combine(IAppSettings.GetAppDataFolder(),
@@ -69,7 +71,9 @@ namespace gpm_tests
             var serviceProvider = _host.Services;
             ArgumentNullException.ThrowIfNull(serviceProvider);
 
-            Upgrade.Action(_host);
+            taskService = serviceProvider.GetRequiredService<ITaskService>();
+
+            taskService.Upgrade();
         }
 
         [TestCleanup]
@@ -77,20 +81,20 @@ namespace gpm_tests
         {
             LogBeginOfTest();
 
-            await RemoveAction.Remove(TESTNAME1, true, "", null, _host);
-            await RemoveAction.Remove(TESTNAME2, true, "", null, _host);
-            await RemoveAction.Remove(TESTNAME3, true, "", null, _host);
+            await taskService.Remove(TESTNAME1, true, "", null);
+            await taskService.Remove(TESTNAME2, true, "", null);
+            await taskService.Remove(TESTNAME3, true, "", null);
             for (var i = 0; i < 4; i++)
             {
-                await RemoveAction.Remove(TESTNAME1, false, "", i, _host);
+                await taskService.Remove(TESTNAME1, false, "", i);
             }
             for (var i = 0; i < 4; i++)
             {
-                await RemoveAction.Remove(TESTNAME2, false, "", i, _host);
+                await taskService.Remove(TESTNAME2, false, "", i);
             }
             for (var i = 0; i < 4; i++)
             {
-                await RemoveAction.Remove(TESTNAME3, false, "", i, _host);
+                await taskService.Remove(TESTNAME3, false, "", i);
             }
 
             Directory.Delete(TESTSLOT0,true);
@@ -108,9 +112,9 @@ namespace gpm_tests
             ArgumentNullException.ThrowIfNull(serviceProvider);
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
 
-            ListAction.List(_host);
+            taskService.List();
 
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, "", "", true, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, "", "", true));
             var installed = libraryService.GetInstalled();
             Assert.IsTrue(installed.Any(x => x.Key.Equals(TESTNAME1)));
         }
@@ -122,43 +126,43 @@ namespace gpm_tests
 
             // default fails
             //test installing a nonexisting package -> FAIL");
-            Assert.IsFalse(await InstallAction.Install(TESTNAMEWRONG, "", "", true, _host));
+            Assert.IsFalse(await taskService.Install(TESTNAMEWRONG, "", "", true));
             //test installing a version into new slot and global -> FAIL");
-            Assert.IsFalse(await InstallAction.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, true, _host));
+            Assert.IsFalse(await taskService.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, true));
             //test installing a wrong version -> FAIL");
-            Assert.IsFalse(await InstallAction.Install(TESTNAME1, TESTVERSIONWRONG, "", true, _host));
+            Assert.IsFalse(await taskService.Install(TESTNAME1, TESTVERSIONWRONG, "", true));
 
             // global tool
             //test installing latest -> PASS");
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, "", "", true, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, "", "", true));
             //TODO get default file
             //test installing again -> FAIL"); //TODO
-            Assert.IsFalse(await InstallAction.Install(TESTNAME1, "", "",true, _host));
+            Assert.IsFalse(await taskService.Install(TESTNAME1, "", "",true));
             //test installing a previous version  -> FAIL"); //TODO
-            Assert.IsFalse(await InstallAction.Install(TESTNAME1, TESTVERSION1, "",true, _host));
+            Assert.IsFalse(await taskService.Install(TESTNAME1, TESTVERSION1, "",true));
 
             // global tool in new slot
             //test installing a previous version into new slot -> PASS");
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, false, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, false));
             Assert.IsTrue(File.Exists(GetFileInSlot(1, 1)));
             //test installing another version into new slot -> FAIL");    //TODO
-            Assert.IsFalse(await InstallAction.Install(TESTNAME1, TESTVERSION2, TESTSLOT1, false, _host));
+            Assert.IsFalse(await taskService.Install(TESTNAME1, TESTVERSION2, TESTSLOT1, false));
 
             // new global tool in default
             //test installing another repo into default slot -> PASS");
-            Assert.IsTrue(await InstallAction.Install(TESTNAME2, "", "", true, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME2, "", "", true));
             //test installing another repo over an existing slot -> PASS");
-            Assert.IsTrue(await InstallAction.Install(TESTNAME2, "", TESTSLOT1, false, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME2, "", TESTSLOT1, false));
             Assert.IsTrue(File.Exists(GetFileInSlot(1, 2)));
 
             // install local tools
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, "", "", false, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, "", "", false));
             Assert.IsTrue(File.Exists(GetFileInSlot(0, 1)));
-            Assert.IsTrue(await InstallAction.Install(TESTNAME2, "", "", false, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME2, "", "", false));
             Assert.IsTrue(File.Exists(GetFileInSlot(0, 1)));
 
             // install deps
-            Assert.IsTrue(await InstallAction.Install(TESTNAME3, "", TESTSLOT3, false, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME3, "", TESTSLOT3, false));
             Assert.IsTrue(File.Exists(GetFileInSlot(3, 3)));
             Assert.IsTrue(File.Exists(GetFileInSlot(3, 2)));
         }
@@ -167,23 +171,23 @@ namespace gpm_tests
         public async Task TestUpdate()
         {
             // test update global tool
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, "", true, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, TESTVERSION1, "", true));
             // default fails
-            Assert.IsFalse(await UpdateAction.Update(TESTNAME1, true, TESTSLOT1, null, TESTVERSION1, _host));
-            Assert.IsFalse(await UpdateAction.Update(TESTNAME1, true, "", 0, TESTVERSION1, _host));
-            Assert.IsFalse(await UpdateAction.Update(TESTNAME1, true, TESTSLOT1, 0, TESTVERSION1, _host));
-            Assert.IsFalse(await UpdateAction.Update(TESTNAME1, false, TESTSLOT1, 0, TESTVERSION1, _host));
+            Assert.IsFalse(await taskService.Update(TESTNAME1, true, TESTSLOT1, null, TESTVERSION1));
+            Assert.IsFalse(await taskService.Update(TESTNAME1, true, "", 0, TESTVERSION1));
+            Assert.IsFalse(await taskService.Update(TESTNAME1, true, TESTSLOT1, 0, TESTVERSION1));
+            Assert.IsFalse(await taskService.Update(TESTNAME1, false, TESTSLOT1, 0, TESTVERSION1));
 
-            Assert.IsTrue(await UpdateAction.Update(TESTNAME1, true, "", null, TESTVERSION2, _host));
-            Assert.IsTrue(await UpdateAction.Update(TESTNAME1, true, "", null, "", _host));
+            Assert.IsTrue(await taskService.Update(TESTNAME1, true, "", null, TESTVERSION2));
+            Assert.IsTrue(await taskService.Update(TESTNAME1, true, "", null, ""));
 
             // test updating global custom tool
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, false, _host));
-            Assert.IsTrue(await UpdateAction.Update(TESTNAME1, false, TESTSLOT1, null, TESTVERSION2, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, false));
+            Assert.IsTrue(await taskService.Update(TESTNAME1, false, TESTSLOT1, null, TESTVERSION2));
 
             // test updating local tool
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, "", false, _host));
-            Assert.IsTrue(await UpdateAction.Update(TESTNAME1, false, "", null, TESTVERSION2, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, TESTVERSION1, "", false));
+            Assert.IsTrue(await taskService.Update(TESTNAME1, false, "", null, TESTVERSION2));
 
             // TODO: test dependency updating
 
@@ -199,41 +203,41 @@ namespace gpm_tests
             var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
 
             // try false input - fail by default
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, true, TESTSLOT1, 0, _host));
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, true, TESTSLOT1, null, _host));
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, true, "", 0, _host));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, true, TESTSLOT1, 0));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, true, TESTSLOT1, null));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, true, "", 0));
 
             // install a global tool in default: global && slot 0
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, "", true, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, TESTVERSION1, "", true));
             // try removing from wrong slot - fail
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, false, "", 1, _host));
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, false, TESTSLOT1, null, _host));
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, false, TESTSLOT1, 0, _host));
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, false, TESTSLOT1, 1, _host));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, false, "", 1));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, false, TESTSLOT1, null));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, false, TESTSLOT1, 0));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, false, TESTSLOT1, 1));
             // try removing from current dir - fail
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, false, "", null, _host));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, false, "", null));
             // correct removal
-            Assert.IsTrue(await RemoveAction.Remove(TESTNAME1, true, "", null, _host));
-            //Assert.IsTrue(await RemoveAction.Remove(TESTNAME, false, GetDefaultSlot(), null, _host));
+            Assert.IsTrue(await taskService.Remove(TESTNAME1, true, "", null));
+            //Assert.IsTrue(await taskService.Remove(TESTNAME, false, GetDefaultSlot(), null));
             // would also work but are indeterminate
-            //Assert.IsTrue(await RemoveAction.Remove(TESTNAME, false, "", 0, _host));
+            //Assert.IsTrue(await taskService.Remove(TESTNAME, false, "", 0));
 
             // install a global tool in a custom slot
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, false, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, TESTVERSION1, TESTSLOT1, false));
             // try global removal - fail
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, true, "", null, _host));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, true, "", null));
             // correct removal
-            Assert.IsTrue(await RemoveAction.Remove(TESTNAME1, false, TESTSLOT1, null, _host));
+            Assert.IsTrue(await taskService.Remove(TESTNAME1, false, TESTSLOT1, null));
             // would also work but are indeterminate
-            //Assert.IsTrue(await RemoveAction.Remove(TESTNAME, false, "", 0, _host));
+            //Assert.IsTrue(await taskService.Remove(TESTNAME, false, "", 0));
 
             // install a local tool here
-            Assert.IsTrue(await InstallAction.Install(TESTNAME1, TESTVERSION1, "", false, _host));
+            Assert.IsTrue(await taskService.Install(TESTNAME1, TESTVERSION1, "", false));
             // try global removal - fail
-            Assert.IsFalse(await RemoveAction.Remove(TESTNAME1, true, "", null, _host));
+            Assert.IsFalse(await taskService.Remove(TESTNAME1, true, "", null));
             // correct removal
-            Assert.IsTrue(await RemoveAction.Remove(TESTNAME1, false, "", null, _host));
-            //Assert.IsTrue(await RemoveAction.Remove(TESTNAME, false, GetCurrentDir(), null, _host));
+            Assert.IsTrue(await taskService.Remove(TESTNAME1, false, "", null));
+            //Assert.IsTrue(await taskService.Remove(TESTNAME, false, GetCurrentDir(), null));
 
             Assert.AreEqual(0, libraryService.GetInstalled().Count());
         }

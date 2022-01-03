@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using gpm.core.Services;
 using gpm.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands
@@ -22,7 +24,15 @@ namespace gpm.Commands
             AddOption(new Option<int?>(new[] { "--slot", "-s" },
                 "Specify a slot to uninstall."));
 
-            Handler = CommandHandler.Create<string, bool, string, int?, IHost>(RemoveAction.UpdateAndRemove);
+            Handler = CommandHandler.Create<string, bool, string, int?, IHost>(UpdateAndRemove);
+        }
+
+        private void UpdateAndRemove(string name, bool global, string path, int? slot, IHost host)
+        {
+            var serviceProvider = host.Services;
+            var taskService = serviceProvider.GetRequiredService<ITaskService>();
+
+            taskService.UpdateAndRemove(name, global , path , slot );
         }
     }
 }

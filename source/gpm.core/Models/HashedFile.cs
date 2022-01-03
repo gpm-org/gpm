@@ -5,9 +5,7 @@ namespace gpm.core.Models
     [ProtoContract]
     public sealed record HashedFile
     {
-#pragma warning disable 8618
         public HashedFile()
-#pragma warning restore 8618
         {
 
         }
@@ -19,10 +17,10 @@ namespace gpm.core.Models
         }
 
         [ProtoMember(1)]
-        public string Name { get; init; }
+        public string? Name { get; set; }
         [ProtoMember(2)]
-        public byte[]? Sha512 { get; init; }
+        public byte[]? Sha512 { get; set; }
         [ProtoMember(3)]
-        public long? Size { get; init; }
+        public long? Size { get; set; }
     }
 }

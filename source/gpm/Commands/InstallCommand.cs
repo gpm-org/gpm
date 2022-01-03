@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using gpm.core.Services;
 using gpm.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands
@@ -29,7 +31,16 @@ namespace gpm.Commands
             AddOption(new Option<bool>(new[] { "--global", "-g" },
                 "Specifies that the installation is user wide. Can't be combined with the --path option. Omitting both --global and --tool-path specifies a local package installation."));
 
-            Handler = CommandHandler.Create<string, string, string, bool, IHost>(InstallAction.UpdateAndInstall);
+            Handler = CommandHandler.Create<string, string, string, bool, IHost>(UpdateAndInstall);
+        }
+
+        private void UpdateAndInstall(string name, string version, string path, bool global, IHost host)
+        {
+
+            var serviceProvider = host.Services;
+            var taskService = serviceProvider.GetRequiredService<ITaskService>();
+
+            taskService.UpdateAndInstall(name, version, path, global);
         }
     }
 }

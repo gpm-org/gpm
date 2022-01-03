@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using gpm.core.Services;
 using gpm.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands
@@ -12,7 +14,15 @@ namespace gpm.Commands
 
         public UpgradeCommand() : base(Name, Description)
         {
-            Handler = CommandHandler.Create<IHost>(Upgrade.Action);
+            Handler = CommandHandler.Create<IHost>(Upgrade);
+        }
+
+        private void Upgrade(IHost host)
+        {
+            var serviceProvider = host.Services;
+            var taskService = serviceProvider.GetRequiredService<ITaskService>();
+
+            taskService.Upgrade();
         }
     }
 }

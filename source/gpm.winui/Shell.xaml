@@ -27,12 +27,12 @@
                 <NavigationViewItem  x:Name="AppsItem"
                     Icon="AllApps"
                     Content="Apps"
-                    ToolTipService.ToolTip="TBD."/>
+                    ToolTipService.ToolTip="Apps"/>
                 <NavigationViewItemSeparator/>
                 <NavigationViewItem  x:Name="PluginsItem"
                     Icon="Play"
                     Content="Plugins"
-                    ToolTipService.ToolTip="TBD."/>
+                    ToolTipService.ToolTip="Plugins"/>
                 
             </NavigationView.MenuItems>
 

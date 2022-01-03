@@ -253,7 +253,7 @@ namespace gpm.core.Services
 
                 // if the cache manifest contains a file with this name
                 var fileInCache = cacheManifest.Value.Files
-                    .FirstOrDefault(x => Path.Combine(packageCacheFolder, x.Name).Equals(assetCacheFile));
+                    .FirstOrDefault(x => Path.Combine(packageCacheFolder, x.Name.NotNullOrEmpty()).Equals(assetCacheFile));
                 if (fileInCache is { })
                 {
                     // size and hash

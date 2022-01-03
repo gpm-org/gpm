@@ -21,6 +21,7 @@ using Windows.UI.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using gpm.core.Services;
 using gpmWinui.Services;
+using gpm.Tasks;
 //using Refit;
 
 
@@ -57,9 +58,16 @@ namespace gpmWinui
             // Register services
             Ioc.Default.ConfigureServices(
                 new ServiceCollection()
+
                 .AddSingleton<ISettingsService, SettingsService>()
                 .AddSingleton<IGitHubService, GitHubService>()
+                .AddSingleton<IDeploymentService, DeploymentService>()
+
                 .AddSingleton<ILibraryService, LibraryService>()
+                .AddSingleton<IDataBaseService, DataBaseService>()
+
+                .AddSingleton<ITaskService, TaskService>()
+
                 .BuildServiceProvider());
 
             m_window = new Shell();

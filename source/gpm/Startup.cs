@@ -2,6 +2,7 @@ using gpm.core;
 using gpm.core.Models;
 using gpm.core.Services;
 using gpm.Services;
+using gpm.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -33,6 +34,8 @@ namespace gpm
 
             services.AddSingleton<IDeploymentService, DeploymentService>();
             services.AddSingleton<IGitHubService, GitHubService>();
+
+            services.AddSingleton<ITaskService, TaskService>();
 
             services.AddOptions<CommonSettings>()
                 .Bind(ctx.Configuration.GetSection(nameof(CommonSettings)));

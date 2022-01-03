@@ -5,17 +5,18 @@
     xmlns:local="using:gpmWinui.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity" 
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:pageViewModels="using:gpmWinui.ViewModels.Pages" 
     xmlns:viewModels="using:gpmWinui.ViewModels" 
     xmlns:core="using:Microsoft.Xaml.Interactions.Core" 
-    xmlns:models="using:gpmWinui.Models"
+    xmlns:models="using:gpmWinui.Models" xmlns:models1="using:gpm.core.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     NavigationCacheMode="Enabled"
     >
     
     <Page.DataContext>
-        <viewModels:AppsPageViewModel x:Name="ViewModel"/>
+        <pageViewModels:AppsPageViewModel x:Name="ViewModel"/>
     </Page.DataContext>
 
     <!--<interactivity:Interaction.Behaviors>
@@ -29,8 +30,8 @@
         <ListView
             Grid.Row="1"
             Grid.RowSpan="2"
-            ItemsSource="{x:Bind ViewModel.Plugins}"
-            SelectedItem="{x:Bind ViewModel.SelectedPlugin, Mode=TwoWay}"
+            ItemsSource="{x:Bind ViewModel.Packages}"
+            SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}"
             ScrollViewer.CanContentRenderOutsideBounds="True">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
@@ -40,23 +41,22 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="viewModels:PluginViewModel">
+                <DataTemplate x:DataType="models1:PackageModel">
                     <Grid
                         ColumnSpacing="8"
                         RowSpacing="8"
                         Padding="16">
-                       
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
                         <!-- Title -->
-                        <StackPanel Grid.Row="0">
+                        <StackPanel Grid.Column="0">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <TextBlock 
-                                Text="{x:Bind ID}"
+                                Text="{x:Bind Key}"
                                 FontSize="15"
                                 FontWeight="SemiBold"
                                 TextWrapping="WrapWholeWords"
@@ -70,7 +70,7 @@
                                 VerticalAlignment="Center"/>
                                 
                                 <TextBlock 
-                                Text="Version"
+                                Text="TBD Version"
                                 FontSize="15"
                                 FontWeight="SemiBold"
                                 TextWrapping="WrapWholeWords"
@@ -78,7 +78,7 @@
                             </StackPanel>
                            
                             <TextBlock 
-                            Text="Url"
+                            Text="{x:Bind }"
                             FontSize="13"
                             FontWeight="Normal"
                             TextWrapping="WrapWholeWords"
@@ -86,11 +86,11 @@
                         </StackPanel>
                         
                         <!-- Buttons -->
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" >
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" >
 
                             <StackPanel Grid.Column="0" Orientation="Horizontal" 
                                         Visibility="{Binding IsInstalled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
-                                <Button x:Name="LaunchlButton" Grid.Column="0" Margin="0,0,50,0"
+                                <Button x:Name="LaunchButton" Grid.Column="0" Margin="0,0,50,0"
                                     Command="{Binding LaunchCommand}"
                                     >
                                     <Button.Content>

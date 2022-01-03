@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using gpm.core.Services;
 using gpm.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands
@@ -12,7 +14,15 @@ namespace gpm.Commands
 
         public RestoreCommand() : base(Name, Description)
         {
-            Handler = CommandHandler.Create<IHost>(RestoreAction.RestoreAndUpdate);
+            Handler = CommandHandler.Create<IHost>(UpdateAndRestore);
+        }
+
+        private void UpdateAndRestore(IHost host)
+        {
+            var serviceProvider = host.Services;
+            var taskService = serviceProvider.GetRequiredService<ITaskService>();
+
+            taskService.UpdateAndRestore();
         }
     }
 }

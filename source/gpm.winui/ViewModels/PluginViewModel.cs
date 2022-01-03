@@ -8,23 +8,25 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using gpm.core.Models;
 using gpm.core.Services;
+using gpm.Tasks;
 using Nito.AsyncEx;
 
 namespace gpmWinui.ViewModels
 {
     public class PluginViewModel : ObservableObject
     {
-        private PackageModel _model;
+        private Package _model;
 
         private readonly IGitHubService _gitHubService = Ioc.Default.GetRequiredService<IGitHubService>();
         private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
+        private readonly ITaskService _taskService = Ioc.Default.GetRequiredService<ITaskService>();
 
         /// <summary>
         /// An <see cref="AsyncLock"/> instance to avoid concurrent requests.
         /// </summary>
         private readonly AsyncLock _loadingLock = new();
 
-        public PluginViewModel(PackageModel model)
+        public PluginViewModel(Package model)
         {
             _model = model;
 
@@ -35,10 +37,11 @@ namespace gpmWinui.ViewModels
 
         //public string? Version => _model.InstalledVersion;
 
-        public string? ID => _model.Key;
-        //public string? Url => _model.Url;
+        public string? ID => _model.Id;
 
-        public bool IsInstalled => _libraryService.IsInstalled(_model.Key);
+        public string? Url => _model.Url;
+
+        public bool IsInstalled => _libraryService.IsInstalled(_model.Id);
 
         public bool IsNotInstalled => !IsInstalled;
 
@@ -49,11 +52,14 @@ namespace gpmWinui.ViewModels
 
         public IAsyncRelayCommand LaunchCommand { get; }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async Task LaunchAsync()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            throw new NotImplementedException();
+
+
+
+
+
+            await Task.Delay(1);
         }
 
         private async Task CheckForUpdatesAsync()
@@ -63,24 +69,10 @@ namespace gpmWinui.ViewModels
 
         private async Task InstallAsync()
         {
-            using (await _loadingLock.LockAsync())
+            if (ID is not null)
             {
-                try
-                {
-                    await Task.Delay(1);
-                    //var result = await _gitHubService.InstallLatestReleaseAsync(_model);
-                    //if (result)
-                    //{
-                    //    OnPropertyChanged(nameof(IsInstalled));
-                    //    OnPropertyChanged(nameof(IsNotInstalled));
-                    //}
-                }
-                catch
-                {
-                    // Whoops!
-                }
+                await _taskService.UpdateAndInstall(ID, "", "", true);
             }
-
         }
     }
 }

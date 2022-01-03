@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using gpm.core.Services;
 using gpm.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands
@@ -12,7 +14,14 @@ namespace gpm.Commands
 
         public ListCommand() : base(Name, Description)
         {
-            Handler = CommandHandler.Create<IHost>(ListAction.List);
+            Handler = CommandHandler.Create<IHost>(ListAction);
+        }
+
+        private void ListAction(IHost host)
+        {
+            var serviceProvider = host.Services;
+            var taskService = serviceProvider.GetRequiredService<ITaskService>();
+            taskService.List();
         }
     }
 }

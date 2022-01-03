@@ -11,18 +11,12 @@ using Serilog;
 
 namespace gpm.Tasks
 {
-    public static class UpdateAction
+    public partial class TaskService
     {
-        public static async Task<bool> Update(string name, bool global, string path, int? slot, string version, IHost host)
+        public async Task<bool> Update(string name, bool global, string path, int? slot, string version)
         {
-            var serviceProvider = host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
-
             // update here
-            Upgrade.Action(host);
+            Upgrade();
 
             // checks
 
@@ -34,20 +28,20 @@ namespace gpm.Tasks
                 return false;
             }
 
-            var package = dataBaseService.GetPackageFromName(name);
+            var package = _dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
                 Log.Warning("Package {NameInner} not found in database", name);
                 return false;
             }
 
-            if (!libraryService.TryGetValue(package.Id, out _))
+            if (!_libraryService.TryGetValue(package.Id, out _))
             {
                 Log.Warning("[{Package}] Package not found in library. Use gpm install to install a package", package);
                 return false;
             }
 
-            if (!libraryService.IsInstalled(package))
+            if (!_libraryService.IsInstalled(package))
             {
                 Log.Warning("[{Package}] Package not installed. Use gpm install to install a package", package);
                 return false;
@@ -83,7 +77,7 @@ namespace gpm.Tasks
             // try updating from --slot
             if (slot is not null)
             {
-                if (!libraryService.IsInstalledInSlot(package, slot.Value))
+                if (!_libraryService.IsInstalledInSlot(package, slot.Value))
                 {
                     Log.Warning(
                         "[{Package}] Package not installed in slot {SlotIdx}. Use gpm install to install a package",
@@ -91,46 +85,39 @@ namespace gpm.Tasks
                     return false;
                 }
 
-                return await UpdatePackageInSlot(package, slot.Value, version, host);
+                return await UpdatePackageInSlot(package, slot.Value, version);
             }
 
             // get slot from path
-            if (!InstallAction.TryGetInstallPath(package, path, global, out var installPath))
+            if (!TryGetInstallPath(package, path, global, out var installPath))
             {
                 return false;
             }
-            if (!libraryService.IsInstalledAtLocation(package, installPath, out var slotIdx))
+            if (!_libraryService.IsInstalledAtLocation(package, installPath, out var slotIdx))
             {
                 Log.Warning("[{Package}] Package not installed in {Path} Use gpm install to install a package", package,
                     installPath);
                 return false;
             }
 
-            return await UpdatePackageInSlot(package, slotIdx.Value, version , host);
+            return await UpdatePackageInSlot(package, slotIdx.Value, version);
         }
 
-        private static async Task<bool> UpdatePackageInSlot(Package package, int slotIdx, string version, IHost host)
+        private async Task<bool> UpdatePackageInSlot(Package package, int slotIdx, string version)
         {
-            var serviceProvider = host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-
-            var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
-            var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
-            var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
-
-            if (!libraryService.TryGetValue(package.Id, out var model))
+            if (!_libraryService.TryGetValue(package.Id, out var model))
             {
                 Log.Warning("[{Package}] Package not found in library. Use gpm install to install a package", package);
                 return false;
             }
 
-            var releases = await gitHubService.GetReleasesForPackage(package);
+            var releases = await _gitHubService.GetReleasesForPackage(package);
             if (releases is null || !releases.Any())
             {
                 Log.Warning("[{Package}] No releases found for package", package);
                 return false;
             }
-            if (!gitHubService.IsUpdateAvailable(package, releases, model.Slots[slotIdx].Version.NotNull()))
+            if (!_gitHubService.IsUpdateAvailable(package, releases, model.Slots[slotIdx].Version.NotNull()))
             {
                 Log.Warning("[{Package}] No update available for package", package);
                 return false;
@@ -140,7 +127,7 @@ namespace gpm.Tasks
             // save slot location for later re-install
             var installPath = model.Slots[slotIdx].FullPath;
             Log.Debug("[{Package}] Removing installed package ...", package);
-            if (await deploymentService.UninstallPackage(model.Key, slotIdx))
+            if (await _deploymentService.UninstallPackage(model.Key, slotIdx))
             {
                 Log.Debug("[{Package}] Old package successfully removed", package);
             }
@@ -153,7 +140,7 @@ namespace gpm.Tasks
             // update to new version
             model.Slots.AddOrUpdate(slotIdx, new SlotManifest() {FullPath = installPath});
             Log.Information("[{Package}] Updating package ...", package);
-            if (await deploymentService.InstallReleaseAsync(package, releases, version, slotIdx))
+            if (await _deploymentService.InstallReleaseAsync(package, releases, version, slotIdx))
             {
                 Log.Information("[{Package}] Package successfully updated to version {Version}", package,
                     model.Slots[slotIdx].Version);

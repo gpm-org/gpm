@@ -30,6 +30,7 @@ namespace gpm.Commands
         private void Action(string pattern, IHost host)
         {
             var serviceProvider = host.Services;
+            var taskService = serviceProvider.GetRequiredService<ITaskService>();
             var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
 
             // some QoL default cases
@@ -39,7 +40,7 @@ namespace gpm.Commands
             }
 
             // update here
-            Upgrade.Action(host);
+            taskService.Upgrade();
 
             // check search pattern then regex
             IEnumerable<Package> available;

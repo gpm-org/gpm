@@ -6,23 +6,20 @@ using Serilog;
 
 namespace gpm.Tasks
 {
-    public static class ListAction
+    public partial class TaskService
     {
         /// <summary>
         /// Lists all installed packages
         /// TODO: make this only available globally, and don't save local packages to the library?
         /// </summary>
         /// <param name="host"></param>
-        public static void List(IHost host)
+        public void List()
         {
-            var serviceProvider = host.Services;
-            var library = serviceProvider.GetRequiredService<ILibraryService>();
-
             Log.Information("Installed packages:");
 
-            foreach (var (key, model) in library)
+            foreach (var (key, model) in _libraryService)
             {
-                if (!library.IsInstalled(key))
+                if (!_libraryService.IsInstalled(key))
                 {
                     continue;
                 }

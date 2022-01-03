@@ -183,7 +183,7 @@ namespace gpm.core.Services
             }
 
             //TODO: support multiple files
-            var assetCacheFile = cacheManifest.Files.First().Name;
+            var assetCacheFile = cacheManifest.Files.First().Name.NotNullOrEmpty();
             var assetCachePath = Path.Combine(packageCacheFolder, assetCacheFile);
 
             // get or create new slot

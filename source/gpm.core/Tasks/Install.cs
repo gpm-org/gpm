@@ -12,7 +12,7 @@ using Serilog;
 
 namespace gpm.Tasks
 {
-    public static class InstallAction
+    public partial class TaskService
     {
         /// Examples:
         /// gpm install redscript -g    installs redscript in the default location (global)
@@ -29,11 +29,11 @@ namespace gpm.Tasks
         /// <param name="global">Install this package globally in the default location</param>
         /// <param name="host"></param>
         /// <returns></returns>
-        public static async Task<bool> UpdateAndInstall(string name, string version, string path, bool global, IHost host)
+        public async Task<bool> UpdateAndInstall(string name, string version, string path, bool global)
         {
-            Upgrade.Action(host);
+            Upgrade();
 
-            return await Install(name, version, path, global, host);
+            return await Install(name, version, path, global);
         }
 
         /// <summary>
@@ -45,22 +45,14 @@ namespace gpm.Tasks
         /// <param name="global">Install this package globally in the default location</param>
         /// <param name="host"></param>
         /// <returns></returns>
-        public static async Task<bool> Install(string name, string version, string path, bool global, IHost host)
+        public async Task<bool> Install(string name, string version, string path, bool global)
         {
-            var serviceProvider = host.Services;
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            var gitHubService = serviceProvider.GetRequiredService<IGitHubService>();
-            var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
-            var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
-
             // checks
             if (Ensure.IsNotNullOrEmpty(name, () => Log.Warning($"No package name specified to install.")))
             {
                 return false;
             }
-            var package = dataBaseService.GetPackageFromName(name);
+            var package = _dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
                 Log.Warning("[{Package}] Package {Name} not found", package, name);
@@ -73,10 +65,10 @@ namespace gpm.Tasks
             }
             // install package as a local tool in a specified location
             // check if that path matches any existing slot
-            var model = libraryService.GetOrAdd(package);
+            var model = _libraryService.GetOrAdd(package);
             var slotForPath = model.Slots.Values
                 .FirstOrDefault(x => x.FullPath != null && x.FullPath.Equals(installPath));
-            if (slotForPath is not null && libraryService.IsInstalled(model.Key))
+            if (slotForPath is not null && _libraryService.IsInstalled(model.Key))
             {
                 // is already installed
                 // TODO: if it is, return because we should use update or repair
@@ -101,14 +93,14 @@ namespace gpm.Tasks
 
             // install package
             Log.Information("[{Package}] Installing package version {Version} ...", package, string.IsNullOrEmpty(version) ? "LATEST" : version);
-            var releases = await gitHubService.GetReleasesForPackage(package);
+            var releases = await _gitHubService.GetReleasesForPackage(package);
             if (releases is null || !releases.Any())
             {
                 Log.Warning("No releases found for package {Package}", package);
                 return false;
             }
 
-            if (await deploymentService.InstallReleaseAsync(package, releases, version, slotId))
+            if (await _deploymentService.InstallReleaseAsync(package, releases, version, slotId))
             {
                 Log.Information("[{Package}] Package successfully installed", package);
             }
@@ -123,10 +115,10 @@ namespace gpm.Tasks
             }
 
             // since we don't really have a concept of "global tools", we can pass global = false and the path
-            return await InstallDependencies(package, model.Slots[slotId].FullPath.NotNullOrEmpty(), false, host);
+            return await InstallDependencies(package, model.Slots[slotId].FullPath.NotNullOrEmpty(), false);
         }
 
-        private static async Task<bool> InstallDependencies(Package package, string path, bool global, IHost host)
+        private async Task<bool> InstallDependencies(Package package, string path, bool global)
         {
             var dependencies = package.Dependencies;
             if (dependencies is null)
@@ -140,7 +132,7 @@ namespace gpm.Tasks
                 Log.Information("[{Package}] Found {Count} dependencies. Installing...", package, dependencies.Count);
                 foreach (var dep in dependencies)
                 {
-                    dependencyResult = await Install(dep.Id, dep.Version, path, global, host);
+                    dependencyResult = await Install(dep.Id, dep.Version, path, global);
                 }
             }
 

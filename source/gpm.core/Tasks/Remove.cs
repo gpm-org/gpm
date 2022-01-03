@@ -14,7 +14,7 @@ namespace gpm.Tasks
     /// To uninstall a global tool that was installed in a custom location, use the --tool-path option.
     /// To uninstall a local tool, omit the --global and --tool-path options.
     /// </summary>
-    public static class RemoveAction
+    public partial class TaskService
     {
         /// <summary>
         /// Update and remove a package
@@ -25,11 +25,11 @@ namespace gpm.Tasks
         /// <param name="slot"></param>
         /// <param name="host"></param>
         /// <returns></returns>
-        public static async Task<bool> UpdateAndRemove(string name, bool global, string path, int? slot, IHost host)
+        public async Task<bool> UpdateAndRemove(string name, bool global, string path, int? slot)
         {
-            Upgrade.Action(host);
+            Upgrade();
 
-            return await Remove(name, global, path, slot, host);
+            return await Remove(name, global, path, slot);
         }
 
         /// <summary>
@@ -41,13 +41,8 @@ namespace gpm.Tasks
         /// <param name="slot"></param>
         /// <param name="host"></param>
         /// <returns></returns>
-        public static async Task<bool> Remove(string name, bool global, string path, int? slot, IHost host)
+        public async Task<bool> Remove(string name, bool global, string path, int? slot)
         {
-            var serviceProvider = host.Services;
-            var libraryService = serviceProvider.GetRequiredService<ILibraryService>();
-            var dataBaseService = serviceProvider.GetRequiredService<IDataBaseService>();
-            var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
-
             if (string.IsNullOrEmpty(name))
             {
                 Log.Warning("No package name specified to install");
@@ -56,18 +51,18 @@ namespace gpm.Tasks
 
             // what if a package is removed from the database?
             // deprecate instead?
-            var package = dataBaseService.GetPackageFromName(name);
+            var package = _dataBaseService.GetPackageFromName(name);
             if (package is null)
             {
                 Log.Warning("package {Name} not found in database", name);
                 return false;
             }
-            if (!libraryService.TryGetValue(package.Id, out var model))
+            if (!_libraryService.TryGetValue(package.Id, out var model))
             {
                 Log.Warning("[{Package}] Package is not installed", package);
                 return false;
             }
-            if (!libraryService.IsInstalled(package))
+            if (!_libraryService.IsInstalled(package))
             {
                 Log.Warning("[{Package}] Package is not installed", package);
                 return false;
@@ -93,7 +88,7 @@ namespace gpm.Tasks
                 {
                     if (value.FullPath is not null && value.FullPath.Equals(defaultDir))
                     {
-                        return await deploymentService.UninstallPackage(package, key);
+                        return await _deploymentService.UninstallPackage(package, key);
                     }
                 }
 
@@ -114,7 +109,7 @@ namespace gpm.Tasks
                 {
                     if (value.FullPath is not null && value.FullPath.Equals(path))
                     {
-                        return await deploymentService.UninstallPackage(package, key);
+                        return await _deploymentService.UninstallPackage(package, key);
                     }
                 }
 
@@ -125,7 +120,7 @@ namespace gpm.Tasks
             // try uninstalling from --slot
             if (slot is not null)
             {
-                return await deploymentService.UninstallPackage(package, slot.Value);
+                return await _deploymentService.UninstallPackage(package, slot.Value);
             }
 
             // try uninstalling from current dir
@@ -134,7 +129,7 @@ namespace gpm.Tasks
             {
                 if (value.FullPath is not null && value.FullPath.Equals(currentDir))
                 {
-                    return await deploymentService.UninstallPackage(package, slotIdx);
+                    return await _deploymentService.UninstallPackage(package, slotIdx);
                 }
             }
 
