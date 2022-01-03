@@ -5,10 +5,10 @@ namespace gpm.core.Services
         PlatformID[] SupportedPlatforms { get; }
 
         /// <summary>
-        /// Determine if the target archive can be extracted by this ArchiveService instance.
+        /// Determine if the target archive is supported by this ArchiveService instance.
         /// </summary>
         /// <param name="archive">The path of the target archive.</param>
-        /// <returns></returns>
+        /// <returns>True if the archive is supported by this instance, false if not.</returns>
         Task<bool> IsSupportedArchive(string archive);
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace gpm.core.Services
         /// <param name="archive">The archive to extract.</param>
         /// <param name="destination">The destination directory.</param>
         /// <param name="targetFiles">One or more file paths, relative to the path of the archive itself.</param>
-        /// <param name="fileDestinations">Destinations of files specified in targetFiles. Must be the same length if defined; otherwise null.</param>
+        /// <param name="fileDestinations">Destinations of files specified in targetFiles in (targetPath, destPath) pairs. Must be the same length if defined; otherwise null.</param>
         /// <param name="overwrite">True to overwrite existing files and directories; otherwise false.</param>
         /// <param name="preserveRelativePaths">True to preserve file and directory paths relative to the archive; otherwise false.</param>
         /// <returns></returns>
@@ -39,7 +39,7 @@ namespace gpm.core.Services
             string archive,
             string destination,
             List<string> targetFiles,
-            List<string>? fileDestinations = null,
+            Dictionary<string, string>? fileDestinations = null,
             bool overwrite = false,
             bool preserveRelativePaths = false);
     }
