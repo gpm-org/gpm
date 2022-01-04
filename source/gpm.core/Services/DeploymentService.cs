@@ -23,11 +23,13 @@ namespace gpm.core.Services
     {
         private readonly ILibraryService _libraryService;
         private readonly IGitHubService _gitHubService;
+        private readonly IArchiveService _archiveService;
 
-        public DeploymentService(ILibraryService libraryService, IGitHubService gitHubService)
+        public DeploymentService(ILibraryService libraryService, IGitHubService gitHubService, IArchiveService archiveService)
         {
             _libraryService = libraryService;
             _gitHubService = gitHubService;
+            _archiveService = archiveService;
         }
 
         /// <summary>
@@ -206,50 +208,50 @@ namespace gpm.core.Services
             var builder = IPackageBuilder.CreateDefaultBuilder<InstallBuilder>(package);
             destinationDir = builder.Build(destinationDir);
 
-            // TODO ask or overwrite
-            List<HashedFile>? installedFiles;
-            if (package.ContentType is null)
+            var installedFiles = new List<HashedFile>();
+
+            // TODO: Remove if not a fail-state.
+            if (package.ContentType == null)
             {
-                var extension = Path.GetExtension(assetCachePath).ToLower();
-                switch (extension)
-                {
-                    case ".zip":
-                        installedFiles = ExtractZipArchiveTo(assetCachePath, destinationDir);
-                        break;
-                    case ".7z":
-                    default:
-                        // treat as single file
-                        var releaseFilename = Path.GetFileName(assetCachePath);
-                        var assetDestinationPath = Path.Combine(destinationDir, releaseFilename);
-                        installedFiles = DeploySingleFile(assetCachePath, assetDestinationPath);
-                        break;
-                }
-            }
-            else
+                Log.Warning($"[{package}] Failed to install package at '{assetCachePath}', `ContentType` property is not set. Aborting.");
+
+                return false;
+            } 
+
+            else if (package.ContentType == EContentType.SingleFile)
             {
-                switch (package.ContentType)
-                {
-                    case EContentType.SingleFile:
-                        var releaseFilename = Path.GetFileName(assetCachePath);
-                        var assetDestinationPath = Path.Combine(destinationDir, releaseFilename);
-                        installedFiles = DeploySingleFile(assetCachePath, assetDestinationPath);
-                        break;
-                    case EContentType.ZipArchive:
-                        installedFiles = ExtractZipArchiveTo(assetCachePath, destinationDir);
-                        break;
-                    case EContentType.SevenZipArchive:
-                        throw new NotImplementedException();
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(package.ContentType), "Invalid Package content type.");
-                }
+                var releaseFileName = Path.GetFileName(assetCacheFile);
+                var assetDestinationPath = Path.Combine(destinationDir, releaseFileName);
+
+                installedFiles = DeploySingleFile(assetCachePath, assetDestinationPath);
             }
 
+            else if (package.ContentType == EContentType.Archive)
+            {
+                // TODO: Replace with async call; parent function needs to be reworked to support.
+                if (!_archiveService.IsSupportedArchive(assetCachePath).Result)
+                {
+                    Log.Warning($"[{package}] Package archive cannot be decompressed with this IArchiveService instance. '{assetCachePath}'. Aborting.");
+
+                    return false;
+                }
+
+                installedFiles = _archiveService.ExtractAsync(assetCachePath, destinationDir)
+                    .Result
+                    .Select(x => new HashedFile(x, null, null))
+                    .ToList();
+
+                Log.Information($"[{package}] Installed {installedFiles.Count} files from '{assetCachePath}' into '{destinationDir}'.");
+            }
+
+            // TODO: Improve package post-install validation.
             if (installedFiles is null)
             {
-                Log.Warning("[{Package}] No files installed. Aborting", package);
+                Log.Warning($"[{package}] Package installation was successful, but `installedFiles` was empty. Aborting.");
+
                 return false;
             }
-
+           
             // update library
             slotManifest.Version = version;
             slotManifest.Files = installedFiles;
@@ -276,71 +278,6 @@ namespace gpm.core.Services
 
             return new List<HashedFile> { new HashedFile(destinationFileName, null, null) };
         }
-
-        /// <summary>
-        /// Extracts a zip archive to a given destination directory
-        /// </summary>
-        /// <param name="sourceArchiveFileName"></param>
-        /// <param name="destinationDirectoryName"></param>
-        /// <param name="overwriteFiles"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        private static List<HashedFile>? ExtractZipArchiveTo(string sourceArchiveFileName, string destinationDirectoryName,
-            bool overwriteFiles = true)
-        {
-            var extension = Path.GetExtension(sourceArchiveFileName).ToLower();
-            if (extension != ".zip")
-            {
-                throw new ArgumentException(null, nameof(sourceArchiveFileName));
-            }
-
-            // get the files in the zip archive
-            var files = new List<string>();
-            using (var archive = ZipFile.OpenRead(sourceArchiveFileName))
-            {
-                files.AddRange(from entry in archive.Entries
-                               where !string.IsNullOrEmpty(entry.Name)
-                               select entry.FullName);
-            }
-
-            // TODO: conflicts
-            // check for conflicts with existing files
-            //var conflicts = files.Where(x => File.Exists(Path.Combine(_settingsService.GetGameRootPath(), x)));
-            //if (conflicts.Any())
-            //{
-            //    // ask user
-            //    switch (await _interactionService.ShowConfirmation($"The following files will be overwritten, continue?\r\n\r\n {string.Join("\r\n", conflicts)}", "Install Mod"))
-            //    {
-            //        case WMessageBoxResult.None:
-            //        case WMessageBoxResult.Cancel:
-            //        case WMessageBoxResult.No:
-            //            return null;
-            //    }
-            //}
-
-            // extract to
-            try
-            {
-                ZipFile.ExtractToDirectory(sourceArchiveFileName, destinationDirectoryName, overwriteFiles);
-                foreach (var file in files)
-                {
-                    Log.Debug("Extracting file {File}", file);
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Extracting to {DestinationDirectoryName} failed", destinationDirectoryName);
-                return null;
-            }
-
-            Log.Information("Installed {SourceArchiveFileName} to {DestinationDirectoryName}",
-                sourceArchiveFileName, destinationDirectoryName);
-
-            return files
-                .Select(x => new HashedFile(x, null, null))
-                .ToList();
-        }
-
 
         /// <summary>
         /// Uninstalls a package from the system by slot
