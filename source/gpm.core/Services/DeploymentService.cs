@@ -210,15 +210,16 @@ namespace gpm.core.Services
 
             var installedFiles = new List<HashedFile>();
 
-            // TODO: Remove if not a fail-state.
             if (package.ContentType == null)
             {
-                Log.Warning($"[{package}] Failed to install package at '{assetCachePath}', `ContentType` property is not set. Aborting.");
+                package.ContentType = _archiveService.IsSupportedArchive(assetCachePath).Result
+                    ? EContentType.Archive
+                    : EContentType.SingleFile;
 
-                return false;
+                Log.Warning($"[{package}] `ContentType` property is not set in '{assetCachePath}', determined type based on file extension. Here be dragons.");
             } 
 
-            else if (package.ContentType == EContentType.SingleFile)
+            if (package.ContentType == EContentType.SingleFile)
             {
                 var releaseFileName = Path.GetFileName(assetCacheFile);
                 var assetDestinationPath = Path.Combine(destinationDir, releaseFileName);
