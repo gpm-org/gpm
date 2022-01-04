@@ -21,7 +21,7 @@ namespace gpm.core.Services
                 return false;
             }
         }
-        public async Task<bool> ExtractAsync(
+        public async Task<List<string>> ExtractAsync(
             string archive,
             string destination,
             bool overwrite = false,
@@ -36,24 +36,30 @@ namespace gpm.core.Services
                 ExtractFullPath = preserveRelativePaths
             };
 
-            await Task.Run(() => archiveReader.WriteAllToDirectory(destination, archiveOptions));
+            var extractedFiles = new List<string>();
 
-            return true;
+            // Hacky method to determine which files were extracted. This implementation needs work
+            while (archiveReader.MoveToNextEntry())
+            {
+                // Possible speedup here if we enqueue all extract Tasks and use Task.WhenAll to await them at the same time.
+                await Task.Run(() => archiveReader.WriteEntryToDirectory(destination, archiveOptions));
+
+                extractedFiles.Add(Path.Combine(destination, archiveReader.Entry.Key));
+            }
+
+            return extractedFiles;
         }
 
-        public async Task<bool> ExtractFilesAsync(
+        public async Task<List<string>> ExtractFilesAsync(
             string archive,
             string destination,
             List<string> targetFiles,
-            Dictionary<string, string>? fileDestinations = null,
             bool overwrite = false,
             bool preserveRelativePaths = false)
         {
-            // fileDestinations and targetFiles must contain the same number of entries if the former is not null.
-            if (fileDestinations is not null && targetFiles.Count != fileDestinations.Count)
+            if (targetFiles.Count == 0)
             {
-                // TODO: Replace with custom exception type.
-                throw new Exception("Failed while validating ExtractFilesAsync arguments: Entry count of fileDestinations does not match entryCount of targetFiles.");
+                throw new Exception($"`ExtractFilesAsync` failed, `targetFiles` argument contains no entries.");
             }
 
             using var archiveStream = File.OpenRead(archive);
@@ -65,8 +71,10 @@ namespace gpm.core.Services
                 ExtractFullPath = preserveRelativePaths
             };
 
+            var extractedFiles = new List<string>();
+
             // Warning: This method may be slow for certain compression formats -- most notably, LZMA and RAR. Needs future optimization.
-            foreach (var entry in archiveReader.Entries)
+            foreach (var entry in archiveReader.Entries.Where(x => targetFiles.Contains(x.Key)))
             {
                 // Skipping directories for now as they should be created when files are extracted; should examine need for config.
                 if (entry.IsDirectory)
@@ -74,18 +82,11 @@ namespace gpm.core.Services
                     continue;
                 }
 
-                // Extract the entry to the destination, using fileDestinations if an entry exists.
-                if (fileDestinations is not null && fileDestinations.ContainsKey(entry.Key))
-                {
-                    await Task.Run(() => entry.WriteToFile(Path.Combine(destination, fileDestinations[entry.Key])));
-                    continue;
-                }
-
-                // Otherwise, extract to the destination directory.
                 await Task.Run(() => entry.WriteToDirectory(destination, extractOptions));
+                extractedFiles.Add(Path.Combine(destination, entry.Key));
             }
 
-            return true;
+            return extractedFiles;
         }
     }
 }

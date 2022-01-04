@@ -18,8 +18,8 @@ namespace gpm.core.Services
         /// <param name="destination">The destination directory.</param>
         /// <param name="overwrite">True to overwrite existing files and directories; otherwise false.</param>
         /// <param name="preserveRelativePaths">True to preserve file and directory paths relative to the archive; otherwise false.</param>
-        /// <returns></returns>
-        Task<bool> ExtractAsync(
+        /// <returns>A list of extracted file paths. Empty if none were extracted.</returns>
+        Task<List<string>> ExtractAsync(
             string archive,
             string destination,
             bool overwrite = false,
@@ -31,16 +31,15 @@ namespace gpm.core.Services
         /// <param name="archive">The archive to extract.</param>
         /// <param name="destination">The destination directory.</param>
         /// <param name="targetFiles">One or more file paths, relative to the path of the archive itself.</param>
-        /// <param name="fileDestinations">Destinations of files specified in targetFiles in (targetPath, destPath) pairs. Must be the same length if defined; otherwise null.</param>
         /// <param name="overwrite">True to overwrite existing files and directories; otherwise false.</param>
         /// <param name="preserveRelativePaths">True to preserve file and directory paths relative to the archive; otherwise false.</param>
-        /// <returns></returns>
-        Task<bool> ExtractFilesAsync(
+        /// <returns>A list of extracted file paths. Empty if none were extracted.</returns>
+        Task<List<string>> ExtractFilesAsync(
             string archive,
             string destination,
             List<string> targetFiles,
-            Dictionary<string, string>? fileDestinations = null,
             bool overwrite = false,
             bool preserveRelativePaths = false);
     }
 }
+
