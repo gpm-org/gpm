@@ -13,6 +13,9 @@ using gpm.core.Services;
 
 namespace gpmWinui.ViewModels.Pages;
 
+/// <summary>
+/// View model for installed packages
+/// </summary>
 public sealed class AppsPageViewModel : ObservableRecipient
 {
     private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
@@ -21,7 +24,7 @@ public sealed class AppsPageViewModel : ObservableRecipient
     {
         //_libraryService.PropertyChanged += LibraryService_PropertyChanged;
 
-        Packages = new ObservableCollection<PackageModel>(_libraryService.Values);
+        Packages = new ObservableCollection<PackageModelViewModel>(_libraryService.Select(x => new PackageModelViewModel(x.Value)));
     }
 
     private void LibraryService_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -38,11 +41,11 @@ public sealed class AppsPageViewModel : ObservableRecipient
     }
 
 
-    public ObservableCollection<PackageModel> Packages { get; set; } = new();
+    public ObservableCollection<PackageModelViewModel> Packages { get; set; } = new();
 
 
-    private PackageModel? _selectedPackage;
-    public PackageModel? SelectedPackage
+    private PackageModelViewModel? _selectedPackage;
+    public PackageModelViewModel? SelectedPackage
     {
         get => _selectedPackage;
         set => SetProperty(ref _selectedPackage, value);

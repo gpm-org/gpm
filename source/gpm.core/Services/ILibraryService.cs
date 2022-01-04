@@ -33,5 +33,8 @@ namespace gpm.core.Services
 
         bool IsInstalledAtLocation(Package package, string path, [NotNullWhen(true)] out int? idx);
         bool IsInstalledAtLocation(string key, string path, [NotNullWhen(true)] out int? idx);
+
+        bool TryGetDefaultSlot(string key, [NotNullWhen(true)] out SlotManifest? slot);
+        bool TryGetDefaultSlot(Package package, [NotNullWhen(true)] out SlotManifest? slot);
     }
 }

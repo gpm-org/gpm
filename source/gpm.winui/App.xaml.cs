@@ -43,7 +43,8 @@ namespace gpmWinui
         {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
+                //.WriteTo.Console()
+                .WriteTo.AppSink()
                 .CreateLogger();
 
 

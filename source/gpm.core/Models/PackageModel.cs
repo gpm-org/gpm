@@ -4,7 +4,7 @@ using ProtoBuf;
 namespace gpm.core.Models
 {
     /// <summary>
-    /// Model for an installed plugin
+    /// Model for an installed package
     /// </summary>
 
     [ProtoContract]

@@ -9,6 +9,9 @@ using gpm.core.Services;
 
 namespace gpmWinui.ViewModels.Pages;
 
+/// <summary>
+/// View model for available packages
+/// </summary>
 public class PluginsPageViewModel : PageViewModel
 {
     private readonly IDataBaseService _dataBaseService = Ioc.Default.GetRequiredService<IDataBaseService>();
@@ -17,7 +20,7 @@ public class PluginsPageViewModel : PageViewModel
     {
         ReloadTaskCommand = new RelayCommand(ReloadTask);
 
-        Packages = new ObservableCollection<PluginViewModel>(_dataBaseService.Select(x => new PluginViewModel(x.Value)));
+        Packages = new ObservableCollection<PackageViewModel>(_dataBaseService.Select(x => new PackageViewModel(x.Value)));
 
     }
 
@@ -26,14 +29,13 @@ public class PluginsPageViewModel : PageViewModel
     /// </summary>
     public ICommand ReloadTaskCommand { get; }
 
-    public ObservableCollection<PluginViewModel> Packages { get; }
+    public ObservableCollection<PackageViewModel> Packages { get; }
 
 
-    private PluginViewModel? _selectedPlugin;
-    public PluginViewModel? SelectedPlugin
-    {
-        get => _selectedPlugin;
-        set => SetProperty(ref _selectedPlugin, value);
+    private PackageViewModel? _selectedPackage;
+    public PackageViewModel? SelectedPackage    {
+        get => _selectedPackage;
+        set => SetProperty(ref _selectedPackage, value);
     }
 
 

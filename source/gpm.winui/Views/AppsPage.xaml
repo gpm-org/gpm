@@ -43,7 +43,7 @@
             </ListView.ItemContainerStyle>
             
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models1:PackageModel">
+                <DataTemplate x:DataType="viewModels:PackageModelViewModel">
                     <Grid
                         ColumnSpacing="8"
                         RowSpacing="8"
@@ -58,35 +58,35 @@
                         <StackPanel Grid.Column="0">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <TextBlock 
-                                Text="{x:Bind Key}"
+                                Text="{x:Bind Id}"
                                 FontSize="15"
                                 FontWeight="SemiBold"
                                 TextWrapping="WrapWholeWords"
                                 VerticalAlignment="Center"/>
-                                
+
                                 <TextBlock 
                                 Text="|"
                                 FontSize="15"
                                 FontWeight="SemiBold"
                                 TextWrapping="WrapWholeWords"
                                 VerticalAlignment="Center"/>
-                                
+
                                 <TextBlock 
-                                Text="TBD Version"
+                                Text="Version TBD"
                                 FontSize="15"
                                 FontWeight="SemiBold"
                                 TextWrapping="WrapWholeWords"
                                 VerticalAlignment="Center"/>
                             </StackPanel>
-                           
+
                             <TextBlock 
-                            Text="{x:Bind }"
+                            Text="Url TBD"
                             FontSize="13"
                             FontWeight="Normal"
                             TextWrapping="WrapWholeWords"
                             VerticalAlignment="Center"/>
                         </StackPanel>
-                        
+
                         <!-- Buttons -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" >
 
@@ -139,7 +139,6 @@
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
-            
         </ListView>
 
     </Grid>

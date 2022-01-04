@@ -25,10 +25,13 @@ namespace gpmWinui
                 new NavigationItemModel(AppsItem, typeof(AppsPage)),
                 new NavigationItemModel(PluginsItem, typeof(PluginsPage), "ObservableObject"),
             };
+
+            NavigationView.SelectedItem = AppsItem;
+            NavigationFrame.Navigate(typeof(AppsPage));
         }
 
 
-        // Navigates to a sample page when a button is clicked
+        // Navigates to a page when a button is clicked
         private void NavigationView_OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             if (NavigationItems.FirstOrDefault(item => item.Item == args.InvokedItemContainer)?.PageType is Type pageType)
@@ -55,10 +58,10 @@ namespace gpmWinui
         }
 
         // Select the introduction item when the shell is loaded
+        // unused
         private void Shell_OnLoaded(object sender, RoutedEventArgs e)
         {
             NavigationView.SelectedItem = AppsItem;
-
             NavigationFrame.Navigate(typeof(AppsPage));
         }
     }
