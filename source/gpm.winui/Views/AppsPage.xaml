@@ -33,6 +33,7 @@
             ItemsSource="{x:Bind ViewModel.Packages}"
             SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}"
             ScrollViewer.CanContentRenderOutsideBounds="True">
+            
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Background" Value="#30808080"/>
@@ -40,6 +41,7 @@
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 </Style>
             </ListView.ItemContainerStyle>
+            
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models1:PackageModel">
                     <Grid
@@ -137,6 +139,7 @@
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
+            
         </ListView>
 
     </Grid>

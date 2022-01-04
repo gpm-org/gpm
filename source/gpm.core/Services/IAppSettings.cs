@@ -14,7 +14,7 @@ namespace gpm.core.Services
         public static string GetAppDataFolder()
         {
             var folder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 Constants.APPDATA
             );
             if (!Directory.Exists(folder))
@@ -24,12 +24,11 @@ namespace gpm.core.Services
             return folder;
         }
 
-        public static string GetLibraryFolder()
+        public static string GetSharedAppDataFolder()
         {
             var folder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "gpm",
-                "tools"
+                Constants.GPM
             );
             if (!Directory.Exists(folder))
             {
@@ -37,6 +36,10 @@ namespace gpm.core.Services
             }
             return folder;
         }
+
+        public static string GetLibraryFolder() => Path.Combine(GetSharedAppDataFolder(), "tools");
+
+        public static string GetLocalDbFile() => Path.Combine(GetSharedAppDataFolder(), Constants.LOCALDB);
 
         public static string GetDefaultInstallDir(Package package)
             => Path.Combine(
@@ -49,8 +52,6 @@ namespace gpm.core.Services
         public static string GetAppSettingsFile() => Path.Combine(GetAppDataFolder(), Constants.APPSETTINGS);
 
         public static string GetDbFile() => Path.Combine(GetAppDataFolder(), Constants.DB);
-
-        public static string GetLocalDbFile() => Path.Combine(GetAppDataFolder(), Constants.LOCALDB);
 
 
         public static string GetCacheFolder()
