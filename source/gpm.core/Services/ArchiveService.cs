@@ -4,7 +4,7 @@ using SharpCompress.Readers;
 
 namespace gpm.core.Services
 {
-    public class SharpCompressService : IArchiveService
+    public class ArchiveService : IArchiveService
     {
         public PlatformID[] SupportedPlatforms { get; } = { PlatformID.Win32NT, PlatformID.Unix };
 
