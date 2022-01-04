@@ -11,6 +11,30 @@
     >
     <Grid>
 
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary>
+                        <ResourceDictionary.ThemeDictionaries>
+                            <ResourceDictionary x:Key="Light">
+                                <StaticResource x:Key="NavigationViewContentBackground" ResourceKey="LayerFillColorDefaultBrush"/>
+                                <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent"/>
+                            </ResourceDictionary>
+                            <ResourceDictionary x:Key="Dark">
+                                <StaticResource x:Key="NavigationViewContentBackground" ResourceKey="LayerFillColorDefaultBrush"/>
+                                <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent"/>
+                            </ResourceDictionary>
+                            <ResourceDictionary x:Key="HighContrast">
+                                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="{ThemeResource SystemColorWindowColor}" />
+                                <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="{ThemeResource SystemColorWindowColor}" />
+                            </ResourceDictionary>
+                        </ResourceDictionary.ThemeDictionaries>
+                    </ResourceDictionary>
+                   
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+
         <Grid.DataContext>
             <viewmodels:MainViewModel x:Name="ViewModel"/>
         </Grid.DataContext>
@@ -53,7 +77,7 @@
                     <!--Acrylic background-->
                     <Border
                         Grid.Row="0"
-                        Background="{ThemeResource SystemControlAltMediumLowAcrylicElementMediumBrush}"/>
+                        Background="{ThemeResource SystemAccentColorLight3}"/>
 
                     <StackPanel Grid.Row="0" >
 
@@ -71,7 +95,7 @@
                         <!--Title-->
                         <Border Padding="8,8,8,16" >
                             <TextBlock
-                                Text="Red Community Toolkit"
+                                Text="gpm UI"
                                 FontWeight="SemiBold"
                                 FontSize="18"
                                 />
