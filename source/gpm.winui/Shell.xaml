@@ -45,21 +45,24 @@
                         ItemInvoked="NavigationView_OnItemInvoked"
                         BackRequested="NavigationView_OnBackRequested"
                         CompactModeThresholdWidth="50"
+                        
                         >
-            
+
             <NavigationView.MenuItems>
+                <NavigationViewItem  x:Name="PackagesItem"
+                    Icon="Play"
+                    Content="Packages"
+                    ToolTipService.ToolTip="Packages"/>
+                <NavigationViewItemSeparator/>
+            </NavigationView.MenuItems>
+
+            <NavigationView.FooterMenuItems>
                 <NavigationViewItem  x:Name="LibraryItem"
                     Icon="Library"
                     Content="Library"
                     ToolTipService.ToolTip="Library"/>
-                <NavigationViewItemSeparator/>
-                <NavigationViewItem  x:Name="PluginsItem"
-                    Icon="Play"
-                    Content="Plugins"
-                    ToolTipService.ToolTip="Plugins"/>
-                
-            </NavigationView.MenuItems>
-
+            </NavigationView.FooterMenuItems>
+           
             <NavigationView.Content>
                 <Grid>
                     <Grid.RowDefinitions>

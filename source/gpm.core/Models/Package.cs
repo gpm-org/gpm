@@ -8,7 +8,7 @@ using ProtoBuf;
 namespace gpm.core.Models
 {
     /// <summary>
-    /// Model for a plugin
+    /// Model for a package
     /// </summary>
 
     [ProtoContract]

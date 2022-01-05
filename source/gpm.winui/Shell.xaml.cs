@@ -23,7 +23,7 @@ namespace gpmWinui
             NavigationItems = new[]
             {
                 new NavigationItemModel(LibraryItem, typeof(LibraryPage)),
-                new NavigationItemModel(PluginsItem, typeof(PluginsPage), "ObservableObject"),
+                new NavigationItemModel(PackagesItem, typeof(PackagesPage), "ObservableObject"),
             };
 
             NavigationView.SelectedItem = LibraryItem;
