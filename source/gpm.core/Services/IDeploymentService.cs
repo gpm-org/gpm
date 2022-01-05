@@ -33,7 +33,7 @@ namespace gpm.core.Services
         /// <returns></returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        bool InstallPackageFromCache(Package package, string version, int slot = 0);
+        Task<bool> InstallPackageFromCacheAsync(Package package, string version, int slot = 0);
 
         /// <summary>
         /// Uninstalls a package from the system by slot
