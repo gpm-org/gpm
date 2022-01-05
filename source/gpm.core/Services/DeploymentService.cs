@@ -96,7 +96,7 @@ namespace gpm.core.Services
             // install asset
             var releaseFilename = asset.Name;
             ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
-            if (!InstallPackageFromCache(package, version, slot))
+            if (!await InstallPackageFromCacheAsync(package, version, slot))
             {
                 Log.Warning("Failed to install package {Package}", package);
                 return false;
@@ -151,7 +151,7 @@ namespace gpm.core.Services
         /// <returns></returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public bool InstallPackageFromCache(Package package, string version, int slot = 0)
+        public async Task<bool> InstallPackageFromCacheAsync(Package package, string version, int slot = 0)
         {
             using var ssc = new ScopedStopwatch();
 
@@ -212,7 +212,7 @@ namespace gpm.core.Services
 
             if (package.ContentType == null)
             {
-                package.ContentType = _archiveService.IsSupportedArchive(assetCachePath).Result
+                package.ContentType = await _archiveService.IsSupportedArchive(assetCachePath)
                     ? EContentType.Archive
                     : EContentType.SingleFile;
 
@@ -230,15 +230,14 @@ namespace gpm.core.Services
             else if (package.ContentType == EContentType.Archive)
             {
                 // TODO: Replace with async call; parent function needs to be reworked to support.
-                if (!_archiveService.IsSupportedArchive(assetCachePath).Result)
+                if (!await _archiveService.IsSupportedArchive(assetCachePath))
                 {
                     Log.Warning($"[{package}] Package archive cannot be decompressed with this IArchiveService instance. '{assetCachePath}'. Aborting.");
 
                     return false;
                 }
 
-                installedFiles = _archiveService.ExtractAsync(assetCachePath, destinationDir)
-                    .Result
+                installedFiles = (await _archiveService.ExtractAsync(assetCachePath, destinationDir))
                     .Select(x => new HashedFile(x, null, null))
                     .ToList();
 

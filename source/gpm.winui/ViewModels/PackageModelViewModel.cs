@@ -13,20 +13,28 @@ using Nito.AsyncEx;
 
 namespace gpmWinui.ViewModels
 {
-    public class PluginViewModel : ObservableObject
+    /// <summary>
+    /// A ViewModel for an installed package
+    /// </summary>
+    public class PackageModelViewModel : ObservableObject
     {
-        private Package _model;
+        private PackageModel _model;
 
-        private readonly IGitHubService _gitHubService = Ioc.Default.GetRequiredService<IGitHubService>();
+
         private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
         private readonly ITaskService _taskService = Ioc.Default.GetRequiredService<ITaskService>();
 
-        /// <summary>
-        /// An <see cref="AsyncLock"/> instance to avoid concurrent requests.
-        /// </summary>
-        private readonly AsyncLock _loadingLock = new();
 
-        public PluginViewModel(Package model)
+        //public PackageViewModel(Package model)
+        //{
+        //    _model = model;
+
+        //    InstallCommand = new AsyncRelayCommand(InstallAsync);
+        //    CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
+        //    LaunchCommand = new AsyncRelayCommand(LaunchAsync);
+        //}
+
+        public PackageModelViewModel(PackageModel model)
         {
             _model = model;
 
@@ -35,13 +43,27 @@ namespace gpmWinui.ViewModels
             LaunchCommand = new AsyncRelayCommand(LaunchAsync);
         }
 
-        //public string? Version => _model.InstalledVersion;
+        public string? Version
+        {
+            get
+            {
+                // get default version unless a slot is selected
+                if (IsInstalled && _libraryService.TryGetDefaultSlot(Id, out var slot))
+                {
+                    return slot.Version;
+                }
 
-        public string? ID => _model.Id;
+                // TODO slot selection in UI
 
-        public string? Url => _model.Url;
+                return "-";
+            }
+        }
 
-        public bool IsInstalled => _libraryService.IsInstalled(_model.Id);
+        public string Id => _model.Key;
+
+        //public string? Url => _model.;
+
+        public bool IsInstalled => _libraryService.IsInstalled(_model.Key);
 
         public bool IsNotInstalled => !IsInstalled;
 
@@ -69,9 +91,9 @@ namespace gpmWinui.ViewModels
 
         private async Task InstallAsync()
         {
-            if (ID is not null)
+            if (Id is not null)
             {
-                await _taskService.UpdateAndInstall(ID, "", "", true);
+                await _taskService.UpdateAndInstall(Id, "", "", true);
             }
         }
     }

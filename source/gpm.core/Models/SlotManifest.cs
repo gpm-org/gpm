@@ -26,5 +26,11 @@ namespace gpm.core.Models
         /// </summary>
         [ProtoMember(3)]
         public string? Version { get; set; }
+
+        /// <summary>
+        /// Current installed version in slot
+        /// </summary>
+        [ProtoMember(4)]
+        public bool? IsDefault { get; set; }
     }
 }

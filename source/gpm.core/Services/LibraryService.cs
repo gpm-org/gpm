@@ -114,6 +114,22 @@ namespace gpm.core.Services
 
         #region methods
 
+        public bool TryGetDefaultSlot(Package package, [NotNullWhen(true)] out SlotManifest? slot)
+            => TryGetDefaultSlot(package.Id, out slot);
+
+        public bool TryGetDefaultSlot(string key, [NotNullWhen(true)] out SlotManifest? slot)
+        {
+            slot = null;
+            if (!TryGetValue(key, out var model))
+            {
+                return false;
+            }
+
+            slot = model.Slots.FirstOrDefault(x => x.Value.IsDefault.HasValue && x.Value.IsDefault.Value == true).Value;
+            return slot is not null;
+        }
+            
+
         public PackageModel GetOrAdd(Package package)
         {
             var key = package.Id;

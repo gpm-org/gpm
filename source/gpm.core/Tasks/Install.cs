@@ -59,7 +59,7 @@ namespace gpm.Tasks
                 return false;
             }
             // get install path
-            if (!TryGetInstallPath(package, path, global, out var installPath))
+            if (!TryGetInstallPath(package, path, global, out var installPath, out var isDefault))
             {
                 return false;
             }
@@ -89,7 +89,7 @@ namespace gpm.Tasks
             }
             var slotManifest = model.Slots.GetOrAdd(key: slotId);
             slotManifest.FullPath = installPath;
-
+            slotManifest.IsDefault = isDefault;
 
             // install package
             Log.Information("[{Package}] Installing package version {Version} ...", package, string.IsNullOrEmpty(version) ? "LATEST" : version);
@@ -157,10 +157,11 @@ namespace gpm.Tasks
         /// <param name="package"></param>
         /// <param name="installPath"></param>
         /// <returns>false if invalid tool configuration</returns>
-        public static bool TryGetInstallPath(Package package, string path, bool global, out string installPath)
+        public static bool TryGetInstallPath(Package package, string path, bool global, out string installPath, out bool isDefault)
         {
             // check if package is in local library
             // if not it just goes to slot 0
+            isDefault = false;
             installPath = "";
             var isPathEmpty = string.IsNullOrEmpty(path);
             switch (global)
@@ -173,12 +174,19 @@ namespace gpm.Tasks
                     return false;
                 // global & not path        install in default dir
                 case true when isPathEmpty:
+                {
+                    installPath = IAppSettings.GetDefaultInstallDir(package);
+                    if (!Directory.Exists(installPath))
+                    {
+                        Directory.CreateDirectory(installPath);
+                    }
+                    isDefault = true;
+                    break;
+                }
                 // not global & path        install in path
                 case false when !isPathEmpty:
                 {
-                    installPath = isPathEmpty
-                        ? IAppSettings.GetDefaultInstallDir(package)
-                        : path;
+                    installPath = path;
                     if (!Directory.Exists(installPath))
                     {
                         Directory.CreateDirectory(installPath);

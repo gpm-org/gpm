@@ -1,27 +1,13 @@
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.ApplicationModel.Core;
-using Windows.UI.Xaml;
-using Microsoft.Extensions.DependencyInjection;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using gpm.core.Services;
-using gpmWinui.Services;
 using gpm.Tasks;
+using gpmWinui.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.UI.Xaml;
+using Serilog;
 //using Refit;
 
 
@@ -55,11 +41,20 @@ namespace gpmWinui
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                //.WriteTo.Console()
+                .WriteTo.AppSink()
+                .CreateLogger();
+
+
             // Register services
             Ioc.Default.ConfigureServices(
                 new ServiceCollection()
 
                 .AddSingleton<ISettingsService, SettingsService>()
+                .AddScoped<IArchiveService, ArchiveService>()
+
                 .AddSingleton<IGitHubService, GitHubService>()
                 .AddSingleton<IDeploymentService, DeploymentService>()
 
@@ -73,5 +68,17 @@ namespace gpmWinui
             m_window = new Shell();
             m_window.Activate();
         }
+
+        //public static void ConfigureSerilog(HostBuilderContext ctx, IServiceProvider services, LoggerConfiguration logger)
+        //{
+        //    var path = Path.Combine(IAppSettings.GetLogsFolder(), "gpm.txt");
+        //    var outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
+
+        //    logger
+        //        .ReadFrom.Configuration(ctx.Configuration)
+        //        .Enrich.FromLogContext()
+        //        .WriteTo.Console(outputTemplate: outputTemplate)
+        //        .WriteTo.File(path, outputTemplate: outputTemplate, rollingInterval: RollingInterval.Day);
+        //}
     }
 }

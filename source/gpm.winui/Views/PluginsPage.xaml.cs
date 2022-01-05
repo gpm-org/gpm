@@ -27,5 +27,10 @@ namespace gpmWinui.Views
         {
             this.InitializeComponent();
         }
+
+        private void InstallButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

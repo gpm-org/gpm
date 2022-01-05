@@ -89,7 +89,7 @@ namespace gpm.Tasks
             }
 
             // get slot from path
-            if (!TryGetInstallPath(package, path, global, out var installPath))
+            if (!TryGetInstallPath(package, path, global, out var installPath, out var isDefault))
             {
                 return false;
             }
