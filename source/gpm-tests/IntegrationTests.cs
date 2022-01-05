@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using gpm.core;
 
 namespace gpm_tests
 {
@@ -35,8 +36,13 @@ namespace gpm_tests
 
         private static string GetTestSlot(int i)
         {
-            var folder = Path.Combine(IAppSettings.GetAppDataFolder(),
-                $"TESTSLOT{i.ToString()}"
+            //Path.Combine(
+           
+
+            var folder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                Constants.APPDATA,
+                $"TESTSLOT{i}"
             );
             if (!Directory.Exists(folder))
             {
@@ -97,10 +103,10 @@ namespace gpm_tests
                 await taskService.Remove(TESTNAME3, false, "", i);
             }
 
-            Directory.Delete(TESTSLOT0,true);
-            Directory.Delete(TESTSLOT1,true);
-            Directory.Delete(TESTSLOT2,true);
-            Directory.Delete(TESTSLOT3,true);
+            //Directory.Delete(TESTSLOT0, true);
+            Directory.Delete(TESTSLOT1, true);
+            Directory.Delete(TESTSLOT2, true);
+            Directory.Delete(TESTSLOT3, true);
         }
 
         [TestMethod]
