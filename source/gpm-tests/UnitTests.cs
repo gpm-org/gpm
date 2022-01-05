@@ -17,7 +17,7 @@ namespace gpm_tests
     {
         private readonly IHost _host;
 
-        private const string TESTNAME = "wolvenkit";
+        private const string TESTNAME = "wolvenkit/wolvenkit/test1";
         private const string TESTVERSION1 = "8.4.2";
 
         public UnitTests()
@@ -72,7 +72,7 @@ namespace gpm_tests
             var asset = assetBuilder.Build(release.Assets);
 
             Assert.IsNotNull(asset);
-            Assert.AreEqual("WolvenKit-8.4.2.zip", asset.Name);
+            Assert.AreEqual("manifest.json", asset.Name);
 
             // TODO: test install builder
 

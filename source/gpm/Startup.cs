@@ -28,6 +28,7 @@ namespace gpm
         {
             services.AddScoped<IAppSettings, AppSettings>();
             services.AddScoped<IProgressService<double>, PercentProgressService>();
+            services.AddScoped<IArchiveService, ArchiveService>();
 
             services.AddSingleton<ILibraryService, LibraryService>();
             services.AddSingleton<IDataBaseService, DataBaseService>();

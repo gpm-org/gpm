@@ -97,6 +97,8 @@ namespace gpm.Tasks
             if (releases is null || !releases.Any())
             {
                 Log.Warning("No releases found for package {Package}", package);
+                // clean slots for failed install
+                _ = model.Slots.Remove(slotId);
                 return false;
             }
 
@@ -107,10 +109,7 @@ namespace gpm.Tasks
             else
             {
                 // clean slots for failed install
-                //if (libraryService.TryGetValue(package.Id, out var model))
-                {
-                    _ = model.Slots.Remove(slotId);
-                }
+                _ = model.Slots.Remove(slotId);
                 return false;
             }
 
@@ -139,13 +138,15 @@ namespace gpm.Tasks
             if (!dependencyResult)
             {
                 Log.Warning("[{Package}] Some dependencies failed to install correctly", package);
+                return false;
             }
             else
             {
                 Log.Information("[{Package}] All dependencies installed successfully", package);
+                return true;
             }
 
-            return false;
+            
         }
 
         /// <summary>

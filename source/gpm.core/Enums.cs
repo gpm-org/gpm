@@ -4,6 +4,7 @@ namespace gpm.core
     {
         SingleFile,
         ZipArchive,
-        SevenZipArchive
+        SevenZipArchive,
+        Archive
     }
 }
