@@ -53,6 +53,8 @@ namespace gpmWinui
                 new ServiceCollection()
 
                 .AddSingleton<ISettingsService, SettingsService>()
+                .AddScoped<IArchiveService, ArchiveService>()
+
                 .AddSingleton<IGitHubService, GitHubService>()
                 .AddSingleton<IDeploymentService, DeploymentService>()
 

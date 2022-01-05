@@ -65,10 +65,10 @@
                         Header="Github Package Manager"
                         Grid.Row="1">
             <NavigationView.MenuItems>
-                <NavigationViewItem  x:Name="AppsItem"
-                    Icon="MapDrive"
-                    Content="Installed"
-                    ToolTipService.ToolTip="Apps"/>
+                <NavigationViewItem  x:Name="LibraryItem"
+                    Icon="Library"
+                    Content="Library"
+                    ToolTipService.ToolTip="Library"/>
                 <NavigationViewItem  x:Name="PluginsItem"
                     Icon="Download"
                     Content="Available"

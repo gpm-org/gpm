@@ -16,7 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Shell.xaml" />
-    <None Remove="Views\AppsPage.xaml" />
+    <None Remove="Views\LibraryPage.xaml" />
     <None Remove="Views\PluginsPage.xaml" />
   </ItemGroup>
 
@@ -63,7 +63,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\AppsPage.xaml">
+    <Page Update="Views\LibraryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

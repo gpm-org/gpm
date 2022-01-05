@@ -41,6 +41,7 @@ namespace gpmWinui.ViewModels
             InstallCommand = new AsyncRelayCommand(InstallAsync);
             CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
             LaunchCommand = new AsyncRelayCommand(LaunchAsync);
+            RemoveCommand = new AsyncRelayCommand(RemoveAsync);
         }
 
         public string? Version
@@ -69,32 +70,29 @@ namespace gpmWinui.ViewModels
 
 
         public IAsyncRelayCommand InstallCommand { get; }
-
-        public IAsyncRelayCommand CheckCommand { get; }
-
-        public IAsyncRelayCommand LaunchCommand { get; }
-
-        private async Task LaunchAsync()
+        private async Task InstallAsync()
         {
-
-
-
-
-
-            await Task.Delay(1);
+            await _taskService.UpdateAndInstall(Id, "", "", true);
         }
 
+        public IAsyncRelayCommand CheckCommand { get; }
         private async Task CheckForUpdatesAsync()
         {
             await Task.Delay(1);
         }
 
-        private async Task InstallAsync()
+        public IAsyncRelayCommand LaunchCommand { get; }
+        private async Task LaunchAsync()
         {
-            if (Id is not null)
-            {
-                await _taskService.UpdateAndInstall(Id, "", "", true);
-            }
+            await Task.Delay(1);
         }
+
+        public IAsyncRelayCommand RemoveCommand { get; }
+        private async Task RemoveAsync()
+        {
+            await _taskService.Remove(Id, true, "", null);
+        }
+
+        
     }
 }
