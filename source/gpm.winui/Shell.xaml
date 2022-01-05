@@ -38,19 +38,30 @@
         </Grid.DataContext>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="48"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <ContentControl
+        <Grid
             x:Name="NiceTitleBar"
             Padding="0,0">
             <TextBlock
-                Margin="15,11,0,0"
+                FontSize="12"
+                FontWeight="Normal"
+                Margin="15,16,0,0"
                 Text="Github Package Manager"
-                Foreground="White"
-                VerticalAlignment="Center"/>
-        </ContentControl>
+                Foreground="{ThemeResource SystemBaseMediumColor}"
+                VerticalAlignment="Top"/>
+        </Grid>
+        
+        <Grid x:Name="TitleBarOverlay" Margin="8" VerticalAlignment="Center" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"  />
+                <ColumnDefinition Width="2*"  />
+                <ColumnDefinition Width="1*"  />
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="1" IsEnabled="False" Text="Search"/>
+        </Grid>
 
         <NavigationView x:Name="NavigationView"
                         IsBackEnabled="False"
@@ -59,11 +70,33 @@
                         IsSettingsVisible="True"
                         ItemInvoked="NavigationView_OnItemInvoked"
                         BackRequested="NavigationView_OnBackRequested"
-                        IsTitleBarAutoPaddingEnabled="True"
+                        IsTitleBarAutoPaddingEnabled="False"
+                        IsPaneToggleButtonVisible="False"
                         CompactModeThresholdWidth="640"
-                        ExpandedModeThresholdWidth="960"
-                        Header="Github Package Manager"
+                        ExpandedModeThresholdWidth="640"
+                        OpenPaneLength="70"
                         Grid.Row="1">
+            <NavigationView.MenuItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch" Margin="0,4,0,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Viewbox
+                            Grid.Row="0"
+                            Margin="6">
+                            <SymbolIcon Symbol="{Binding Icon.Symbol}" Foreground="{ThemeResource SystemBaseMediumHighColor}"/>
+                        </Viewbox>
+                        <TextBlock
+                            Text="{Binding Content}"
+                            Foreground="{ThemeResource SystemBaseMediumHighColor}"
+                            FontSize="11"
+                            Grid.Row="1"
+                            HorizontalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </NavigationView.MenuItemTemplate>
             <NavigationView.MenuItems>
                 <NavigationViewItem  x:Name="LibraryItem"
                     Icon="Library"
@@ -76,30 +109,16 @@
             </NavigationView.MenuItems>
             <NavigationView.MenuItemContainerStyle>
                 <Style TargetType="NavigationViewItem">
-                    <Setter Property="Margin" Value="10,0" />
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Padding" Value="0" />
                 </Style>
             </NavigationView.MenuItemContainerStyle>
             <NavigationView.Content>
-                <Grid Margin="54,24">
-                    <Frame
-                        x:Name="NavigationFrame"
-                        Navigated="NavigationFrame_OnNavigated" />
-                </Grid>
+                <Frame
+                    x:Name="NavigationFrame"
+                    Navigated="NavigationFrame_OnNavigated" />
             </NavigationView.Content>
         </NavigationView>
-
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="1440" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="NavigationView.PaneDisplayMode" Value="Top"/>
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
         
     </Grid>
 </Window>

@@ -18,37 +18,84 @@
     <Page.DataContext>
         <pageViewModels:PluginsPageViewModel x:Name="ViewModel"/>
     </Page.DataContext>
-    
-    <!--<interactivity:Interaction.Behaviors>
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="HeaderHeight.Height" Value="48"/>
+                        <Setter Target="PluginPageGrid.Margin" Value="24,12"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="HeaderHeight.Height" Value="48"/>
+                        <Setter Target="PluginPageGrid.Margin" Value="48,24"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid x:Name="PluginPageGrid">
+            <!--<interactivity:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Loaded">
             <core:InvokeCommandAction Command="{x:Bind ViewModel.LoadDocsCommand}" CommandParameter="Introduction"/>
         </core:EventTriggerBehavior>
     </interactivity:Interaction.Behaviors>-->
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="HeaderHeight" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid>
+                <TextBlock
+                    Text="Available Packages"
+                    FontWeight="{ThemeResource HubHeaderThemeFontWeight}"
+                    FontSize="{ThemeResource HubHeaderThemeFontSize}"/>
+            </Grid>
+            <Grid Grid.Row="1">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="All" Style="{ThemeResource AccentButtonStyle}"/>
+                    <Button Content="Apps" />
+                    <Button Content="Utilities" />
+                </StackPanel>
+                <DropDownButton Content="Sort by date" HorizontalAlignment="Right"/>
+            </Grid>
 
-        <ScrollViewer VerticalScrollBarVisibility="Visible">
-            <ItemsControl ItemsSource="{x:Bind ViewModel.Packages}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical" Spacing="10"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="viewmodels:PackageViewModel">
-                    
-                    <Border Background="#30808080" CornerRadius="5">
-                        <Grid
+            <ScrollViewer Grid.Row="2" Margin="-1">
+                <ItemsControl ItemsSource="{x:Bind ViewModel.Packages}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" Spacing="10"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodels:PackageViewModel">
+
+                            <Border Background="#323232" CornerRadius="5" BorderBrush="#232323" BorderThickness="1" Margin="0">
+                                <Grid
                             ColumnSpacing="8"
-                            Padding="20,12,20,16">
+                            Padding="20,16,20,16">
 
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="20*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                            <!-- Text -->
-                            <StackPanel Grid.Column="0">
-                                <TextBlock 
+                                    <Border Background="#3b3b3b" CornerRadius="5" Height="60" Width="60" Margin="0,0,6,0" VerticalAlignment="Top"/>
+
+                                    <!-- Text -->
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock 
                                     Text="{x:Bind sys:String.Format({x:Null}, '{0} | Version {1}', Id, Version)}"
                                     FontSize="{ThemeResource GridViewHeaderItemThemeFontSize}"
                                     FontWeight="SemiBold"
@@ -56,7 +103,7 @@
                                     VerticalAlignment="Center"/>
 
 
-                                <TextBlock 
+                                        <TextBlock 
                                     Text="{x:Bind Description}"
                                     Foreground="{ThemeResource SystemBaseMediumHighColor}"
                                     FontSize="{ThemeResource ContentControlFontSize}"
@@ -64,32 +111,32 @@
                                     TextWrapping="WrapWholeWords"
                                     VerticalAlignment="Center"/>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                    <ItemsControl x:Name="TopicButtons" ItemsSource="{x:Bind Topics}" Margin="0,0,6,0">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal" Spacing="6"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Background="{ThemeResource SystemAccentColor}" CornerRadius="3" Height="24" Padding="6,0">
-                                                    <TextBlock
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <ItemsControl x:Name="TopicButtons" ItemsSource="{x:Bind Topics}" Margin="0,0,6,0">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="6"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="{ThemeResource SystemAccentColor}" CornerRadius="3" Height="24" Padding="6,0">
+                                                            <TextBlock
                                                         Text="{Binding}"
                                                         FontSize="{ThemeResource ToolTipContentThemeFontSize}"
                                                         VerticalAlignment="Center"
                                                         LineStackingStrategy="BlockLineHeight"/>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                        <interactivity:Interaction.Behaviors>
-                                            <core:DataTriggerBehavior Binding="{Binding Topics}" Value="{x:Null}">
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=TopicButtons}" PropertyName="Visibility" Value="Collapsed"/>
-                                            </core:DataTriggerBehavior>
-                                        </interactivity:Interaction.Behaviors>
-                                    </ItemsControl>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                                <interactivity:Interaction.Behaviors>
+                                                    <core:DataTriggerBehavior Binding="{Binding Topics}" Value="{x:Null}">
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=TopicButtons}" PropertyName="Visibility" Value="Collapsed"/>
+                                                    </core:DataTriggerBehavior>
+                                                </interactivity:Interaction.Behaviors>
+                                            </ItemsControl>
 
-                                    <TextBlock 
+                                            <TextBlock 
                                         Text="{x:Bind License}"
                                         x:Name="LicenseText"
                                         FontSize="{ThemeResource ToolTipContentThemeFontSize}"
@@ -102,70 +149,88 @@
                                                 <core:ChangePropertyAction TargetObject="{Binding ElementName=LicenseText}" PropertyName="Visibility" Value="Collapsed"/>
                                             </core:DataTriggerBehavior>
                                         </interactivity:Interaction.Behaviors>
-                                    </TextBlock>
+                                            </TextBlock>
 
-                                </StackPanel>
+                                        </StackPanel>
 
-                            </StackPanel>
+                                    </StackPanel>
 
-                            <!-- Buttons -->
+                                    <!-- Buttons -->
 
-                            <Button Grid.Column="1" x:Name="InstallButton" HorizontalAlignment="Right"
+                                    <Button x:Name="MoreInfo" Grid.Column="2" HorizontalAlignment="Right"
+                                    ToolTipService.ToolTip="Open In New Tab"
+                                    >
+                                        <Button.Content>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Viewbox MaxHeight="10" MaxWidth="12">
+                                                    <SymbolIcon Symbol="Go" />
+                                                </Viewbox>
+                                                <TextBlock Text="More Info" Margin="5,0,0,0"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
+
+                                    <Button x:Name="InstallButton" Grid.Column="3" HorizontalAlignment="Right"
                                     Command="{Binding InstallCommand}"
                                     ToolTipService.ToolTip="Install"
                                     >
-                                <Button.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                            <SymbolIcon Symbol="Download" />
-                                            <TextBlock Text="Download" Margin="5,0,0,0"/>
-                                        </StackPanel>
-                                </Button.Content>
-                            </Button>
+                                        <Button.Content>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Viewbox MaxHeight="12" MaxWidth="12">
+                                                    <SymbolIcon Symbol="Download" />
+                                                </Viewbox>
+                                                <TextBlock Text="Download" Margin="5,0,0,0"/>
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
 
 
-                        <!-- Settings -->
-                            <Button x:Name="SettingsButton" Grid.Column="2" HorizontalAlignment="Right"
+                                    <!-- Settings -->
+                                    <Button x:Name="SettingsButton" Grid.Column="7" HorizontalAlignment="Right"
                                 ToolTipService.ToolTip="More options">
 
-                                <Button.Content>
-                                <StackPanel Orientation="Horizontal">
-                                        <SymbolIcon Symbol="Setting" />
-                                        <TextBlock Text="Settings" Margin="5,0,0,0"/>
-                                    </StackPanel>
-                            </Button.Content>
+                                        <Button.Content>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Viewbox MaxHeight="12" MaxWidth="12">
+                                                    <SymbolIcon Symbol="Setting" />
+                                                </Viewbox>
+                                                <TextBlock Text="Settings" Margin="5,0,0,0"/>
+                                            </StackPanel>
+                                        </Button.Content>
 
-                            <Button.Flyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem Text="Share">
-                                        <MenuFlyoutItem.Icon>
-                                            <FontIcon Glyph="&#xE72D;"/>
-                                        </MenuFlyoutItem.Icon>
-                                        <MenuFlyoutItem.KeyboardAccelerators>
-                                            <KeyboardAccelerator Key="S" Modifiers="Control"/>
-                                        </MenuFlyoutItem.KeyboardAccelerators>
-                                    </MenuFlyoutItem>
-                                    <MenuFlyoutItem Text="Copy" Icon="Copy">
-                                        <MenuFlyoutItem.KeyboardAccelerators>
-                                            <KeyboardAccelerator Key="C" Modifiers="Control"/>
-                                        </MenuFlyoutItem.KeyboardAccelerators>
-                                    </MenuFlyoutItem>
-                                    <MenuFlyoutItem Text="Delete" Icon="Delete">
-                                        <MenuFlyoutItem.KeyboardAccelerators>
-                                            <KeyboardAccelerator Key="Delete" />
-                                        </MenuFlyoutItem.KeyboardAccelerators>
-                                    </MenuFlyoutItem>
-                                    <MenuFlyoutSeparator/>
-                                    <MenuFlyoutItem Text="Rename"/>
-                                    <MenuFlyoutItem Text="Select"/>
-                                </MenuFlyout>
-                            </Button.Flyout>
-                        </Button>
+                                        <Button.Flyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="Share">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE72D;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                    <MenuFlyoutItem.KeyboardAccelerators>
+                                                        <KeyboardAccelerator Key="S" Modifiers="Control"/>
+                                                    </MenuFlyoutItem.KeyboardAccelerators>
+                                                </MenuFlyoutItem>
+                                                <MenuFlyoutItem Text="Copy" Icon="Copy">
+                                                    <MenuFlyoutItem.KeyboardAccelerators>
+                                                        <KeyboardAccelerator Key="C" Modifiers="Control"/>
+                                                    </MenuFlyoutItem.KeyboardAccelerators>
+                                                </MenuFlyoutItem>
+                                                <MenuFlyoutItem Text="Delete" Icon="Delete">
+                                                    <MenuFlyoutItem.KeyboardAccelerators>
+                                                        <KeyboardAccelerator Key="Delete" />
+                                                    </MenuFlyoutItem.KeyboardAccelerators>
+                                                </MenuFlyoutItem>
+                                                <MenuFlyoutSeparator/>
+                                                <MenuFlyoutItem Text="Rename"/>
+                                                <MenuFlyoutItem Text="Select"/>
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
 
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
 </Page>

@@ -29,6 +29,15 @@ namespace gpmWinui
                 new NavigationItemModel(PluginsItem, typeof(PluginsPage), "Available Packages"),
             };
 
+            // add the slot/games like this?
+            //NavigationView.MenuItems.Add(new NavigationViewItemSeparator());
+            //NavigationView.MenuItems.Add(new NavigationViewItem
+            //{
+            //    Content = "My content",
+            //    Icon = new SymbolIcon((Symbol)0xF1AD),
+            //    Tag = "content"
+            //});
+
             NavigationView.SelectedItem = LibraryItem;
             NavigationFrame.Navigate(typeof(LibraryPage));
         }
@@ -40,7 +49,7 @@ namespace gpmWinui
             if (NavigationItems.FirstOrDefault(item => item.Item == args.InvokedItemContainer) is NavigationItemModel item)
             {
                 NavigationFrame.Navigate(item.PageType);
-                NavigationView.Header = item.Name;
+                //NavigationView.Header = item.Name;
             }
         }
 
