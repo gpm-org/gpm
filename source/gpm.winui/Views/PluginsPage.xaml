@@ -8,9 +8,11 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:viewModels="using:gpmWinui.ViewModels.Pages"
     xmlns:pageViewModels="using:gpmWinui.ViewModels.Pages" 
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core" xmlns:viewmodels="using:gpmWinui.ViewModels" xmlns:models="using:gpm.core.Models"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:viewmodels="using:gpmWinui.ViewModels"
+    xmlns:models="using:gpm.core.Models"
+    xmlns:sys="using:System"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     NavigationCacheMode="Enabled">
     
     <Page.DataContext>
@@ -22,92 +24,112 @@
             <core:InvokeCommandAction Command="{x:Bind ViewModel.LoadDocsCommand}" CommandParameter="Introduction"/>
         </core:EventTriggerBehavior>
     </interactivity:Interaction.Behaviors>-->
-    
-    <Grid>
-        
-        <ListView
-            Grid.Row="1"
-            Grid.RowSpan="2"
-            ItemsSource="{x:Bind ViewModel.Packages}"
-            SelectedItem="{x:Bind ViewModel.SelectedPackage, Mode=TwoWay}"
-            ScrollViewer.CanContentRenderOutsideBounds="True">
-            
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="Background" Value="#30808080"/>
-                    <Setter Property="Margin" Value="0,2,0,2"/>
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                </Style>
-            </ListView.ItemContainerStyle>
-            
-            <ListView.ItemTemplate>
+
+        <ScrollViewer VerticalScrollBarVisibility="Visible">
+            <ItemsControl ItemsSource="{x:Bind ViewModel.Packages}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" Spacing="10"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="viewmodels:PackageViewModel">
-                    <Grid
-                        ColumnSpacing="8"
-                        RowSpacing="8"
-                        Padding="16">
+                    
+                    <Border Background="#30808080" CornerRadius="5">
+                        <Grid
+                            ColumnSpacing="8"
+                            Padding="20,12,20,16">
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <!-- Title -->
-                        <StackPanel Grid.Column="0">
-                            <StackPanel Orientation="Horizontal" Spacing="15">
+                            <!-- Text -->
+                            <StackPanel Grid.Column="0">
                                 <TextBlock 
-                                Text="{x:Bind Id}"
-                                FontSize="15"
-                                FontWeight="SemiBold"
-                                TextWrapping="WrapWholeWords"
-                                VerticalAlignment="Center"/>
+                                    Text="{x:Bind sys:String.Format({x:Null}, '{0} | Version {1}', Id, Version)}"
+                                    FontSize="{ThemeResource GridViewHeaderItemThemeFontSize}"
+                                    FontWeight="SemiBold"
+                                    TextWrapping="WrapWholeWords"
+                                    VerticalAlignment="Center"/>
 
-                                <TextBlock 
-                                Text="|"
-                                FontSize="15"
-                                FontWeight="SemiBold"
-                                TextWrapping="WrapWholeWords"
-                                VerticalAlignment="Center"/>
 
                                 <TextBlock 
-                                Text="TBD Version"
-                                FontSize="15"
-                                FontWeight="SemiBold"
-                                TextWrapping="WrapWholeWords"
-                                VerticalAlignment="Center"/>
+                                    Text="{x:Bind Description}"
+                                    Foreground="{ThemeResource SystemBaseMediumHighColor}"
+                                    FontSize="{ThemeResource ContentControlFontSize}"
+                                    FontWeight="Normal"
+                                    TextWrapping="WrapWholeWords"
+                                    VerticalAlignment="Center"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <ItemsControl x:Name="TopicButtons" ItemsSource="{x:Bind Topics}" Margin="0,0,6,0">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" Spacing="6"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{ThemeResource SystemAccentColor}" CornerRadius="3" Height="24" Padding="6,0">
+                                                    <TextBlock
+                                                        Text="{Binding}"
+                                                        FontSize="{ThemeResource ToolTipContentThemeFontSize}"
+                                                        VerticalAlignment="Center"
+                                                        LineStackingStrategy="BlockLineHeight"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:DataTriggerBehavior Binding="{Binding Topics}" Value="{x:Null}">
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=TopicButtons}" PropertyName="Visibility" Value="Collapsed"/>
+                                            </core:DataTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </ItemsControl>
+
+                                    <TextBlock 
+                                        Text="{x:Bind License}"
+                                        x:Name="LicenseText"
+                                        FontSize="{ThemeResource ToolTipContentThemeFontSize}"
+                                        Foreground="{ThemeResource SystemAccentColorLight1}"
+                                        FontWeight="Normal"
+                                        LineStackingStrategy="BlockLineHeight"
+                                        VerticalAlignment="Center">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:DataTriggerBehavior Binding="{Binding License}" Value="">
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=LicenseText}" PropertyName="Visibility" Value="Collapsed"/>
+                                            </core:DataTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                    </TextBlock>
+
+                                </StackPanel>
+
                             </StackPanel>
 
-                            <TextBlock 
-                            Text="{x:Bind Url}"
-                            FontSize="13"
-                            FontWeight="Normal"
-                            TextWrapping="WrapWholeWords"
-                            VerticalAlignment="Center"/>
-                        </StackPanel>
+                            <!-- Buttons -->
 
-                        <!-- Buttons -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" >
-
-                            <Button x:Name="InstallButton" Grid.Column="0" Margin="0,0,50,0"
+                            <Button Grid.Column="1" x:Name="InstallButton" HorizontalAlignment="Right"
                                     Command="{Binding InstallCommand}"
                                     >
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
-                                        <SymbolIcon Symbol="Download" />
-                                    </StackPanel>
+                                            <SymbolIcon Symbol="Download" />
+                                            <TextBlock Text="Download" Margin="5,0,0,0"/>
+                                        </StackPanel>
                                 </Button.Content>
                             </Button>
 
-                        </StackPanel>
 
                         <!-- Settings -->
-                        <Button x:Name="SettingsButton" Grid.Column="2">
+                        <Button x:Name="SettingsButton" Grid.Column="2" HorizontalAlignment="Right">
 
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Setting" />
-                                </StackPanel>
+                                        <SymbolIcon Symbol="Setting" />
+                                        <TextBlock Text="Settings" Margin="5,0,0,0"/>
+                                    </StackPanel>
                             </Button.Content>
 
                             <Button.Flyout>
@@ -137,9 +159,11 @@
                             </Button.Flyout>
                         </Button>
 
-                    </Grid>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </Grid>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
 </Page>

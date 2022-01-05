@@ -20,10 +20,13 @@ namespace gpmWinui
         {
             this.InitializeComponent();
 
+            ExtendsContentIntoTitleBar = true;
+            SetTitleBar(NiceTitleBar);
+
             NavigationItems = new[]
             {
-                new NavigationItemModel(AppsItem, typeof(AppsPage)),
-                new NavigationItemModel(PluginsItem, typeof(PluginsPage), "ObservableObject"),
+                new NavigationItemModel(AppsItem, typeof(AppsPage), "Installed Packages"),
+                new NavigationItemModel(PluginsItem, typeof(PluginsPage), "Available Packages"),
             };
 
             NavigationView.SelectedItem = AppsItem;
@@ -34,9 +37,10 @@ namespace gpmWinui
         // Navigates to a page when a button is clicked
         private void NavigationView_OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            if (NavigationItems.FirstOrDefault(item => item.Item == args.InvokedItemContainer)?.PageType is Type pageType)
+            if (NavigationItems.FirstOrDefault(item => item.Item == args.InvokedItemContainer) is NavigationItemModel item)
             {
-                NavigationFrame.Navigate(pageType);
+                NavigationFrame.Navigate(item.PageType);
+                NavigationView.Header = item.Name;
             }
         }
 

@@ -33,6 +33,8 @@
                     <Thickness x:Key="SearchBoxBorderThickness">0</Thickness>
                     <Thickness x:Key="ControlExampleDisplayBorderThickness">0</Thickness>
                     <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="WindowCaptionBackground" Color="#202020"/>
+                    <SolidColorBrush x:Key="WindowCaptionBackgroundDisabled" Color="#202020"/>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="HighContrast">
                     <SolidColorBrush x:Key="HomePageBackgroundBrush" Color="{ThemeResource SystemColorWindowColor}" />
@@ -46,7 +48,7 @@
             </ResourceDictionary.ThemeDictionaries>
 
 
-            
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
