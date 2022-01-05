@@ -42,7 +42,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Grid
+        <ContentControl
             x:Name="NiceTitleBar"
             Padding="0,0">
             <TextBlock
@@ -52,9 +52,9 @@
                 Text="Github Package Manager"
                 Foreground="{ThemeResource SystemBaseMediumColor}"
                 VerticalAlignment="Top"/>
-        </Grid>
+        </ContentControl>
         
-        <Grid x:Name="TitleBarOverlay" Margin="8" VerticalAlignment="Center" Background="Transparent">
+        <Grid x:Name="TitleBarOverlay" Margin="8" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"  />
                 <ColumnDefinition Width="2*"  />
