@@ -12,11 +12,11 @@ namespace gpmWinui.ViewModels.Pages;
 /// <summary>
 /// View model for available packages
 /// </summary>
-public class PluginsPageViewModel : PageViewModel
+public class PackagesPageViewModel : PageViewModel
 {
     private readonly IDataBaseService _dataBaseService = Ioc.Default.GetRequiredService<IDataBaseService>();
 
-    public PluginsPageViewModel()
+    public PackagesPageViewModel()
     {
         ReloadTaskCommand = new RelayCommand(ReloadTask);
 

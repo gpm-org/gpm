@@ -17,7 +17,7 @@
   <ItemGroup>
     <None Remove="Shell.xaml" />
     <None Remove="Views\LibraryPage.xaml" />
-    <None Remove="Views\PluginsPage.xaml" />
+    <None Remove="Views\PackagesPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,7 +53,7 @@
     <ProjectReference Include="..\gpm.core\gpm.core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\PluginsPage.xaml">
+    <Page Update="Views\PackagesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

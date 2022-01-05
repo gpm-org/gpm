@@ -25,8 +25,8 @@ namespace gpmWinui
 
             NavigationItems = new[]
             {
-                new NavigationItemModel(LibraryItem, typeof(LibraryPage), "Installed Packages"),
-                new NavigationItemModel(PluginsItem, typeof(PluginsPage), "Available Packages"),
+                new NavigationItemModel(LibraryItem, typeof(LibraryPage)),
+                new NavigationItemModel(PackagesItem, typeof(PackagesPage), "ObservableObject"),
             };
 
             // add the slot/games like this?

@@ -98,21 +98,25 @@
                 </DataTemplate>
             </NavigationView.MenuItemTemplate>
             <NavigationView.MenuItems>
+                <NavigationViewItem  x:Name="PackagesItem"
+                    Icon="Play"
+                    Content="Packages"
+                    ToolTipService.ToolTip="Packages"/>
+                <NavigationViewItemSeparator/>
+            </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
                 <NavigationViewItem  x:Name="LibraryItem"
                     Icon="Library"
                     Content="Library"
                     ToolTipService.ToolTip="Library"/>
-                <NavigationViewItem  x:Name="PluginsItem"
-                    Icon="Download"
-                    Content="Available"
-                    ToolTipService.ToolTip="Plugins"/>
-            </NavigationView.MenuItems>
+            </NavigationView.FooterMenuItems>
             <NavigationView.MenuItemContainerStyle>
                 <Style TargetType="NavigationViewItem">
                     <Setter Property="Margin" Value="0" />
                     <Setter Property="Padding" Value="0" />
                 </Style>
             </NavigationView.MenuItemContainerStyle>
+           
             <NavigationView.Content>
                 <Frame
                     x:Name="NavigationFrame"
