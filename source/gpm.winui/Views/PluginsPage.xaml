@@ -91,6 +91,7 @@
 
                             <Button x:Name="InstallButton" Grid.Column="0" Margin="0,0,50,0"
                                     Command="{Binding InstallCommand}"
+                                    ToolTipService.ToolTip="Install"
                                     >
                                 <Button.Content>
                                     <StackPanel Orientation="Horizontal">
@@ -102,7 +103,8 @@
                         </StackPanel>
 
                         <!-- Settings -->
-                        <Button x:Name="SettingsButton" Grid.Column="2">
+                        <Button x:Name="SettingsButton" Grid.Column="2"
+                                ToolTipService.ToolTip="More options">
 
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">

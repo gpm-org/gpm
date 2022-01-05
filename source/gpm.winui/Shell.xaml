@@ -48,10 +48,10 @@
                         >
             
             <NavigationView.MenuItems>
-                <NavigationViewItem  x:Name="AppsItem"
-                    Icon="AllApps"
-                    Content="Apps"
-                    ToolTipService.ToolTip="Apps"/>
+                <NavigationViewItem  x:Name="LibraryItem"
+                    Icon="Library"
+                    Content="Library"
+                    ToolTipService.ToolTip="Library"/>
                 <NavigationViewItemSeparator/>
                 <NavigationViewItem  x:Name="PluginsItem"
                     Icon="Play"

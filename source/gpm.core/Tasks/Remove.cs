@@ -11,8 +11,8 @@ namespace gpm.Tasks
 {
     /// <summary>
     /// To uninstall a global tool that was installed in the default location, use the --global option.
-    /// To uninstall a global tool that was installed in a custom location, use the --tool-path option.
-    /// To uninstall a local tool, omit the --global and --tool-path options.
+    /// To uninstall a global tool that was installed in a custom location, use the --path option.
+    /// To uninstall a local tool, omit the --global and --path options.
     /// </summary>
     public partial class TaskService
     {

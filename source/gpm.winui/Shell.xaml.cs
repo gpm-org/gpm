@@ -22,12 +22,12 @@ namespace gpmWinui
 
             NavigationItems = new[]
             {
-                new NavigationItemModel(AppsItem, typeof(AppsPage)),
+                new NavigationItemModel(LibraryItem, typeof(LibraryPage)),
                 new NavigationItemModel(PluginsItem, typeof(PluginsPage), "ObservableObject"),
             };
 
-            NavigationView.SelectedItem = AppsItem;
-            NavigationFrame.Navigate(typeof(AppsPage));
+            NavigationView.SelectedItem = LibraryItem;
+            NavigationFrame.Navigate(typeof(LibraryPage));
         }
 
 
@@ -61,8 +61,8 @@ namespace gpmWinui
         // unused
         private void Shell_OnLoaded(object sender, RoutedEventArgs e)
         {
-            NavigationView.SelectedItem = AppsItem;
-            NavigationFrame.Navigate(typeof(AppsPage));
+            NavigationView.SelectedItem = LibraryItem;
+            NavigationFrame.Navigate(typeof(LibraryPage));
         }
     }
 }

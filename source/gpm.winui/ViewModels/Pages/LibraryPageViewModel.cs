@@ -16,11 +16,11 @@ namespace gpmWinui.ViewModels.Pages;
 /// <summary>
 /// View model for installed packages
 /// </summary>
-public sealed class AppsPageViewModel : ObservableRecipient
+public sealed class LibraryPageViewModel : ObservableRecipient
 {
     private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
 
-    public AppsPageViewModel()
+    public LibraryPageViewModel()
     {
         //_libraryService.PropertyChanged += LibraryService_PropertyChanged;
 
