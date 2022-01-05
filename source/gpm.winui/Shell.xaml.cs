@@ -38,8 +38,8 @@ namespace gpmWinui
             //    Tag = "content"
             //});
 
-            NavigationView.SelectedItem = LibraryItem;
-            NavigationFrame.Navigate(typeof(LibraryPage));
+            NavigationView.SelectedItem = PackagesItem;
+            NavigationFrame.Navigate(typeof(PackagesPage));
         }
 
 

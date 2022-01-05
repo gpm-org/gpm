@@ -78,14 +78,14 @@
                         Grid.Row="1">
             <NavigationView.MenuItemTemplate>
                 <DataTemplate>
-                    <Grid HorizontalAlignment="Stretch" Margin="0,4,0,8">
+                    <Grid HorizontalAlignment="Stretch" Margin="-4,2,-12,4">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Viewbox
                             Grid.Row="0"
-                            Margin="6">
+                            Margin="10,5">
                             <SymbolIcon Symbol="{Binding Icon.Symbol}" Foreground="{ThemeResource SystemBaseMediumHighColor}"/>
                         </Viewbox>
                         <TextBlock
@@ -99,10 +99,9 @@
             </NavigationView.MenuItemTemplate>
             <NavigationView.MenuItems>
                 <NavigationViewItem  x:Name="PackagesItem"
-                    Icon="Play"
+                    Icon="AllApps"
                     Content="Packages"
                     ToolTipService.ToolTip="Packages"/>
-                <NavigationViewItemSeparator/>
             </NavigationView.MenuItems>
             <NavigationView.FooterMenuItems>
                 <NavigationViewItem  x:Name="LibraryItem"
