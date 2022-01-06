@@ -1,12 +1,7 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using gpm.Core.Models;
 using ProtoBuf;
-using Serilog;
 
 namespace gpm.Core.Services
 {
@@ -128,7 +123,7 @@ namespace gpm.Core.Services
             slot = model.Slots.FirstOrDefault(x => x.Value.IsDefault.HasValue && x.Value.IsDefault.Value == true).Value;
             return slot is not null;
         }
-            
+
 
         public PackageModel GetOrAdd(Package package)
         {

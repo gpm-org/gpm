@@ -6,8 +6,8 @@ using gpm.Core.Services;
 using gpm.Core.Util.Builders;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Serilog;
 using static gpm.Tests.Common;
 
 namespace gpm.Tests

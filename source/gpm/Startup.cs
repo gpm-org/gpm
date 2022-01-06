@@ -1,8 +1,8 @@
 using gpm.Core;
 using gpm.Core.Models;
 using gpm.Core.Services;
-using gpm.Services;
 using gpm.Core.Tasks;
+using gpm.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;

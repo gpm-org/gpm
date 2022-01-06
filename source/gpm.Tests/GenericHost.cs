@@ -3,7 +3,6 @@ using gpm.Core.Services;
 using gpm.Core.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 
 namespace gpm.Tests
 {

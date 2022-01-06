@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-
 namespace gpm.Core.Extensions
 {
     public static class FileS

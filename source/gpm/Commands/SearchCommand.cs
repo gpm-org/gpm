@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Linq;
 using gpm.Core.Extensions;
 using gpm.Core.Models;
 using gpm.Core.Services;
-using gpm.Core.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;

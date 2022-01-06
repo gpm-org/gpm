@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using gpm.Core.Exceptions;
 using gpm.Core.Extensions;
 using gpm.Core.Models;

@@ -1,13 +1,7 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using gpm.Core.Exceptions;
 using gpm.Core.Extensions;
 using gpm.Core.Models;
 using gpm.Core.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace gpm.Core.Tasks
@@ -146,7 +140,7 @@ namespace gpm.Core.Tasks
                 return true;
             }
 
-            
+
         }
 
         /// <summary>

@@ -1,7 +1,3 @@
-using System;
-using gpm.Core.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace gpm.Core.Tasks

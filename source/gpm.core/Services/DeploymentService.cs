@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using gpm.Core.Exceptions;
 using gpm.Core.Extensions;
 using gpm.Core.Models;
@@ -217,7 +211,7 @@ namespace gpm.Core.Services
                     : EContentType.SingleFile;
 
                 Log.Warning($"[{package}] `ContentType` property is not set in '{assetCachePath}', determined type based on file extension. Here be dragons.");
-            } 
+            }
 
             if (package.ContentType == EContentType.SingleFile)
             {
@@ -251,7 +245,7 @@ namespace gpm.Core.Services
 
                 return false;
             }
-           
+
             // update library
             slotManifest.Version = version;
             slotManifest.Files = installedFiles;
@@ -376,7 +370,7 @@ namespace gpm.Core.Services
             {
                 if (File.Exists(lockFilePath))
                 {
-                   FileS.TryDeleteFile(lockFilePath);
+                    FileS.TryDeleteFile(lockFilePath);
                 }
             }
 

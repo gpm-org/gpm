@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using ProtoBuf;
 
 namespace gpm.Core.Models

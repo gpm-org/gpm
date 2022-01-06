@@ -1,12 +1,6 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using gpm.Core.Exceptions;
 using gpm.Core.Extensions;
 using gpm.Core.Models;
-using gpm.Core.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace gpm.Core.Tasks
@@ -138,7 +132,7 @@ namespace gpm.Core.Tasks
             }
 
             // update to new version
-            model.Slots.AddOrUpdate(slotIdx, new SlotManifest() {FullPath = installPath});
+            model.Slots.AddOrUpdate(slotIdx, new SlotManifest() { FullPath = installPath });
             Log.Information("[{Package}] Updating package ...", package);
             if (await _deploymentService.InstallReleaseAsync(package, releases, version, slotIdx))
             {

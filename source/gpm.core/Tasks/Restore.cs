@@ -1,13 +1,6 @@
-using System;
-using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using gpm.Core;
 using gpm.Core.Models;
-using gpm.Core.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace gpm.Core.Tasks

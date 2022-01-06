@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace gpm.Core.Models
 {
     public sealed class PackageLock

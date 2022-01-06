@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using gpm.Core.Extensions;
 using gpm.Core.Models;
 using Octokit;
