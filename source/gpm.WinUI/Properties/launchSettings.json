@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "gpmWinui (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "gpmWinui (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
