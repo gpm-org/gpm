@@ -28,9 +28,21 @@ namespace gpmWinui.Views
             this.InitializeComponent();
         }
 
-        private void InstallButton_Click(object sender, RoutedEventArgs e)
+        private void OpenInNewTab(object sender, RoutedEventArgs e)
         {
+            VisualStateManager.GoToState(PackageTabView, "ShowTabs", true);
+            PackageTabView.TabItems.Add(new TabViewItem()
+            {
+                Header = "Just an example"
+            });
+        }
 
+        // Remove the requested tab from the TabView
+        private void Tabs_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
+        {
+            sender.TabItems.Remove(args.Tab);
+            if (PackageTabView.TabItems.Count == 1)
+                VisualStateManager.GoToState(PackageTabView, "HideTabs", true);
         }
     }
 }

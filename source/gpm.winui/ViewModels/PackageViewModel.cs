@@ -58,6 +58,12 @@ namespace gpmWinui.ViewModels
 
         public string? Url => _model.Url;
 
+        public string Description => _model.Description ?? "no description";
+
+        public string[]? Topics => _model.Topics;
+
+        public string License => _model.License ?? "";
+
         public bool IsInstalled => _libraryService.IsInstalled(_model.Id);
 
         public bool IsNotInstalled => !IsInstalled;

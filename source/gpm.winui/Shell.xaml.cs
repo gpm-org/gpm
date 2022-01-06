@@ -20,23 +20,36 @@ namespace gpmWinui
         {
             this.InitializeComponent();
 
+            ExtendsContentIntoTitleBar = true;
+            SetTitleBar(NiceTitleBar);
+
             NavigationItems = new[]
             {
                 new NavigationItemModel(LibraryItem, typeof(LibraryPage)),
                 new NavigationItemModel(PackagesItem, typeof(PackagesPage), "ObservableObject"),
             };
 
-            NavigationView.SelectedItem = LibraryItem;
-            NavigationFrame.Navigate(typeof(LibraryPage));
+            // add the slot/games like this?
+            //NavigationView.MenuItems.Add(new NavigationViewItemSeparator());
+            //NavigationView.MenuItems.Add(new NavigationViewItem
+            //{
+            //    Content = "My content",
+            //    Icon = new SymbolIcon((Symbol)0xF1AD),
+            //    Tag = "content"
+            //});
+
+            NavigationView.SelectedItem = PackagesItem;
+            NavigationFrame.Navigate(typeof(PackagesPage));
         }
 
 
         // Navigates to a page when a button is clicked
         private void NavigationView_OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            if (NavigationItems.FirstOrDefault(item => item.Item == args.InvokedItemContainer)?.PageType is Type pageType)
+            if (NavigationItems.FirstOrDefault(item => item.Item == args.InvokedItemContainer) is NavigationItemModel item)
             {
-                NavigationFrame.Navigate(pageType);
+                NavigationFrame.Navigate(item.PageType);
+                //NavigationView.Header = item.Name;
             }
         }
 

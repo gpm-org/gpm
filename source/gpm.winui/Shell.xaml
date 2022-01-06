@@ -7,7 +7,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:viewmodels="using:gpmWinui.ViewModels"
     mc:Ignorable="d"
-    
     >
     <Grid>
 
@@ -30,7 +29,6 @@
                             </ResourceDictionary>
                         </ResourceDictionary.ThemeDictionaries>
                     </ResourceDictionary>
-                   
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
@@ -39,85 +37,91 @@
             <viewmodels:MainViewModel x:Name="ViewModel"/>
         </Grid.DataContext>
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <ContentControl
+            x:Name="NiceTitleBar"
+            Padding="0,0">
+            <TextBlock
+                FontSize="12"
+                FontWeight="Normal"
+                Margin="15,16,0,0"
+                Text="Github Package Manager"
+                Foreground="{ThemeResource SystemBaseMediumColor}"
+                VerticalAlignment="Top"/>
+        </ContentControl>
+        
+        <Grid x:Name="TitleBarOverlay" Margin="8" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"  />
+                <ColumnDefinition Width="2*"  />
+                <ColumnDefinition Width="1*"  />
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="1" IsEnabled="False" Text="Search"/>
+        </Grid>
+
         <NavigationView x:Name="NavigationView"
                         IsBackEnabled="False"
+                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                        IsBackButtonVisible="Collapsed"
                         IsSettingsVisible="True"
                         ItemInvoked="NavigationView_OnItemInvoked"
                         BackRequested="NavigationView_OnBackRequested"
-                        CompactModeThresholdWidth="50"
-                        
-                        >
-
+                        IsTitleBarAutoPaddingEnabled="False"
+                        IsPaneToggleButtonVisible="False"
+                        CompactModeThresholdWidth="640"
+                        ExpandedModeThresholdWidth="640"
+                        OpenPaneLength="70"
+                        Grid.Row="1">
+            <NavigationView.MenuItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch" Margin="-4,2,-12,4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Viewbox
+                            Grid.Row="0"
+                            Margin="10,5">
+                            <SymbolIcon Symbol="{Binding Icon.Symbol}" Foreground="{ThemeResource SystemBaseMediumHighColor}"/>
+                        </Viewbox>
+                        <TextBlock
+                            Text="{Binding Content}"
+                            Foreground="{ThemeResource SystemBaseMediumHighColor}"
+                            FontSize="11"
+                            Grid.Row="1"
+                            HorizontalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </NavigationView.MenuItemTemplate>
             <NavigationView.MenuItems>
                 <NavigationViewItem  x:Name="PackagesItem"
-                    Icon="Play"
+                    Icon="AllApps"
                     Content="Packages"
                     ToolTipService.ToolTip="Packages"/>
-                <NavigationViewItemSeparator/>
             </NavigationView.MenuItems>
-
             <NavigationView.FooterMenuItems>
                 <NavigationViewItem  x:Name="LibraryItem"
                     Icon="Library"
                     Content="Library"
                     ToolTipService.ToolTip="Library"/>
             </NavigationView.FooterMenuItems>
+            <NavigationView.MenuItemContainerStyle>
+                <Style TargetType="NavigationViewItem">
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                </Style>
+            </NavigationView.MenuItemContainerStyle>
            
             <NavigationView.Content>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!--Navigation frame-->
-                    <Frame
-                        x:Name="NavigationFrame"
-                        Navigated="NavigationFrame_OnNavigated"
-                        Grid.Row="2"/>
-
-                    <!--Acrylic background-->
-                    <Border
-                        Grid.Row="0"
-                        Background="{ThemeResource SystemAccentColorLight3}"/>
-
-                    <StackPanel Grid.Row="0" >
-
-                        <!--Title bar drop shadow-->
-                        <!--<Rectangle Height="32" Fill="#40000000"/>
-                        <Rectangle Height="8" IsHitTestVisible="False">
-                            <Rectangle.Fill>
-                                <LinearGradientBrush EndPoint="0,0" StartPoint="0,1">
-                                    <GradientStop Color="#60000000" Offset="1"/>
-                                    <GradientStop Offset="0"/>
-                                </LinearGradientBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>-->
-
-                        <!--Title-->
-                        <Border Padding="8,8,8,16" >
-                            <TextBlock
-                                Text="gpm UI"
-                                FontWeight="SemiBold"
-                                FontSize="18"
-                                />
-                        </Border>
-                    </StackPanel>
-
-                    <!--Header drop shadow-->
-                    <!--<Rectangle Grid.Row="1" Height="8" IsHitTestVisible="False">
-                        <Rectangle.Fill>
-                            <LinearGradientBrush EndPoint="0,0" StartPoint="0,1">
-                                <GradientStop Color="#60000000" Offset="1"/>
-                                <GradientStop Offset="0"/>
-                            </LinearGradientBrush>
-                        </Rectangle.Fill>
-                    </Rectangle>-->
-                </Grid>
+                <Frame
+                    x:Name="NavigationFrame"
+                    Navigated="NavigationFrame_OnNavigated" />
             </NavigationView.Content>
-
-            
         </NavigationView>
+        
     </Grid>
 </Window>

@@ -11,7 +11,6 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core" 
     xmlns:models="using:gpmWinui.Models" xmlns:models1="using:gpm.core.Models"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     NavigationCacheMode="Enabled"
     >
     
