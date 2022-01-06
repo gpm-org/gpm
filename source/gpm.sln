@@ -12,8 +12,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.Core", "gpm.Core\gpm.Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm", "gpm\gpm.csproj", "{6A02A30F-AE1F-4E12-BEB0-7711F4228149}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.WinUI", "gpm.WinUI\gpm.WinUI.csproj", "{45E29D03-A154-49E8-B1EE-3AF52B71DED1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B83D342C-D814-4671-BA9E-6B68FCF48948}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.Tests", "Tests\gpm.Tests\gpm.Tests.csproj", "{2A8A193A-5FDA-4C46-B785-2D223130B31B}"
