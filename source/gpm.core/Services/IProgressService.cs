@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public interface IProgressService<T> : IProgress<T>, INotifyPropertyChanged
     {

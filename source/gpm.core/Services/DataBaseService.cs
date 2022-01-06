@@ -7,13 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using gpm.core.Models;
-using gpm.core.Util;
+using gpm.Core.Models;
+using gpm.Core.Util;
 using LibGit2Sharp;
 using ProtoBuf;
 using Serilog;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     [ProtoContract]
     public class DataBaseServiceDto

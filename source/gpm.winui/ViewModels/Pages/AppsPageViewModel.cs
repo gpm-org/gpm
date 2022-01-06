@@ -7,9 +7,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using Nito.AsyncEx;
-using gpm.core.Models;
+using gpm.Core.Models;
 using gpmWinui.Services;
-using gpm.core.Services;
+using gpm.Core.Services;
 
 namespace gpmWinui.ViewModels.Pages;
 

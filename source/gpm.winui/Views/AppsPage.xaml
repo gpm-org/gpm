@@ -9,7 +9,7 @@
     xmlns:pageViewModels="using:gpmWinui.ViewModels.Pages" 
     xmlns:viewModels="using:gpmWinui.ViewModels" 
     xmlns:core="using:Microsoft.Xaml.Interactions.Core" 
-    xmlns:models="using:gpmWinui.Models" xmlns:models1="using:gpm.core.Models"
+    xmlns:models="using:gpmWinui.Models" xmlns:models1="using:gpm.Core.Models"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     NavigationCacheMode="Enabled"

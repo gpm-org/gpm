@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using gpm.core.Extensions;
-using gpm.core.Models;
+using gpm.Core.Extensions;
+using gpm.Core.Models;
 using Octokit;
 
-namespace gpm.core.Util.Builders
+namespace gpm.Core.Util.Builders
 {
     public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAsset>, ReleaseAsset>
     {

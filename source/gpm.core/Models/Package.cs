@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using ProtoBuf;
 
-namespace gpm.core.Models
+namespace gpm.Core.Models
 {
     /// <summary>
     /// Model for a plugin

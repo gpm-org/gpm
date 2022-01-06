@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using gpm.core.Models;
-using gpm.core.Services;
+using gpm.Core.Models;
+using gpm.Core.Services;
 using Microsoft.Extensions.Options;
 
 namespace gpm.Services

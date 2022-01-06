@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using gpm.core.Models;
-using gpm.core.Services;
+using gpm.Core.Models;
+using gpm.Core.Services;
 
 namespace gpmWinui.ViewModels.Pages;
 

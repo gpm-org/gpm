@@ -1,8 +1,8 @@
 using System;
 using System.Globalization;
-using gpm.core.Exceptions;
+using gpm.Core.Exceptions;
 
-namespace gpm.core.Extensions
+namespace gpm.Core.Extensions
 {
     public static class StringExtensions
     {

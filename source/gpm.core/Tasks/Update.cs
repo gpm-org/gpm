@@ -1,15 +1,15 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using gpm.core.Exceptions;
-using gpm.core.Extensions;
-using gpm.core.Models;
-using gpm.core.Services;
+using gpm.Core.Exceptions;
+using gpm.Core.Extensions;
+using gpm.Core.Models;
+using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace gpm.Tasks
+namespace gpm.Core.Tasks
 {
     public partial class TaskService
     {

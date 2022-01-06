@@ -2,7 +2,7 @@ using SharpCompress.Archives;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public class ArchiveService : IArchiveService
     {

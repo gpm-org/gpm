@@ -1,4 +1,4 @@
-namespace gpm.core
+namespace gpm.Core
 {
     public enum EContentType
     {

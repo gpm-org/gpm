@@ -4,15 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using gpm.core.Exceptions;
-using gpm.core.Extensions;
-using gpm.core.Models;
-using gpm.core.Util;
+using gpm.Core.Exceptions;
+using gpm.Core.Extensions;
+using gpm.Core.Models;
+using gpm.Core.Util;
 using Nito.AsyncEx;
 using Octokit;
 using Serilog;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     /// <summary>
     /// A service class to handle requests to github

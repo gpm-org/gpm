@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using gpm.core.Services;
+using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace gpm.Tasks
+namespace gpm.Core.Tasks
 {
     /// <summary>
     /// To uninstall a global tool that was installed in the default location, use the --global option.

@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using gpm.core.Models;
+using gpm.Core.Models;
 using ProtoBuf;
 using Serilog;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public sealed class LibraryService : ILibraryService
     {

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace gpm.core.Extensions
+namespace gpm.Core.Extensions
 {
     public static class FileS
     {

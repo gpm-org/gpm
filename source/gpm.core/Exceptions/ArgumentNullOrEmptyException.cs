@@ -1,6 +1,6 @@
 using System;
 
-namespace gpm.core.Exceptions
+namespace gpm.Core.Exceptions
 {
     public sealed class ArgumentNullOrEmptyException : ArgumentNullException
     {

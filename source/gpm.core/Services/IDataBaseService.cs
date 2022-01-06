@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using gpm.core.Models;
+using gpm.Core.Models;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public interface IDataBaseService : IDictionary<string, Package>
     {

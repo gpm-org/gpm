@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ProtoBuf;
 
-namespace gpm.core.Models
+namespace gpm.Core.Models
 {
     /// <summary>
     /// Holds deployment info for specific slots

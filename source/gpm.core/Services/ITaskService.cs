@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public interface ITaskService
     {

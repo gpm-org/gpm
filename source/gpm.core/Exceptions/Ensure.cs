@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace gpm.core.Exceptions
+namespace gpm.Core.Exceptions
 {
     public static class Ensure
     {

@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using gpm.core.Models;
+using gpm.Core.Models;
 using Octokit;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public interface IDeploymentService
     {

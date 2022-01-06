@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public class PercentProgressService : IProgressService<double>
     {

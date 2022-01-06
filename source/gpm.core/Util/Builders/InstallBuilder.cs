@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using gpm.core.Models;
+using gpm.Core.Models;
 
-namespace gpm.core.Util.Builders
+namespace gpm.Core.Util.Builders
 {
     public class InstallBuilder : IPackageBuilder<string, string>
     {

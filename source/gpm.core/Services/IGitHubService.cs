@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using gpm.core.Models;
+using gpm.Core.Models;
 using Octokit;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public interface IGitHubService
     {

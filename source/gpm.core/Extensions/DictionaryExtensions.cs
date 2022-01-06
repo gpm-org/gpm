@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DynamicData.Kernel;
 
-namespace gpm.core.Extensions
+namespace gpm.Core.Extensions
 {
     public static class DictionaryExtensions
     {

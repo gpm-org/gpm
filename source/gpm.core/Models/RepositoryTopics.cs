@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 
-namespace gpm.core.Models
+namespace gpm.Core.Models
 {
     /// <summary>
     /// https://github.com/octokit/octokit.net/blob/356588288e2d07fb4844911f6e03ef129540b124/Octokit/Models/Response/RepositoryTopics.cs

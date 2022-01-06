@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using gpm.core.Models;
-using gpm.core.Services;
-using gpm.Tasks;
+using gpm.Core.Models;
+using gpm.Core.Services;
+using gpm.Core.Tasks;
 
 namespace gpmWinui.ViewModels
 {

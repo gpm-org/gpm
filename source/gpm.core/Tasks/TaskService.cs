@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using gpm.core.Services;
+using gpm.Core.Services;
 
-namespace gpm.Tasks
+namespace gpm.Core.Tasks
 {
     public partial class TaskService : ITaskService
     {

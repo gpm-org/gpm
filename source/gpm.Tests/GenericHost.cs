@@ -1,11 +1,11 @@
-using gpm.core.Models;
-using gpm.core.Services;
-using gpm.Tasks;
+using gpm.Core.Models;
+using gpm.Core.Services;
+using gpm.Core.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace gpm_tests
+namespace gpm.Tests
 {
     internal static class GenericHost
     {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ProtoBuf;
 
-namespace gpm.core.Models
+namespace gpm.Core.Models
 {
     /// <summary>
     /// Model for an installed package

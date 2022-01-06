@@ -2,15 +2,15 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using gpm.core.Services;
-using gpm.core.Util.Builders;
+using gpm.Core.Services;
+using gpm.Core.Util.Builders;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static gpm_tests.Common;
+using static gpm.Tests.Common;
 
-namespace gpm_tests
+namespace gpm.Tests
 {
     [TestClass]
     public class UnitTests

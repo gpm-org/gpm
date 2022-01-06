@@ -4,16 +4,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using gpm.core.Services;
-using static gpm_tests.Common;
-using gpm.Tasks;
+using gpm.Core.Services;
+using static gpm.Tests.Common;
+using gpm.Core.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using gpm.core;
+using gpm.Core;
 
-namespace gpm_tests
+namespace gpm.Tests
 {
     [TestClass]
     public class IntegrationTests

@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace gpm.core.Util
+namespace gpm.Core.Util
 {
     /// <summary>
     /// A scoped stopwatch that will log the elapsed time automatically when exiting scope.

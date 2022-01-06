@@ -58,7 +58,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\gpm.core\gpm.core.csproj" />
+        <ProjectReference Include="..\gpm.Core\gpm.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>

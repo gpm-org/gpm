@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using gpm.core.Services;
+using gpm.Core.Services;
 
 namespace System
 {

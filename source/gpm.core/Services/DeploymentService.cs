@@ -6,15 +6,15 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using gpm.core.Exceptions;
-using gpm.core.Extensions;
-using gpm.core.Models;
-using gpm.core.Util;
-using gpm.core.Util.Builders;
+using gpm.Core.Exceptions;
+using gpm.Core.Extensions;
+using gpm.Core.Models;
+using gpm.Core.Util;
+using gpm.Core.Util.Builders;
 using Octokit;
 using Serilog;
 
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     /// <summary>
     /// A service class for file deployments

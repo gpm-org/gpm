@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace gpm.core.Extensions
+namespace gpm.Core.Extensions
 {
     public static class EnumerableExtensions
     {

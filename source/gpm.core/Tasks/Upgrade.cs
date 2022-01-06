@@ -1,8 +1,8 @@
-using gpm.core.Services;
+using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace gpm.Tasks
+namespace gpm.Core.Tasks
 {
     public partial class TaskService
     {

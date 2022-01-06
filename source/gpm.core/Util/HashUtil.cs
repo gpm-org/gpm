@@ -1,7 +1,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace gpm.core.Util
+namespace gpm.Core.Util
 {
     public static class HashUtil
     {

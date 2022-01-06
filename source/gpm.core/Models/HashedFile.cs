@@ -1,6 +1,6 @@
 using ProtoBuf;
 
-namespace gpm.core.Models
+namespace gpm.Core.Models
 {
     [ProtoContract]
     public sealed record HashedFile

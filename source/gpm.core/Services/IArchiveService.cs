@@ -1,4 +1,4 @@
-namespace gpm.core.Services
+namespace gpm.Core.Services
 {
     public interface IArchiveService
     {
