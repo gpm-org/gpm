@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.WinUI", "gpm.WinUI\gpm.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B83D342C-D814-4671-BA9E-6B68FCF48948}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.Tests", "gpm.Tests\gpm.Tests.csproj", "{2A8A193A-5FDA-4C46-B785-2D223130B31B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.Tests", "Tests\gpm.Tests\gpm.Tests.csproj", "{2A8A193A-5FDA-4C46-B785-2D223130B31B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
