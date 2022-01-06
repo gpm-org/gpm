@@ -1,10 +1,9 @@
-namespace gpm.Core
+namespace gpm.Core;
+
+public enum EContentType
 {
-    public enum EContentType
-    {
-        SingleFile,
-        ZipArchive,
-        SevenZipArchive,
-        Archive
-    }
+    SingleFile,
+    ZipArchive,
+    SevenZipArchive,
+    Archive
 }

@@ -1,31 +1,30 @@
 using Serilog;
 
-namespace gpm.Core.Tasks
+namespace gpm.Core.Tasks;
+
+public partial class TaskService
 {
-    public partial class TaskService
+    /// <summary>
+    /// Lists all installed packages
+    /// TODO: make this only available globally, and don't save local packages to the library?
+    /// </summary>
+    /// <param name="host"></param>
+    public void List()
     {
-        /// <summary>
-        /// Lists all installed packages
-        /// TODO: make this only available globally, and don't save local packages to the library?
-        /// </summary>
-        /// <param name="host"></param>
-        public void List()
+        Log.Information("Installed packages:");
+
+        foreach (var (key, model) in _libraryService)
         {
-            Log.Information("Installed packages:");
-
-            foreach (var (key, model) in _libraryService)
+            if (!_libraryService.IsInstalled(key))
             {
-                if (!_libraryService.IsInstalled(key))
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                Console.WriteLine("{0}", model.Key);
-                foreach (var (slotIdx, manifest) in model.Slots)
-                {
-                    // print installed slots
-                    Console.WriteLine("[Slot {0}]\t{1}\t{2}", slotIdx.ToString(), manifest.Version, manifest.FullPath);
-                }
+            Console.WriteLine("{0}", model.Key);
+            foreach (var (slotIdx, manifest) in model.Slots)
+            {
+                // print installed slots
+                Console.WriteLine("[Slot {0}]\t{1}\t{2}", slotIdx.ToString(), manifest.Version, manifest.FullPath);
             }
         }
     }

@@ -1,9 +1,8 @@
-namespace gpm.Core.Models
-{
-    public sealed class PackageLock
-    {
-        public int Version { get; set; } = 1;
+namespace gpm.Core.Models;
 
-        public List<PackageMeta> Packages { get; set; } = new();
-    }
+public sealed class PackageLock
+{
+    public int Version { get; set; } = 1;
+
+    public List<PackageMeta> Packages { get; set; } = new();
 }

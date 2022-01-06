@@ -1,12 +1,9 @@
-namespace gpm.Core.Tasks
-{
-    public partial class TaskService
-    {
-        public void Upgrade()
-        {
-            // TODO: check if git is installed
+namespace gpm.Core.Tasks;
 
-            _dataBaseService.FetchAndUpdateSelf();
-        }
-    }
+public partial class TaskService
+{
+    public void Upgrade() =>
+        // TODO: check if git is installed
+
+        _dataBaseService.FetchAndUpdateSelf();
 }
