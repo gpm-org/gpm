@@ -1,32 +1,26 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using gpm.core.Services;
+using gpm.Core.Services;
 
-namespace gpm.Tasks
+namespace gpm.Core.Tasks;
+
+public partial class TaskService : ITaskService
 {
-    public partial class TaskService : ITaskService
+    protected readonly IDataBaseService _dataBaseService;
+    protected readonly ILibraryService _libraryService;
+    protected readonly IGitHubService _gitHubService;
+    protected readonly IDeploymentService _deploymentService;
+
+    public TaskService(
+        IDataBaseService dataBaseService,
+        ILibraryService libraryService,
+        IGitHubService gitHubService,
+        IDeploymentService deploymentService
+        )
     {
-        protected readonly IDataBaseService _dataBaseService;
-        protected readonly ILibraryService _libraryService;
-        protected readonly IGitHubService _gitHubService;
-        protected readonly IDeploymentService _deploymentService;
-
-        public TaskService(
-            IDataBaseService dataBaseService,
-            ILibraryService libraryService,
-            IGitHubService gitHubService,
-            IDeploymentService deploymentService
-            )
-        {
-            _dataBaseService = dataBaseService;
-            _libraryService = libraryService;
-            _gitHubService = gitHubService;
-            _deploymentService = deploymentService;
-        }
-
-
+        _dataBaseService = dataBaseService;
+        _libraryService = libraryService;
+        _gitHubService = gitHubService;
+        _deploymentService = deploymentService;
     }
+
+
 }

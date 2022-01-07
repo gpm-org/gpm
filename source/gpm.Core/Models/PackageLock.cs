@@ -1,11 +1,8 @@
-using System.Collections.Generic;
+namespace gpm.Core.Models;
 
-namespace gpm.core.Models
+public sealed class PackageLock
 {
-    public sealed class PackageLock
-    {
-        public int Version { get; set; } = 1;
+    public int Version { get; set; } = 1;
 
-        public List<PackageMeta> Packages { get; set; } = new();
-    }
+    public List<PackageMeta> Packages { get; set; } = new();
 }

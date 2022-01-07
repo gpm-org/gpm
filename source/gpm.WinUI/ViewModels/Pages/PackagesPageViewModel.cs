@@ -4,15 +4,19 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using gpm.core.Models;
-using gpm.core.Services;
+using gpm.Core.Models;
+using gpm.Core.Services;
 
 namespace gpmWinui.ViewModels.Pages;
 
 /// <summary>
 /// View model for available packages
 /// </summary>
+<<<<<<<< HEAD:source/gpm.WinUI/ViewModels/Pages/PackagesPageViewModel.cs
 public class PackagesPageViewModel : PageViewModel
+========
+public class PluginsPageViewModel : PageViewModel
+>>>>>>>> 4d750146b1e05d25c9a472abb6a93fb32bca1f4b:source/gpm.WinUI/ViewModels/Pages/PluginsPageViewModel.cs
 {
     private readonly IDataBaseService _dataBaseService = Ioc.Default.GetRequiredService<IDataBaseService>();
 

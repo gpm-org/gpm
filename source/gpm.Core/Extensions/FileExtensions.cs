@@ -1,28 +1,24 @@
-using System;
-using System.IO;
+namespace gpm.Core.Extensions;
 
-namespace gpm.core.Extensions
+public static class FileS
 {
-    public static class FileS
+    /// <summary>
+    /// Tries to delete a file
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="action"></param>
+    /// <returns>false if an error was thrown</returns>
+    public static bool TryDeleteFile(string path, Action? action = null)
     {
-        /// <summary>
-        /// Tries to delete a file
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="action"></param>
-        /// <returns>false if an error was thrown</returns>
-        public static bool TryDeleteFile(string path, Action? action = null)
+        try
         {
-            try
-            {
-                File.Delete(path);
-                return true;
-            }
-            catch (Exception)
-            {
-                action?.Invoke();
-                return false;
-            }
+            File.Delete(path);
+            return true;
+        }
+        catch (Exception)
+        {
+            action?.Invoke();
+            return false;
         }
     }
 }

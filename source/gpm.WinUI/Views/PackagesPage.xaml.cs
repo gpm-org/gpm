@@ -28,6 +28,7 @@ namespace gpmWinui.Views
             this.InitializeComponent();
         }
 
+<<<<<<<< HEAD:source/gpm.WinUI/Views/PackagesPage.xaml.cs
         private void OpenInNewTab(object sender, RoutedEventArgs e)
         {
             VisualStateManager.GoToState(PackageTabView, "ShowTabs", true);
@@ -43,6 +44,11 @@ namespace gpmWinui.Views
             sender.TabItems.Remove(args.Tab);
             if (PackageTabView.TabItems.Count == 1)
                 VisualStateManager.GoToState(PackageTabView, "HideTabs", true);
+========
+        private void InstallButton_Click(object sender, RoutedEventArgs e)
+        {
+
+>>>>>>>> 4d750146b1e05d25c9a472abb6a93fb32bca1f4b:source/gpm.WinUI/Views/PluginsPage.xaml.cs
         }
     }
 }

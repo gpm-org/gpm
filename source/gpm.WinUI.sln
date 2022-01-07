@@ -8,17 +8,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.core", "gpm.core\gpm.core.csproj", "{9BA5CBFC-0758-4A60-8A22-49AA5DF880D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.Core", "gpm.Core\gpm.Core.csproj", "{9BA5CBFC-0758-4A60-8A22-49AA5DF880D0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{4E5DBD2B-6230-4182-BEEB-C57B67D56996}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpmWinui", "gpm.winui\gpmWinui.csproj", "{45E29D03-A154-49E8-B1EE-3AF52B71DED1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.WinUI", "gpm.WinUI\gpm.WinUI.csproj", "{45E29D03-A154-49E8-B1EE-3AF52B71DED1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm", "gpm\gpm.csproj", "{F736ED38-EE98-4970-8E3B-257BE3222120}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{48DDF94F-52BE-4E37-88B2-13B281BE785B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm-tests", "gpm-tests\gpm-tests.csproj", "{9548A1A0-6968-4640-A4BF-B7CDE3C98DAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.Tests", "Tests\gpm.Tests\gpm.Tests.csproj", "{9548A1A0-6968-4640-A4BF-B7CDE3C98DAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,17 +1,14 @@
-using System;
+namespace gpm.Core.Exceptions;
 
-namespace gpm.core.Exceptions
+public sealed class ArgumentNullOrEmptyException : ArgumentNullException
 {
-    public sealed class ArgumentNullOrEmptyException : ArgumentNullException
+    public ArgumentNullOrEmptyException(string? paramName, string? message) : base(paramName, message)
     {
-        public ArgumentNullOrEmptyException(string? paramName, string? message) : base(paramName, message)
-        {
 
-        }
-
-        public static void ThrowIfNullOrEmpty(object? argument)
-            => ThrowIfNull(argument: argument);
-        public static void ThrowIfNullOrEmpty(object? argument, string? paramName)
-            => ThrowIfNull(argument: argument, paramName: paramName);
     }
+
+    public static void ThrowIfNullOrEmpty(object? argument)
+        => ThrowIfNull(argument: argument);
+    public static void ThrowIfNullOrEmpty(object? argument, string? paramName)
+        => ThrowIfNull(argument: argument, paramName: paramName);
 }

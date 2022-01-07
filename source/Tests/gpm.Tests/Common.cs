@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace gpm_tests
+namespace gpm.Tests
 {
     public static class Common
     {

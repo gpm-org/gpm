@@ -1,14 +1,13 @@
-using gpm.core.Models;
+using gpm.Core.Models;
 
-namespace gpm.core.Util.Builders
+namespace gpm.Core.Util.Builders;
+
+public class BuilderContext
 {
-    public class BuilderContext
+    public BuilderContext(Package package)
     {
-        public BuilderContext(Package package)
-        {
-            Package = package;
-        }
-
-        public Package Package { get; }
+        Package = package;
     }
+
+    public Package Package { get; }
 }

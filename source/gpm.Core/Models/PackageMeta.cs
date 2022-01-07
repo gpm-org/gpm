@@ -1,4 +1,3 @@
-namespace gpm.core.Models
-{
-    public record PackageMeta(string Id, string Version);
-}
+namespace gpm.Core.Models;
+
+public record PackageMeta(string Id, string Version);

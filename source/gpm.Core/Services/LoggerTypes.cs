@@ -1,14 +1,13 @@
-namespace gpm.core.Services
+namespace gpm.Core.Services;
+
+public enum Logtype
 {
-    public enum Logtype
-    {
-        Trace,
-        Debug,
-        Information,
-        Success,
-        Warning,
-        Error,
-        Critical,
-        None
-    }
+    Trace,
+    Debug,
+    Information,
+    Success,
+    Warning,
+    Error,
+    Critical,
+    None
 }

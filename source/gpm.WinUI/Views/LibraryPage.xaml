@@ -9,7 +9,7 @@
     xmlns:pageViewModels="using:gpmWinui.ViewModels.Pages" 
     xmlns:viewModels="using:gpmWinui.ViewModels" 
     xmlns:core="using:Microsoft.Xaml.Interactions.Core" 
-    xmlns:models="using:gpmWinui.Models" xmlns:models1="using:gpm.core.Models"
+    xmlns:models="using:gpmWinui.Models" xmlns:models1="using:gpm.Core.Models"
     mc:Ignorable="d"
     NavigationCacheMode="Enabled"
     >
@@ -72,7 +72,11 @@
                                 VerticalAlignment="Center"/>
 
                                 <TextBlock 
+<<<<<<<< HEAD:source/gpm.WinUI/Views/LibraryPage.xaml
                                 Text="{x:Bind Version}"
+========
+                                Text="Version TBD"
+>>>>>>>> 4d750146b1e05d25c9a472abb6a93fb32bca1f4b:source/gpm.WinUI/Views/AppsPage.xaml
                                 FontSize="15"
                                 FontWeight="SemiBold"
                                 TextWrapping="WrapWholeWords"
@@ -126,7 +130,11 @@
                         </StackPanel>
 
                         <!-- Settings -->
+<<<<<<<< HEAD:source/gpm.WinUI/Views/LibraryPage.xaml
                         <Button x:Name="SettingsButton" Grid.Column="2" ToolTipService.ToolTip="More options">
+========
+                        <Button x:Name="SettingsButton" Grid.Column="2">
+>>>>>>>> 4d750146b1e05d25c9a472abb6a93fb32bca1f4b:source/gpm.WinUI/Views/AppsPage.xaml
                             
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
@@ -136,15 +144,37 @@
 
                             <Button.Flyout>
                                 <MenuFlyout>
+<<<<<<<< HEAD:source/gpm.WinUI/Views/LibraryPage.xaml
                                     <MenuFlyoutItem Text="Delete" Icon="Delete"
                                                     Command="{Binding RemoveCommand}">
+========
+                                    <MenuFlyoutItem Text="Share">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE72D;"/>
+                                        </MenuFlyoutItem.Icon>
+                                        <MenuFlyoutItem.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="S" Modifiers="Control"/>
+                                        </MenuFlyoutItem.KeyboardAccelerators>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Copy" Icon="Copy">
+                                        <MenuFlyoutItem.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="C" Modifiers="Control"/>
+                                        </MenuFlyoutItem.KeyboardAccelerators>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem Text="Delete" Icon="Delete">
+>>>>>>>> 4d750146b1e05d25c9a472abb6a93fb32bca1f4b:source/gpm.WinUI/Views/AppsPage.xaml
                                         <MenuFlyoutItem.KeyboardAccelerators>
                                             <KeyboardAccelerator Key="Delete" />
                                         </MenuFlyoutItem.KeyboardAccelerators>
                                     </MenuFlyoutItem>
                                     <MenuFlyoutSeparator/>
+<<<<<<<< HEAD:source/gpm.WinUI/Views/LibraryPage.xaml
                                     <MenuFlyoutItem Text="Check for updates" Command="{Binding CheckCommand}"/>
                                     <MenuFlyoutItem Text="Reinstall"/>
+========
+                                    <MenuFlyoutItem Text="Rename"/>
+                                    <MenuFlyoutItem Text="Select"/>
+>>>>>>>> 4d750146b1e05d25c9a472abb6a93fb32bca1f4b:source/gpm.WinUI/Views/AppsPage.xaml
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>

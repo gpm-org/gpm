@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using gpm.core.Services;
+using gpm.Core.Services;
 using gpmWinui.Services;
 using System;
 using System.Collections.Generic;

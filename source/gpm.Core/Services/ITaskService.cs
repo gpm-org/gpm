@@ -1,25 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
+namespace gpm.Core.Services;
 
-namespace gpm.core.Services
+public interface ITaskService
 {
-    public interface ITaskService
-    {
-        void List();
-        Task<bool> UpdateAndRestore();
+    void List();
+    Task<bool> UpdateAndRestore();
 
-        Task<bool> UpdateAndInstall(string name, string version, string path, bool global);
-        Task<bool> Install(string name, string version, string path, bool global);
+    Task<bool> UpdateAndInstall(string name, string version, string path, bool global);
+    Task<bool> Install(string name, string version, string path, bool global);
 
-        Task<bool> UpdateAndRemove(string name, bool global, string path, int? slot);
-        Task<bool> Remove(string name, bool global, string path, int? slot);
+    Task<bool> UpdateAndRemove(string name, bool global, string path, int? slot);
+    Task<bool> Remove(string name, bool global, string path, int? slot);
 
-        Task<bool> Update(string name, bool global, string path, int? slot, string version);
+    Task<bool> Update(string name, bool global, string path, int? slot, string version);
 
-        void Upgrade();
-    }
+    void Upgrade();
 }

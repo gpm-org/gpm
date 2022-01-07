@@ -1,19 +1,16 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using gpm.core.Services;
-using static gpm_tests.Common;
-using gpm.Tasks;
+using gpm.Core;
+using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using gpm.core;
+using Serilog;
+using static gpm.Tests.Common;
 
-namespace gpm_tests
+namespace gpm.Tests
 {
     [TestClass]
     public class IntegrationTests
@@ -37,7 +34,7 @@ namespace gpm_tests
         private static string GetTestSlot(int i)
         {
             //Path.Combine(
-           
+
 
             var folder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -143,9 +140,9 @@ namespace gpm_tests
             Assert.IsTrue(await taskService.Install(TESTNAME1, "", "", true));
             //TODO get default file
             //test installing again -> FAIL"); //TODO
-            Assert.IsFalse(await taskService.Install(TESTNAME1, "", "",true));
+            Assert.IsFalse(await taskService.Install(TESTNAME1, "", "", true));
             //test installing a previous version  -> FAIL"); //TODO
-            Assert.IsFalse(await taskService.Install(TESTNAME1, TESTVERSION1, "",true));
+            Assert.IsFalse(await taskService.Install(TESTNAME1, TESTVERSION1, "", true));
 
             // global tool in new slot
             //test installing a previous version into new slot -> PASS");
