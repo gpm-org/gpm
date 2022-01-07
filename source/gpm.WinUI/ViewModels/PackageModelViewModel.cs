@@ -1,98 +1,87 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using gpm.core.Models;
-using gpm.core.Services;
-using gpm.Tasks;
-using Nito.AsyncEx;
+using gpm.Core.Models;
+using gpm.Core.Services;
 
-namespace gpmWinui.ViewModels
+namespace gpm.WinUI.ViewModels;
+
+/// <summary>
+/// A ViewModel for an installed package
+/// </summary>
+public class PackageModelViewModel : ObservableObject
 {
-    /// <summary>
-    /// A ViewModel for an installed package
-    /// </summary>
-    public class PackageModelViewModel : ObservableObject
+    private PackageModel _model;
+
+    private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
+    private readonly ITaskService _taskService = Ioc.Default.GetRequiredService<ITaskService>();
+
+    //public PackageViewModel(Package model)
+    //{
+    //    _model = model;
+
+    //    InstallCommand = new AsyncRelayCommand(InstallAsync);
+    //    CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
+    //    LaunchCommand = new AsyncRelayCommand(LaunchAsync);
+    //}
+
+    public PackageModelViewModel(PackageModel model)
     {
-        private PackageModel _model;
+        _model = model;
 
-
-        private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
-        private readonly ITaskService _taskService = Ioc.Default.GetRequiredService<ITaskService>();
-
-
-        //public PackageViewModel(Package model)
-        //{
-        //    _model = model;
-
-        //    InstallCommand = new AsyncRelayCommand(InstallAsync);
-        //    CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
-        //    LaunchCommand = new AsyncRelayCommand(LaunchAsync);
-        //}
-
-        public PackageModelViewModel(PackageModel model)
+        InstallCommand = new AsyncRelayCommand(InstallAsync);
+        CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
+        LaunchCommand = new AsyncRelayCommand(LaunchAsync);
+        RemoveCommand = new AsyncRelayCommand(RemoveAsync);
+    }
+    public string? Version
+    {
+        get
         {
-            _model = model;
-
-            InstallCommand = new AsyncRelayCommand(InstallAsync);
-            CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
-            LaunchCommand = new AsyncRelayCommand(LaunchAsync);
-            RemoveCommand = new AsyncRelayCommand(RemoveAsync);
-        }
-
-        public string? Version
-        {
-            get
+            // get default version unless a slot is selected
+            if (IsInstalled && _libraryService.TryGetDefaultSlot(Id, out var slot))
             {
-                // get default version unless a slot is selected
-                if (IsInstalled && _libraryService.TryGetDefaultSlot(Id, out var slot))
-                {
-                    return slot.Version;
-                }
-
-                // TODO slot selection in UI
-
-                return "-";
+                return slot.Version;
             }
+
+            // TODO slot selection in UI
+
+            return "-";
         }
+    }
 
-        public string Id => _model.Key;
+    public string Id => _model.Key;
 
-        //public string? Url => _model.;
+    //public string? Url => _model.;
 
-        public bool IsInstalled => _libraryService.IsInstalled(_model.Key);
+    public bool IsInstalled => _libraryService.IsInstalled(_model.Key);
 
-        public bool IsNotInstalled => !IsInstalled;
+    public bool IsNotInstalled => !IsInstalled;
 
+    public IAsyncRelayCommand InstallCommand { get; }
 
-        public IAsyncRelayCommand InstallCommand { get; }
-        private async Task InstallAsync()
-        {
-            await _taskService.UpdateAndInstall(Id, "", "", true);
-        }
+    private async Task InstallAsync()
+    {
+        await _taskService.UpdateAndInstall(Id, "", "", true);
+    }
 
-        public IAsyncRelayCommand CheckCommand { get; }
-        private async Task CheckForUpdatesAsync()
-        {
-            await Task.Delay(1);
-        }
+    public IAsyncRelayCommand CheckCommand { get; }
+    private async Task CheckForUpdatesAsync()
+    {
+        await Task.Delay(1);
+    }
 
-        public IAsyncRelayCommand LaunchCommand { get; }
-        private async Task LaunchAsync()
-        {
-            await Task.Delay(1);
-        }
+    public IAsyncRelayCommand LaunchCommand { get; }
+    private async Task LaunchAsync()
+    {
+        await Task.Delay(1);
+    }
 
-        public IAsyncRelayCommand RemoveCommand { get; }
-        private async Task RemoveAsync()
-        {
-            await _taskService.Remove(Id, true, "", null);
-        }
-
-        
+    public IAsyncRelayCommand RemoveCommand { get; }
+    private async Task RemoveAsync()
+    {
+        await _taskService.Remove(Id, true, "", null);
     }
 }
+

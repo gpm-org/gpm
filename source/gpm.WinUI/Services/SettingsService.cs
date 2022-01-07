@@ -2,60 +2,53 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Collections.Generic;
-using gpmWinui.Models;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 
-namespace gpmWinui.Services
+namespace gpm.WinUI.Services;
+
+/// <summary>
+/// A simple <see langword="class"/> that handles the local app settings.
+/// </summary>
+public sealed class SettingsService : ISettingsService
 {
     /// <summary>
-    /// A simple <see langword="class"/> that handles the local app settings.
+    /// The <see cref="IPropertySet"/> with the settings targeted by the current instance.
     /// </summary>
-    public sealed class SettingsService : ISettingsService
+    private readonly IPropertySet _settingsStorage = ApplicationData.Current.LocalSettings.Values;
+
+    public string? Location
     {
-        /// <summary>
-        /// The <see cref="IPropertySet"/> with the settings targeted by the current instance.
-        /// </summary>
-        private readonly IPropertySet _settingsStorage = ApplicationData.Current.LocalSettings.Values;
+        get => GetValue<string>(nameof(Location));
+        set => SetValue(nameof(Location), value);
+    }
 
-        public string? Location
+
+
+    /// <inheritdoc/>
+    private void SetValue<T>(string key, T? value)
+    {
+        if (!_settingsStorage.ContainsKey(key))
         {
-            get => GetValue<string>(nameof(Location));
-            set => SetValue(nameof(Location), value);
+            _settingsStorage.Add(key, value);
         }
-
-
-
-        /// <inheritdoc/>
-        private void SetValue<T>(string key, T? value)
+        else
         {
-            if (!_settingsStorage.ContainsKey(key))
-            {
-                _settingsStorage.Add(key, value);
-            }
-            else
-            {
-                _settingsStorage[key] = value;
-            }
+            _settingsStorage[key] = value;
         }
+    }
 
-        /// <inheritdoc/>
-        private T? GetValue<T>(string key)
-        {
+    /// <inheritdoc/>
+    private T? GetValue<T>(string key)
+    {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            if (_settingsStorage.TryGetValue(key, out var value))
+        if (_settingsStorage.TryGetValue(key, out var value))
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-            {
-                return (T)value;
-            }
-
-            return default;
+        {
+            return (T)value;
         }
 
-
-
-
-
+        return default;
     }
 }
+

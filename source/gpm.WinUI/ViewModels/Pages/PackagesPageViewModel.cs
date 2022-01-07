@@ -4,19 +4,14 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using gpm.Core.Models;
 using gpm.Core.Services;
 
-namespace gpmWinui.ViewModels.Pages;
+namespace gpm.WinUI.ViewModels.Pages;
 
 /// <summary>
 /// View model for available packages
 /// </summary>
-<<<<<<<< HEAD:source/gpm.WinUI/ViewModels/Pages/PackagesPageViewModel.cs
 public class PackagesPageViewModel : PageViewModel
-========
-public class PluginsPageViewModel : PageViewModel
->>>>>>>> 4d750146b1e05d25c9a472abb6a93fb32bca1f4b:source/gpm.WinUI/ViewModels/Pages/PluginsPageViewModel.cs
 {
     private readonly IDataBaseService _dataBaseService = Ioc.Default.GetRequiredService<IDataBaseService>();
 
@@ -37,23 +32,11 @@ public class PluginsPageViewModel : PageViewModel
 
 
     private PackageViewModel? _selectedPackage;
-    public PackageViewModel? SelectedPackage    {
+    public PackageViewModel? SelectedPackage
+    {
         get => _selectedPackage;
         set => SetProperty(ref _selectedPackage, value);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private string? name;
 
@@ -76,3 +59,4 @@ public class PluginsPageViewModel : PageViewModel
         MyTask = Task.Delay(3000);
     }
 }
+

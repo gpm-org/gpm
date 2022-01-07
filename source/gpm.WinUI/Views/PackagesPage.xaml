@@ -1,47 +1,29 @@
 <Page
-    x:Class="gpmWinui.Views.PackagesPage"
+    x:Class="gpm.WinUI.Views.PackagesPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:gpmWinui.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:viewModels="using:gpmWinui.ViewModels.Pages"
-    xmlns:pageViewModels="using:gpmWinui.ViewModels.Pages" 
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:viewmodels="using:gpmWinui.ViewModels"
-    xmlns:models="using:gpm.core.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:local="using:gpm.WinUI.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:gpm.Core.Models"
+    xmlns:pageViewModels="using:gpm.WinUI.ViewModels.Pages"
     xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives"
     xmlns:sys="using:System"
-    mc:Ignorable="d"
-    NavigationCacheMode="Enabled">
-    
+    xmlns:viewModels="using:gpm.WinUI.ViewModels.Pages"
+    xmlns:viewmodels="using:gpm.WinUI.ViewModels"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d">
+
     <Page.DataContext>
-        <pageViewModels:PackagesPageViewModel x:Name="ViewModel"/>
+        <pageViewModels:PackagesPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
     <Grid>
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
-                <VisualState x:Name="VisualStateNarrow">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="PluginPageGrid.Margin" Value="24,12"/>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="VisualStateWide">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="640" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="PluginPageGrid.Margin" Value="48,24"/>
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-
-        <TabView Background="#202020" x:Name="PackageTabView" TabCloseRequested="Tabs_TabCloseRequested">
+        <TabView
+            x:Name="PackageTabView"
+            Background="#202020"
+            TabCloseRequested="Tabs_TabCloseRequested">
             <TabView.Style>
                 <Style TargetType="TabView">
                     <Setter Property="Template">
@@ -53,262 +35,345 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
 
+                                    <Grid
+                                        x:Name="TabContainerGrid"
+                                        Background="{TemplateBinding Background}"
+                                        Visibility="Collapsed"
+                                        XYFocusKeyboardNavigation="Enabled">
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition x:Name="TabColumn" Width="Auto" />
+                                            <ColumnDefinition x:Name="RightContentColumn" Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border
+                                            x:Name="LeftBottomBorderLine"
+                                            Height="1"
+                                            VerticalAlignment="Bottom"
+                                            BorderBrush="{ThemeResource TabViewBorderBrush}"
+                                            BorderThickness="1" />
+
+                                        <Border
+                                            x:Name="RightBottomBorderLine"
+                                            Grid.Column="2"
+                                            Grid.ColumnSpan="2"
+                                            Height="1"
+                                            VerticalAlignment="Bottom"
+                                            BorderBrush="{ThemeResource TabViewBorderBrush}"
+                                            BorderThickness="1" />
+
+                                        <primitives:TabViewListView
+                                            x:Name="TabListView"
+                                            Grid.Column="0"
+                                            Padding="0,0,5,0"
+                                            AllowDrop="{TemplateBinding AllowDropTabs}"
+                                            CanDragItems="{TemplateBinding CanDragTabs}"
+                                            CanReorderItems="{TemplateBinding CanReorderTabs}"
+                                            ItemTemplate="{TemplateBinding TabItemTemplate}"
+                                            ItemTemplateSelector="{TemplateBinding TabItemTemplateSelector}"
+                                            ItemsSource="{TemplateBinding TabItemsSource}" />
+
+                                        <ContentPresenter
+                                            x:Name="RightContentPresenter"
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Stretch"
+                                            Content="{TemplateBinding TabStripFooter}"
+                                            ContentTemplate="{TemplateBinding TabStripFooterTemplate}" />
+
+                                    </Grid>
+
+                                    <ContentPresenter
+                                        x:Name="TabContentPresenter"
+                                        Grid.Row="1"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}" />
+
                                     <VisualStateManager.VisualStateGroups>
                                         <VisualStateGroup>
                                             <VisualState x:Name="HideTabs">
                                                 <VisualState.Setters>
-                                                    <Setter Target="TabContainerGrid.Visibility" Value="Collapsed"/>
+                                                    <Setter Target="TabContainerGrid.Visibility" Value="Collapsed" />
                                                 </VisualState.Setters>
                                             </VisualState>
                                             <VisualState x:Name="ShowTabs">
                                                 <VisualState.Setters>
-                                                    <Setter Target="TabContainerGrid.Visibility" Value="Visible"/>
+                                                    <Setter Target="TabContainerGrid.Visibility" Value="Visible" />
                                                 </VisualState.Setters>
                                             </VisualState>
                                         </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
-
-                                    <Grid x:Name="TabContainerGrid"
-                                        Visibility="Collapsed"
-                                        Background="{TemplateBinding Background}"
-                                        XYFocusKeyboardNavigation="Enabled">
-
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" x:Name="TabColumn"/>
-                                            <ColumnDefinition Width="*" x:Name="RightContentColumn"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <Border x:Name="LeftBottomBorderLine" BorderBrush="{ThemeResource TabViewBorderBrush}" BorderThickness="1" Height="1" VerticalAlignment="Bottom"/>
-
-                                        <Border x:Name="RightBottomBorderLine" BorderBrush="{ThemeResource TabViewBorderBrush}" BorderThickness="1" Height="1" Grid.Column="2" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
-
-                                        <primitives:TabViewListView
-                                Grid.Column="0"
-                                x:Name="TabListView"
-                                Padding="0,0,5,0"
-                                CanReorderItems="{TemplateBinding CanReorderTabs}"
-                                CanDragItems="{TemplateBinding CanDragTabs}"
-                                AllowDrop="{TemplateBinding AllowDropTabs}"
-                                ItemsSource="{TemplateBinding TabItemsSource}"
-                                ItemTemplate="{TemplateBinding TabItemTemplate}"
-                                ItemTemplateSelector="{TemplateBinding TabItemTemplateSelector}"/>
-
-                                        <ContentPresenter
-                                Grid.Column="1"
-                                x:Name="RightContentPresenter"
-                                HorizontalAlignment="Stretch"
-                                Content="{TemplateBinding TabStripFooter}"
-                                ContentTemplate="{TemplateBinding TabStripFooterTemplate}"/>
-
                                 </Grid>
-
-                                <ContentPresenter x:Name="TabContentPresenter"
-                            Grid.Row="1"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}" />
-                            </Grid>
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
                 </Style>
             </TabView.Style>
             <TabView.TabItems>
-                <TabViewItem Header="Available Packages" CanDrag="False" IsClosable="False">
+                <TabViewItem
+                    CanDrag="False"
+                    Header="Available Packages"
+                    IsClosable="False">
                     <TabViewItem.IconSource>
                         <SymbolIconSource Symbol="Home" />
                     </TabViewItem.IconSource>
                     <TabViewItem.Content>
-                <Grid x:Name="PluginPageGrid">
-                    <!--<interactivity:Interaction.Behaviors>
+                        <Grid x:Name="PluginPageGrid">
+                            <!--<interactivity:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Loaded">
             <core:InvokeCommandAction Command="{x:Bind ViewModel.LoadDocsCommand}" CommandParameter="Introduction"/>
         </core:EventTriggerBehavior>
     </interactivity:Interaction.Behaviors>-->
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="48" />
-                        <RowDefinition Height="60" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Grid>
-                        <TextBlock
-                    Text="Available Packages"
-                    FontWeight="{ThemeResource HubHeaderThemeFontWeight}"
-                    FontSize="{ThemeResource HubHeaderThemeFontSize}"/>
-                    </Grid>
-                    <Grid Grid.Row="1">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="All" Style="{ThemeResource AccentButtonStyle}"/>
-                            <Button Content="Apps" />
-                            <Button Content="Utilities" />
-                        </StackPanel>
-                        <DropDownButton Content="Sort by date" HorizontalAlignment="Right"/>
-                    </Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="48" />
+                                <RowDefinition Height="60" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <TextBlock
+                                    FontSize="{ThemeResource HubHeaderThemeFontSize}"
+                                    FontWeight="{ThemeResource HubHeaderThemeFontWeight}"
+                                    Text="Available Packages" />
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="All" Style="{ThemeResource AccentButtonStyle}" />
+                                    <Button Content="Apps" />
+                                    <Button Content="Utilities" />
+                                </StackPanel>
+                                <DropDownButton HorizontalAlignment="Right" Content="Sort by date" />
+                            </Grid>
 
-                    <ScrollViewer Grid.Row="2" Margin="-1">
-                        <ItemsControl ItemsSource="{x:Bind ViewModel.Packages}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Vertical" Spacing="10"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="viewmodels:PackageViewModel">
+                            <ScrollViewer Grid.Row="2" Margin="-1">
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.Packages}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical" Spacing="10" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="viewmodels:PackageViewModel">
 
-                                    <Border Background="#323232" CornerRadius="5" BorderBrush="#232323" BorderThickness="1" Margin="0">
-                                        <Grid
-                            ColumnSpacing="8"
-                            Padding="20,16,20,16">
+                                            <Border
+                                                Margin="0"
+                                                Background="#323232"
+                                                BorderBrush="#232323"
+                                                BorderThickness="1"
+                                                CornerRadius="5">
+                                                <Grid Padding="20,16,20,16" ColumnSpacing="8">
 
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
 
-                                            <Border Background="#3b3b3b" CornerRadius="5" Height="60" Width="60" Margin="0,0,6,0" VerticalAlignment="Top"/>
+                                                    <Border
+                                                        Width="60"
+                                                        Height="60"
+                                                        Margin="0,0,6,0"
+                                                        VerticalAlignment="Top"
+                                                        Background="#3b3b3b"
+                                                        CornerRadius="5" />
 
-                                            <!-- Text -->
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock 
-                                    Text="{x:Bind sys:String.Format({x:Null}, '{0} | Version {1}', Id, Version)}"
-                                    FontSize="{ThemeResource GridViewHeaderItemThemeFontSize}"
-                                    FontWeight="SemiBold"
-                                    TextWrapping="WrapWholeWords"
-                                    VerticalAlignment="Center"/>
+                                                    <!--  Text  -->
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            FontSize="{ThemeResource GridViewHeaderItemThemeFontSize}"
+                                                            FontWeight="SemiBold"
+                                                            Text="{x:Bind sys:String.Format({x:Null}, '{0} | Version {1}', Id, Version)}"
+                                                            TextWrapping="WrapWholeWords" />
 
 
-                                                <TextBlock 
-                                    Text="{x:Bind Description}"
-                                    Foreground="{ThemeResource SystemBaseMediumHighColor}"
-                                    FontSize="{ThemeResource ContentControlFontSize}"
-                                    FontWeight="Normal"
-                                    TextWrapping="WrapWholeWords"
-                                    VerticalAlignment="Center"/>
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            FontSize="{ThemeResource ContentControlFontSize}"
+                                                            FontWeight="Normal"
+                                                            Foreground="{ThemeResource SystemBaseMediumHighColor}"
+                                                            Text="{x:Bind Description}"
+                                                            TextWrapping="WrapWholeWords" />
 
-                                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                    <ItemsControl x:Name="TopicButtons" ItemsSource="{x:Bind Topics}" Margin="0,0,6,0">
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <StackPanel Orientation="Horizontal" Spacing="6"/>
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Border Background="{ThemeResource SystemAccentColor}" CornerRadius="3" Height="24" Padding="6,0">
-                                                                    <TextBlock
-                                                        Text="{Binding}"
-                                                        FontSize="{ThemeResource ToolTipContentThemeFontSize}"
-                                                        VerticalAlignment="Center"
-                                                        LineStackingStrategy="BlockLineHeight"/>
-                                                                </Border>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                        <interactivity:Interaction.Behaviors>
-                                                            <core:DataTriggerBehavior Binding="{Binding Topics}" Value="{x:Null}">
-                                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=TopicButtons}" PropertyName="Visibility" Value="Collapsed"/>
-                                                            </core:DataTriggerBehavior>
-                                                        </interactivity:Interaction.Behaviors>
-                                                    </ItemsControl>
+                                                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                                                            <ItemsControl
+                                                                x:Name="TopicButtons"
+                                                                Margin="0,0,6,0"
+                                                                ItemsSource="{x:Bind Topics}">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <StackPanel Orientation="Horizontal" Spacing="6" />
+                                                                    </ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <Border
+                                                                            Height="24"
+                                                                            Padding="6,0"
+                                                                            Background="{ThemeResource SystemAccentColor}"
+                                                                            CornerRadius="3">
+                                                                            <TextBlock
+                                                                                VerticalAlignment="Center"
+                                                                                FontSize="{ThemeResource ToolTipContentThemeFontSize}"
+                                                                                LineStackingStrategy="BlockLineHeight"
+                                                                                Text="{Binding}" />
+                                                                        </Border>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                                <interactivity:Interaction.Behaviors>
+                                                                    <core:DataTriggerBehavior Binding="{Binding Topics}" Value="{x:Null}">
+                                                                        <core:ChangePropertyAction
+                                                                            PropertyName="Visibility"
+                                                                            TargetObject="{Binding ElementName=TopicButtons}"
+                                                                            Value="Collapsed" />
+                                                                    </core:DataTriggerBehavior>
+                                                                </interactivity:Interaction.Behaviors>
+                                                            </ItemsControl>
 
-                                                    <TextBlock 
-                                        Text="{x:Bind License}"
-                                        x:Name="LicenseText"
-                                        FontSize="{ThemeResource ToolTipContentThemeFontSize}"
-                                        Foreground="{ThemeResource SystemAccentColorLight1}"
-                                        FontWeight="Normal"
-                                        LineStackingStrategy="BlockLineHeight"
-                                        VerticalAlignment="Center">
-                                        <interactivity:Interaction.Behaviors>
-                                            <core:DataTriggerBehavior Binding="{Binding License}" Value="">
-                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=LicenseText}" PropertyName="Visibility" Value="Collapsed"/>
-                                            </core:DataTriggerBehavior>
-                                        </interactivity:Interaction.Behaviors>
-                                                    </TextBlock>
+                                                            <TextBlock
+                                                                x:Name="LicenseText"
+                                                                VerticalAlignment="Center"
+                                                                FontSize="{ThemeResource ToolTipContentThemeFontSize}"
+                                                                FontWeight="Normal"
+                                                                Foreground="{ThemeResource SystemAccentColorLight1}"
+                                                                LineStackingStrategy="BlockLineHeight"
+                                                                Text="{x:Bind License}">
+                                                                <interactivity:Interaction.Behaviors>
+                                                                    <core:DataTriggerBehavior Binding="{Binding License}" Value="">
+                                                                        <core:ChangePropertyAction
+                                                                            PropertyName="Visibility"
+                                                                            TargetObject="{Binding ElementName=LicenseText}"
+                                                                            Value="Collapsed" />
+                                                                    </core:DataTriggerBehavior>
+                                                                </interactivity:Interaction.Behaviors>
+                                                            </TextBlock>
 
-                                                </StackPanel>
+                                                        </StackPanel>
 
-                                            </StackPanel>
-
-                                            <!-- Buttons -->
-
-                                                    <Button x:Name="MoreInfo" Grid.Column="2" HorizontalAlignment="Right" Height="30" Click="OpenInNewTab"
-                                    ToolTipService.ToolTip="Open In New Tab"
-                                    >
-                                                <Button.Content>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Viewbox MaxHeight="10" MaxWidth="12">
-                                                            <SymbolIcon Symbol="Go" />
-                                                        </Viewbox>
-                                                        <TextBlock Text="More Info" Margin="5,0,0,0" VerticalAlignment="Center"/>
                                                     </StackPanel>
-                                                </Button.Content>
-                                            </Button>
 
-                                            <Button x:Name="InstallButton" Grid.Column="3" HorizontalAlignment="Right" Height="30"
-                                    Command="{Binding InstallCommand}"
-                                    ToolTipService.ToolTip="Install"
-                                    >
-                                                <Button.Content>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Viewbox MaxHeight="12" MaxWidth="12">
-                                                            <SymbolIcon Symbol="Download" />
-                                                        </Viewbox>
-                                                        <TextBlock Text="Download" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                                                    </StackPanel>
-                                                </Button.Content>
-                                            </Button>
+                                                    <!--  Buttons  -->
+
+                                                    <Button
+                                                        x:Name="MoreInfo"
+                                                        Grid.Column="2"
+                                                        Height="30"
+                                                        HorizontalAlignment="Right"
+                                                        Click="OpenInNewTab"
+                                                        ToolTipService.ToolTip="Open In New Tab">
+                                                        <Button.Content>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox MaxWidth="12" MaxHeight="10">
+                                                                    <SymbolIcon Symbol="Go" />
+                                                                </Viewbox>
+                                                                <TextBlock
+                                                                    Margin="5,0,0,0"
+                                                                    VerticalAlignment="Center"
+                                                                    Text="More Info" />
+                                                            </StackPanel>
+                                                        </Button.Content>
+                                                    </Button>
+
+                                                    <Button
+                                                        x:Name="InstallButton"
+                                                        Grid.Column="3"
+                                                        Height="30"
+                                                        HorizontalAlignment="Right"
+                                                        Command="{Binding InstallCommand}"
+                                                        ToolTipService.ToolTip="Install">
+                                                        <Button.Content>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox MaxWidth="12" MaxHeight="12">
+                                                                    <SymbolIcon Symbol="Download" />
+                                                                </Viewbox>
+                                                                <TextBlock
+                                                                    Margin="5,0,0,0"
+                                                                    VerticalAlignment="Center"
+                                                                    Text="Download" />
+                                                            </StackPanel>
+                                                        </Button.Content>
+                                                    </Button>
 
 
-                                            <!-- Settings -->
-                                            <Button x:Name="SettingsButton" Grid.Column="7" HorizontalAlignment="Right" Height="30"
-                                ToolTipService.ToolTip="More options">
+                                                    <!--  Settings  -->
+                                                    <Button
+                                                        x:Name="SettingsButton"
+                                                        Grid.Column="7"
+                                                        Height="30"
+                                                        HorizontalAlignment="Right"
+                                                        ToolTipService.ToolTip="More options">
 
-                                                <Button.Content>
-                                                    <Viewbox MaxHeight="12" MaxWidth="12" HorizontalAlignment="Center">
-                                                        <SymbolIcon Symbol="More" Rotation="90" RotationAxis="0,0,-1" CenterPoint="10,10,0" />
-                                                    </Viewbox>
-                                                </Button.Content>
+                                                        <Button.Content>
+                                                            <Viewbox
+                                                                MaxWidth="12"
+                                                                MaxHeight="12"
+                                                                HorizontalAlignment="Center">
+                                                                <SymbolIcon
+                                                                    CenterPoint="10,10,0"
+                                                                    Rotation="90"
+                                                                    RotationAxis="0,0,-1"
+                                                                    Symbol="More" />
+                                                            </Viewbox>
+                                                        </Button.Content>
 
-                                                <Button.Flyout>
-                                                    <MenuFlyout>
-                                                        <MenuFlyoutItem Text="Share">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <FontIcon Glyph="&#xE72D;"/>
-                                                            </MenuFlyoutItem.Icon>
-                                                            <MenuFlyoutItem.KeyboardAccelerators>
-                                                                <KeyboardAccelerator Key="S" Modifiers="Control"/>
-                                                            </MenuFlyoutItem.KeyboardAccelerators>
-                                                        </MenuFlyoutItem>
-                                                        <MenuFlyoutItem Text="Copy" Icon="Copy">
-                                                            <MenuFlyoutItem.KeyboardAccelerators>
-                                                                <KeyboardAccelerator Key="C" Modifiers="Control"/>
-                                                            </MenuFlyoutItem.KeyboardAccelerators>
-                                                        </MenuFlyoutItem>
-                                                        <MenuFlyoutItem Text="Delete" Icon="Delete">
-                                                            <MenuFlyoutItem.KeyboardAccelerators>
-                                                                <KeyboardAccelerator Key="Delete" />
-                                                            </MenuFlyoutItem.KeyboardAccelerators>
-                                                        </MenuFlyoutItem>
-                                                        <MenuFlyoutSeparator/>
-                                                        <MenuFlyoutItem Text="Rename"/>
-                                                        <MenuFlyoutItem Text="Select"/>
-                                                    </MenuFlyout>
-                                                </Button.Flyout>
-                                            </Button>
+                                                        <Button.Flyout>
+                                                            <MenuFlyout>
+                                                                <MenuFlyoutItem Text="Share">
+                                                                    <MenuFlyoutItem.Icon>
+                                                                        <FontIcon Glyph="&#xE72D;" />
+                                                                    </MenuFlyoutItem.Icon>
+                                                                    <MenuFlyoutItem.KeyboardAccelerators>
+                                                                        <KeyboardAccelerator Key="S" Modifiers="Control" />
+                                                                    </MenuFlyoutItem.KeyboardAccelerators>
+                                                                </MenuFlyoutItem>
+                                                                <MenuFlyoutItem Icon="Copy" Text="Copy">
+                                                                    <MenuFlyoutItem.KeyboardAccelerators>
+                                                                        <KeyboardAccelerator Key="C" Modifiers="Control" />
+                                                                    </MenuFlyoutItem.KeyboardAccelerators>
+                                                                </MenuFlyoutItem>
+                                                                <MenuFlyoutItem Icon="Delete" Text="Delete">
+                                                                    <MenuFlyoutItem.KeyboardAccelerators>
+                                                                        <KeyboardAccelerator Key="Delete" />
+                                                                    </MenuFlyoutItem.KeyboardAccelerators>
+                                                                </MenuFlyoutItem>
+                                                                <MenuFlyoutSeparator />
+                                                                <MenuFlyoutItem Text="Rename" />
+                                                                <MenuFlyoutItem Text="Select" />
+                                                            </MenuFlyout>
+                                                        </Button.Flyout>
+                                                    </Button>
 
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
 
-                    </Grid>
-                </TabViewItem.Content>
+                        </Grid>
+                    </TabViewItem.Content>
                 </TabViewItem>
             </TabView.TabItems>
         </TabView>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="AdaptiveVisualStateGroup">
+                <VisualState x:Name="VisualStateNarrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PluginPageGrid.Margin" Value="24,12" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="VisualStateWide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PluginPageGrid.Margin" Value="48,24" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>

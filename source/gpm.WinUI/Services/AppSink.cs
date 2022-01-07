@@ -1,38 +1,31 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace gpmWinui.Services
+namespace gpm.WinUI.Services;
+
+public class AppSink : ILogEventSink
 {
-    public class AppSink : ILogEventSink
+    private readonly IFormatProvider? _formatProvider;
+
+    public AppSink(IFormatProvider? formatProvider)
     {
-        private readonly IFormatProvider? _formatProvider;
-
-        public AppSink(IFormatProvider? formatProvider)
-        {
-            _formatProvider = formatProvider;
-        }
-
-        public void Emit(LogEvent logEvent)
-        {
-            var message = logEvent.RenderMessage(_formatProvider);
-            Console.WriteLine(DateTimeOffset.Now.ToString() + " " + message);
-        }
+        _formatProvider = formatProvider;
     }
 
-    public static class MySinkExtensions
+    public void Emit(LogEvent logEvent)
     {
-        public static LoggerConfiguration AppSink(
-                  this LoggerSinkConfiguration loggerConfiguration,
-                  IFormatProvider? formatProvider = null)
-        {
-            return loggerConfiguration.Sink(new AppSink(formatProvider));
-        }
+        var message = logEvent.RenderMessage(_formatProvider);
+        Console.WriteLine(DateTimeOffset.Now.ToString() + " " + message);
     }
 }
+
+public static class MySinkExtensions
+{
+    public static LoggerConfiguration AppSink(
+        this LoggerSinkConfiguration loggerConfiguration,
+        IFormatProvider? formatProvider = null) => loggerConfiguration.Sink(new AppSink(formatProvider));
+}
+

@@ -2,18 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 
-
-namespace gpmWinui.ViewModels.Pages;
+namespace gpm.WinUI.ViewModels.Pages;
 
 /// <summary>
 /// A base class for viewmodels for sample pages in the app.

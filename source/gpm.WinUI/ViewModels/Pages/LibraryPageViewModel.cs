@@ -1,26 +1,15 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.Mvvm.Input;
-using Nito.AsyncEx;
-using gpm.Core.Models;
-using gpmWinui.Services;
 using gpm.Core.Services;
 
-namespace gpmWinui.ViewModels.Pages;
+namespace gpm.WinUI.ViewModels.Pages;
 
 /// <summary>
 /// View model for installed packages
 /// </summary>
-<<<<<<<< HEAD:source/gpm.WinUI/ViewModels/Pages/LibraryPageViewModel.cs
 public sealed class LibraryPageViewModel : ObservableRecipient
-========
-public sealed class AppsPageViewModel : ObservableRecipient
->>>>>>>> 4d750146b1e05d25c9a472abb6a93fb32bca1f4b:source/gpm.WinUI/ViewModels/Pages/AppsPageViewModel.cs
 {
     private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
 
@@ -44,9 +33,7 @@ public sealed class AppsPageViewModel : ObservableRecipient
         }
     }
 
-
     public ObservableCollection<PackageModelViewModel> Packages { get; set; } = new();
-
 
     private PackageModelViewModel? _selectedPackage;
     public PackageModelViewModel? SelectedPackage
@@ -54,7 +41,5 @@ public sealed class AppsPageViewModel : ObservableRecipient
         get => _selectedPackage;
         set => SetProperty(ref _selectedPackage, value);
     }
-
-
 }
 

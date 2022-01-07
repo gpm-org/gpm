@@ -1,90 +1,82 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using gpm.core.Models;
-using gpm.core.Services;
-using gpm.Tasks;
+using gpm.Core.Models;
+using gpm.Core.Services;
 
-namespace gpmWinui.ViewModels
+namespace gpm.WinUI.ViewModels;
+
+public class PackageViewModel : ObservableObject
 {
-    public class PackageViewModel : ObservableObject
+    private Package _model;
+
+    private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
+    private readonly ITaskService _taskService = Ioc.Default.GetRequiredService<ITaskService>();
+
+    //public PackageViewModel(Package model)
+    //{
+    //    _model = model;
+
+    //    InstallCommand = new AsyncRelayCommand(InstallAsync);
+    //    CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
+    //    LaunchCommand = new AsyncRelayCommand(LaunchAsync);
+    //}
+
+    public PackageViewModel(Package model)
     {
-        private Package _model;
+        _model = model;
 
+        InstallCommand = new AsyncRelayCommand(InstallAsync);
+        CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
+    }
 
-        private readonly ILibraryService _libraryService = Ioc.Default.GetRequiredService<ILibraryService>();
-        private readonly ITaskService _taskService = Ioc.Default.GetRequiredService<ITaskService>();
-
-
-        //public PackageViewModel(Package model)
-        //{
-        //    _model = model;
-
-        //    InstallCommand = new AsyncRelayCommand(InstallAsync);
-        //    CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
-        //    LaunchCommand = new AsyncRelayCommand(LaunchAsync);
-        //}
-
-        public PackageViewModel(Package model)
+    public string? Version
+    {
+        get
         {
-            _model = model;
-
-            InstallCommand = new AsyncRelayCommand(InstallAsync);
-            CheckCommand = new AsyncRelayCommand(CheckForUpdatesAsync);
-        }
-
-        public string? Version
-        {
-            get
+            // get default version unless a slot is selected
+            if (IsInstalled && _libraryService.TryGetDefaultSlot(Id, out var slot))
             {
-                // get default version unless a slot is selected
-                if (IsInstalled && _libraryService.TryGetDefaultSlot(Id, out var slot))
-                {
-                    return slot.Version;
-                }
-
-                // TODO slot selection in UI
-
-                return "-";
+                return slot.Version;
             }
+
+            // TODO slot selection in UI
+
+            return "-";
         }
+    }
 
-        public string Id => _model.Id;
+    public string Id => _model.Id;
 
-        public string? Url => _model.Url;
+    public string? Url => _model.Url;
 
-        public string Description => _model.Description ?? "no description";
+    public string Description => _model.Description ?? "no description";
 
-        public string[]? Topics => _model.Topics;
+    public string[]? Topics => _model.Topics;
 
-        public string License => _model.License ?? "";
+    public string License => _model.License ?? "";
 
-        public bool IsInstalled => _libraryService.IsInstalled(_model.Id);
+    public bool IsInstalled => _libraryService.IsInstalled(_model.Id);
 
-        public bool IsNotInstalled => !IsInstalled;
+    public bool IsNotInstalled => !IsInstalled;
+
+    public IAsyncRelayCommand InstallCommand { get; }
+
+    public IAsyncRelayCommand CheckCommand { get; }
 
 
-        public IAsyncRelayCommand InstallCommand { get; }
+    private async Task CheckForUpdatesAsync()
+    {
+        await Task.Delay(1);
+    }
 
-        public IAsyncRelayCommand CheckCommand { get; }
-
-
-        private async Task CheckForUpdatesAsync()
+    private async Task InstallAsync()
+    {
+        if (Id is not null)
         {
-            await Task.Delay(1);
-        }
-
-        private async Task InstallAsync()
-        {
-            if (Id is not null)
-            {
-                await _taskService.UpdateAndInstall(Id, "", "", true);
-            }
+            await _taskService.UpdateAndInstall(Id, "", "", true);
         }
     }
 }
+
