@@ -6,25 +6,23 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
+using Serilog;
 
 namespace WpfAppTest;
 
 public class MainViewModel : ObservableRecipient
 {
-    private AutoInstallerService installer;
-
+    private readonly AutoInstallerService _installer = Ioc.Default.GetRequiredService<AutoInstallerService>();
     private readonly MySink _sink = Ioc.Default.GetRequiredService<MySink>();
 
     private readonly ReadOnlyObservableCollection<string> list;
 
     public MainViewModel()
     {
-        installer = new AutoInstallerService();
 
         CheckCommand = new AsyncRelayCommand(CheckAsync);
         InstallCommand = new AsyncRelayCommand(InstallAsync);
 
-        //document = new FlowDocument();
         text = "";
 
         InstallCommand.Execute(this);
@@ -39,17 +37,6 @@ public class MainViewModel : ObservableRecipient
                 {
                     var msg = add.Item.Current;
                     Text += $"{msg}\n";
-
-                    //var paragraph = new Paragraph()
-                    //{
-                    //    LineHeight = 1
-                    //};
-                    //var run = new Run(msg)
-                    //{
-                    //    //Foreground = GetBrushForLevel(level)
-                    //};
-                    //paragraph.Inlines.Add(run);
-                    //Document.Blocks.Add(paragraph);
                 }
             });
     }
@@ -60,17 +47,18 @@ public class MainViewModel : ObservableRecipient
     private async Task InstallAsync()
     {
         await AutoInstallerService.EnsureGpmInstalled();
+
+        var autoUpdateEnabled = await _installer.Init();
+        Log.Information($"[{_installer.Package}, v.{_installer.Version}] auto-update Enabled: {autoUpdateEnabled}");
     }
 
     public IAsyncRelayCommand CheckCommand { get; }
     private async Task CheckAsync()
     {
-        await AutoInstallerService.EnsureGpmInstalled();
+        var result = await _installer.CheckForUpdate();
+        Log.Information($"Is update available: {result}");
+
     }
-
-    //private FlowDocument document;
-
-    //public FlowDocument Document { get => document; set => SetProperty(ref document, value); }
 
     private string text;
     public string Text { get => text; set => SetProperty(ref text, value); }

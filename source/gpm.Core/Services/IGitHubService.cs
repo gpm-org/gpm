@@ -6,13 +6,19 @@ namespace gpm.Core.Services;
 public interface IGitHubService
 {
     /// <summary>
-    /// Check if a release exists that
+    /// Check if a release exists
     /// </summary>
-    /// <param name="package"></param>
     /// <param name="releases"></param>
     /// <param name="installedVersion"></param>
     /// <returns></returns>
-    bool IsUpdateAvailable(Package package, IReadOnlyList<Release>? releases, string installedVersion);
+    bool IsUpdateAvailable(IReadOnlyList<Release>? releases, string installedVersion);
+
+    /// <summary>
+    /// Check if a release exists
+    /// </summary>
+    /// <param name="installedVersion"></param>
+    /// <returns></returns>
+    Task<bool> IsUpdateAvailable(Package package, string installedVersion);
 
     /// <summary>
     /// Fetch all github releases for a given package.

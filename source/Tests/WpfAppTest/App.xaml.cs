@@ -1,5 +1,6 @@
 using System.Windows;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
@@ -17,6 +18,13 @@ namespace WpfAppTest
                 new ServiceCollection()
 
                 .AddSingleton<MySink>()
+                .AddSingleton<AutoInstallerService>()
+
+                .AddSingleton<IGitHubService, GitHubService>()
+                .AddSingleton<IDeploymentService, DeploymentService>()
+
+                .AddSingleton<ILibraryService, LibraryService>()
+                .AddSingleton<IDataBaseService, DataBaseService>()
 
                 .BuildServiceProvider());
         }

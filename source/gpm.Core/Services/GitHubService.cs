@@ -93,23 +93,19 @@ public class GitHubService : IGitHubService
     /// <summary>
     /// Check if a release exists that
     /// </summary>
-    /// <param name="package"></param>
     /// <param name="releases"></param>
     /// <param name="installedVersion"></param>
     /// <returns></returns>
-    public bool IsUpdateAvailable(Package package, IReadOnlyList<Release>? releases, string installedVersion)
+    public bool IsUpdateAvailable(IReadOnlyList<Release>? releases, string installedVersion)
     {
         using var ssc = new ScopedStopwatch();
 
         if (releases is null || !releases.Any())
         {
-            Log.Warning("No releases found for package {Package}", package);
             return false;
         }
         if (!releases.Any(x => x.TagName.Equals(installedVersion)))
         {
-            Log.Warning("No releases found with version {InstalledVersion} for package {Package}",
-                installedVersion, package);
             return false;
         }
 
@@ -123,6 +119,22 @@ public class GitHubService : IGitHubService
         return false;
     }
 
+    /// <summary>
+    /// Check if a release exists
+    /// </summary>
+    /// <param name="installedVersion"></param>
+    /// <returns></returns>
+    public async Task<bool> IsUpdateAvailable(Package package, string installedVersion)
+    {
+        var releases = await GetReleasesForPackage(package);
+        if (releases is null || !releases.Any())
+        {
+            Log.Warning("[{Package}] No releases found for package", package);
+            return false;
+        }
+
+        return IsUpdateAvailable(releases, installedVersion);
+    }
 
     /// <summary>
     /// !!! REMOVE WHEN OCTOKIT UPDATES FROM V0.50 !!!
