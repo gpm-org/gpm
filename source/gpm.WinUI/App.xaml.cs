@@ -5,7 +5,6 @@ using gpm.Core.Services;
 using gpm.Core.Tasks;
 using gpmWinui.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using Serilog;
 //using Refit;
