@@ -3,6 +3,7 @@ using System.CommandLine.Invocation;
 using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.CommandLine.NamingConventionBinder;
 
 namespace gpm.Commands;
 
@@ -29,11 +30,11 @@ public class UpdateCommand : Command
         Handler = CommandHandler.Create<string, bool, string, int?, string, IHost>(Update);
     }
 
-    private void Update(string name, bool global, string path, int? slot, string version, IHost host)
+    private async Task Update(string name, bool global, string path, int? slot, string version, IHost host)
     {
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        taskService.Update(name, global, path, slot, version);
+        await taskService.Update(name, global, path, slot, version);
     }
 }

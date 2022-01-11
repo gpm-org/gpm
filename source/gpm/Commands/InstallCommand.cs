@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,12 +34,12 @@ public class InstallCommand : Command
         Handler = CommandHandler.Create<string, string, string, bool, IHost>(UpdateAndInstall);
     }
 
-    private void UpdateAndInstall(string name, string version, string path, bool global, IHost host)
+    private async Task UpdateAndInstall(string name, string version, string path, bool global, IHost host)
     {
 
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        taskService.UpdateAndInstall(name, version, path, global);
+        await taskService.UpdateAndInstall(name, version, path, global);
     }
 }

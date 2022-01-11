@@ -3,6 +3,7 @@ using System.CommandLine.Invocation;
 using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.CommandLine.NamingConventionBinder;
 
 namespace gpm.Commands;
 
@@ -16,11 +17,11 @@ public class RestoreCommand : Command
         Handler = CommandHandler.Create<IHost>(UpdateAndRestore);
     }
 
-    private void UpdateAndRestore(IHost host)
+    private async Task UpdateAndRestore(IHost host)
     {
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        taskService.UpdateAndRestore();
+        await taskService.UpdateAndRestore();
     }
 }

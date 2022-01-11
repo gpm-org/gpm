@@ -3,6 +3,7 @@ using System.CommandLine.Invocation;
 using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.CommandLine.NamingConventionBinder;
 
 namespace gpm.Commands;
 

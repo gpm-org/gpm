@@ -3,6 +3,7 @@ using System.CommandLine.Invocation;
 using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.CommandLine.NamingConventionBinder;
 
 namespace gpm.Commands;
 
@@ -26,11 +27,11 @@ public class RemoveCommand : Command
         Handler = CommandHandler.Create<string, bool, string, int?, IHost>(UpdateAndRemove);
     }
 
-    private void UpdateAndRemove(string name, bool global, string path, int? slot, IHost host)
+    private async Task UpdateAndRemove(string name, bool global, string path, int? slot, IHost host)
     {
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        taskService.UpdateAndRemove(name, global, path, slot);
+        await taskService.UpdateAndRemove(name, global, path, slot);
     }
 }

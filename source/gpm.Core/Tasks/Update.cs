@@ -111,7 +111,7 @@ public partial class TaskService
             Log.Warning("[{Package}] No releases found for package", package);
             return false;
         }
-        if (!_gitHubService.IsUpdateAvailable(package, releases, model.Slots[slotIdx].Version.NotNull()))
+        if (!_gitHubService.IsUpdateAvailable(releases, model.Slots[slotIdx].Version.NotNull()))
         {
             Log.Warning("[{Package}] No update available for package", package);
             return false;
