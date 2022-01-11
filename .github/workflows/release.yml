@@ -6,7 +6,6 @@ on:
     - '*'
 
 jobs:
-
   build:
     name: release-ubuntu
     runs-on: ubuntu-latest
@@ -22,17 +21,19 @@ jobs:
       run: dotnet build source/gpm.sln --no-restore
       
     - name: Publish
-      run: dotnet publish source/gpm/gpm.csproj -o publish
-    - uses: papeloto/action-zip@v1
+      run: dotnet publish source/gpm/gpm.csproj -o publish-win && dotnet publish source/gpm/gpm.csproj -r linux-x64 --no-self-contained -o publish-linux
+    - uses: montudor/action-zip@v1
       with:
-        files: publish/
-        dest: gpm.zip
+        args: zip -qq -r gpm-win.zip publish-win/ 
+    - uses: montudor/action-zip@v1
+      with:
+        args: zip -qq -r gpm-linux.zip publish-linux/
 
     - uses: ncipollo/release-action@v1
       with:
         draft: true
         generateReleaseNotes: true
-        artifacts: "gpm.zip"
+        artifacts: "*.zip"
 #        bodyFile: "body.md"
         token: ${{ secrets.GITHUB_TOKEN }}
 
