@@ -10,7 +10,6 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using gpm.Core;
 using gpm.Core.Models;
 using gpm.Core.Services;
-using Octokit;
 using Serilog;
 
 namespace WpfAppTest;
@@ -63,47 +62,45 @@ public class AutoInstallerService
         return true;
     }
 
+    ///// <summary>
+    ///// reads the apps directory for a lockfile and checks if an update is available
+    ///// 1 API call
+    ///// </summary>
+    ///// <returns>false if no valid lockfile found in the app directory or no update available</returns>
+    //public async Task<bool> CheckForUpdate()
+    //{
+    //    if (Package is null || Version is null || !IsEnabled)
+    //    {
+    //        return false;
+    //    }
+
+    //    if (!await _gitHubService.IsUpdateAvailable(Package, Version))
+    //    {
+    //        Log.Warning("[{Package}] No update available for package", Package);
+    //        return false;
+    //    }
+
+    //    return true;
+    //}
+
     /// <summary>
     /// reads the apps directory for a lockfile and checks if an update is available
     /// 1 API call
     /// </summary>
     /// <returns>false if no valid lockfile found in the app directory or no update available</returns>
-    public async Task<bool> CheckForUpdate()
-    {
-        if (Package is null || Version is null || !IsEnabled)
-        {
-            return false;
-        }
-
-        if (!await _gitHubService.IsUpdateAvailable(Package, Version))
-        {
-            Log.Warning("[{Package}] No update available for package", Package);
-            return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// reads the apps directory for a lockfile and checks if an update is available
-    /// 1 API call
-    /// </summary>
-    /// <returns>false if no valid lockfile found in the app directory or no update available</returns>
-    public async Task<IReadOnlyList<ReleaseModel>?> CheckForUpdateAndGetReleases()
+    public async Task<IEnumerable<ReleaseModel>?> CheckForUpdate()
     {
         if (Package is null || Version is null || !IsEnabled)
         {
             return null;
         }
 
-        var releases = await _gitHubService.IsUpdateAvailableAndGetReleases(Package, Version);
-        if (releases is not null)
+        if ((await _gitHubService.TryUpdateAvailable(Package, Version)).Out(out var releases))
         {
-            Log.Warning("[{Package}] No update available for package", Package);
-            return null;
+            return releases;
         }
 
-        return releases;
+        return null;
     }
 
 
@@ -114,7 +111,7 @@ public class AutoInstallerService
     /// <returns>true if update succeeded</returns>
     public async Task<bool> Update()   
     {
-        var releases = await CheckForUpdateAndGetReleases();
+        var releases = await CheckForUpdate();
         if (releases != null)
         {
             return false;

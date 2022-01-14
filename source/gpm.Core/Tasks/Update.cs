@@ -126,15 +126,15 @@ public partial class TaskService
             return false;
         }
 
-        var releases = await _gitHubService.GetReleasesForPackage(package);
-        if (releases is null || !releases.Any())
+        if (!(await _gitHubService.TryUpdateAvailable(package, model.Slots[slotIdx].Version.NotNull()))
+            .Out(out var releases))
         {
-            Log.Warning("[{Package}] No releases found for package", package);
             return false;
         }
-        if (!_gitHubService.IsUpdateAvailable(releases, model.Slots[slotIdx].Version.NotNull()))
+
+        //var releases = await _gitHubService.IsUpdateAvailable(package, model.Slots[slotIdx].Version.NotNull());
+        if (releases is null || !releases.Any())
         {
-            Log.Warning("[{Package}] No update available for package", package);
             return false;
         }
 

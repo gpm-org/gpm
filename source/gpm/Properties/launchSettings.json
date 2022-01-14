@@ -2,7 +2,7 @@
   "profiles": {
     "gpm update": {
       "commandName": "Project",
-      "commandLineArgs": "update wolvenkit/wolvenkit/test1"
+      "commandLineArgs": "update wolvenkit/wolvenkit/test1 -g"
     },
     "gpm list": {
       "commandName": "Project",

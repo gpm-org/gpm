@@ -55,8 +55,13 @@ public class MainViewModel : ObservableRecipient
     public IAsyncRelayCommand CheckCommand { get; }
     private async Task CheckAsync()
     {
+        var isUpdateAvailable = false;
         var result = await _installer.CheckForUpdate();
-        Log.Information($"Is update available: {result}");
+        if (result != null)
+        {
+            isUpdateAvailable = true;
+        }
+        Log.Information($"Is update available: {isUpdateAvailable}");
 
     }
 

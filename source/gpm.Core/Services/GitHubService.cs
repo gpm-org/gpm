@@ -26,10 +26,11 @@ public class GitHubService : IGitHubService
 
     /// <summary>
     /// Fetch all github releases for a given package.
+    /// 1 API call
     /// </summary>
     /// <param name="package"></param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<ReleaseModel>?> GetReleasesForPackage(Package package)
+    public async Task<IEnumerable<ReleaseModel>?> GetReleasesForPackage(Package package)
     {
         using var ssc = new ScopedStopwatch();
 
@@ -43,7 +44,7 @@ public class GitHubService : IGitHubService
                 releases = await _gitHubClient.Repository.Release.GetAll(package.Owner, package.Name);
                 if (releases != null)
                 {
-                    return (IReadOnlyList<ReleaseModel>?)releases.Select(x => new ReleaseModel(x));
+                    return releases.Select(x => new ReleaseModel(x));
                 }
                 else
                 {
@@ -60,6 +61,7 @@ public class GitHubService : IGitHubService
 
     /// <summary>
     /// Get metadata for a github repo
+    /// 2 API calls
     /// </summary>
     /// <param name="url"></param>
     public async Task<(Repository? repo, RepositoryTopics? topics)> GetInfo(string url)
@@ -96,13 +98,87 @@ public class GitHubService : IGitHubService
         }
     }
 
+    //!!! REMOVE WHEN OCTOKIT UPDATES FROM V0.50 !!!
+    // 1 API call
+    [ManualRoute("GET", "/repositories/{id}/topics")]
+    private async Task<RepositoryTopics> GetAllTopics(long repositoryId)
+    {
+        var endpoint = "repositories/{0}/topics".FormatUri(repositoryId);
+        var ac = new ApiConnection(_gitHubClient.Connection);
+        var data = await ac
+            .Get<RepositoryTopics>(endpoint, null, "application/vnd.github.mercy-preview+json")
+            .ConfigureAwait(false);
+
+        return data ?? new RepositoryTopics();
+    }
+
     /// <summary>
-    /// Check if a release exists that
+    /// Check if a release exists and returns the releases
+    /// 1 API call
     /// </summary>
-    /// <param name="releases"></param>
     /// <param name="installedVersion"></param>
     /// <returns></returns>
-    public bool IsUpdateAvailable(IReadOnlyList<ReleaseModel>? releases, string installedVersion)
+    public async Task<AsyncOut<bool, IEnumerable<ReleaseModel>?>> TryUpdateAvailable(
+        Package package, string installedVersion)
+    {
+        var releases = await GetReleasesForPackage(package);
+        if (releases is null || !releases.Any())
+        {
+            Log.Warning("[{Package}] No releases found for package", package);
+            return (false, null);
+        }
+
+        if (IsReleasesContainTag(releases, installedVersion))
+        {
+            return (true, releases);
+        }
+
+        Log.Warning("[{Package}] No releases found for package", package);
+        return (false, null);
+    }
+
+
+    ///// <summary>
+    ///// Check if a release exists and returns the releases
+    ///// 1 API call
+    ///// </summary>
+    ///// <param name="installedVersion"></param>
+    ///// <returns></returns>
+    //public async Task<IReadOnlyList<ReleaseModel>?> IsUpdateAvailable(Package package, string installedVersion)
+    //{
+    //    var releases = await GetReleasesForPackage(package);
+    //    if (releases is null || !releases.Any())
+    //    {
+    //        Log.Warning("[{Package}] No releases found for package", package);
+    //        return null;
+    //    }
+
+    //    if (IsReleasesContainTag(releases, installedVersion))
+    //    {
+    //        return releases;
+    //    }
+    //    return null;
+    //}
+
+    ///// <summary>
+    ///// Check if a release exists
+    ///// 1 API call
+    ///// </summary>
+    ///// <param name="installedVersion"></param>
+    ///// <returns></returns>
+    //public async Task<bool> IsUpdateAvailable(Package package, string installedVersion)
+    //{
+    //    var releases = await GetReleasesForPackage(package);
+    //    if (releases is null || !releases.Any())
+    //    {
+    //        Log.Warning("[{Package}] No releases found for package", package);
+    //        return false;
+    //    }
+
+    //    return IsUpdateAvailable(releases, installedVersion);
+    //}
+
+    private static bool IsReleasesContainTag(IEnumerable<ReleaseModel>? releases, string installedVersion)
     {
         using var ssc = new ScopedStopwatch();
 
@@ -116,70 +192,13 @@ public class GitHubService : IGitHubService
         }
 
         // idx 0 is latest release
-        if (!releases[0].TagName.Equals(installedVersion))
+        if (!releases.First().TagName.Equals(installedVersion))
         {
             return true;
         }
 
         Log.Information($"Latest release already installed");
         return false;
-    }
-
-    /// <summary>
-    /// Check if a release exists
-    /// 1 API call
-    /// </summary>
-    /// <param name="installedVersion"></param>
-    /// <returns></returns>
-    public async Task<bool> IsUpdateAvailable(Package package, string installedVersion)
-    {
-        var releases = await GetReleasesForPackage(package);
-        if (releases is null || !releases.Any())
-        {
-            Log.Warning("[{Package}] No releases found for package", package);
-            return false;
-        }
-
-        return IsUpdateAvailable(releases, installedVersion);
-    }
-
-    /// <summary>
-    /// Check if a release exists
-    /// 1 API call
-    /// </summary>
-    /// <param name="installedVersion"></param>
-    /// <returns></returns>
-    public async Task<IReadOnlyList<ReleaseModel>?> IsUpdateAvailableAndGetReleases(Package package, string installedVersion)
-    {
-        var releases = await GetReleasesForPackage(package);
-        if (releases is null || !releases.Any())
-        {
-            Log.Warning("[{Package}] No releases found for package", package);
-            return null;
-        }
-
-        if (IsUpdateAvailable(releases, installedVersion))
-        {
-            return releases;
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// !!! REMOVE WHEN OCTOKIT UPDATES FROM V0.50 !!!
-    /// </summary>
-    /// <param name="repositoryId"></param>
-    /// <returns></returns>
-    [ManualRoute("GET", "/repositories/{id}/topics")]
-    private async Task<RepositoryTopics> GetAllTopics(long repositoryId)
-    {
-        var endpoint = "repositories/{0}/topics".FormatUri(repositoryId);
-        var ac = new ApiConnection(_gitHubClient.Connection);
-        var data = await ac
-            .Get<RepositoryTopics>(endpoint, null, "application/vnd.github.mercy-preview+json")
-            .ConfigureAwait(false);
-
-        return data ?? new RepositoryTopics();
     }
 
     /// <summary>

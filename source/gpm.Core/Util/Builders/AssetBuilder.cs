@@ -3,18 +3,18 @@ using gpm.Core.Models;
 
 namespace gpm.Core.Util.Builders;
 
-public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAssetModel>, ReleaseAssetModel>
+public class AssetBuilder : IPackageBuilder<IEnumerable<ReleaseAssetModel>, ReleaseAssetModel>
 {
     private BuilderContext? _builderContext;
     private Package? _package;
 
-    private readonly List<Func<BuilderContext, IReadOnlyList<ReleaseAssetModel>, IReadOnlyList<ReleaseAssetModel>>>
+    private readonly List<Func<BuilderContext, IEnumerable<ReleaseAssetModel>, IEnumerable<ReleaseAssetModel>>>
         _configureIndexLogicActions = new();
-    private readonly List<Func<BuilderContext, IReadOnlyList<ReleaseAssetModel>, IReadOnlyList<ReleaseAssetModel>>>
+    private readonly List<Func<BuilderContext, IEnumerable<ReleaseAssetModel>, IEnumerable<ReleaseAssetModel>>>
         _configureNamePatternLogicActions = new();
 
 
-    public ReleaseAssetModel? Build(IReadOnlyList<ReleaseAssetModel> releaseAssets)
+    public ReleaseAssetModel? Build(IEnumerable<ReleaseAssetModel> releaseAssets)
     {
         ArgumentNullException.ThrowIfNull(_package);
         CreateHostBuilderContext();
@@ -37,7 +37,9 @@ public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAssetModel>, Re
     {
         _package = args;
 
-        ConfigureIndexLogic((context, assets) => context.Package.AssetIndex is not { } i ? assets : new[] { assets[i] });
+        ConfigureIndexLogic((context, assets) => context.Package.AssetIndex is not { } i
+        ? assets
+        : new[] { assets.ToList()[i] });
         ConfigureNamePatternLogic((context, assets) =>
         {
             var pattern = context.Package.AssetNamePattern;
@@ -66,7 +68,7 @@ public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAssetModel>, Re
 
 
     public IPackageBuilder ConfigureIndexLogic(
-        Func<BuilderContext, IReadOnlyList<ReleaseAssetModel>, IReadOnlyList<ReleaseAssetModel>> configureDelegate)
+        Func<BuilderContext, IEnumerable<ReleaseAssetModel>, IEnumerable<ReleaseAssetModel>> configureDelegate)
     {
         _configureIndexLogicActions.Add(configureDelegate ??
                                         throw new ArgumentNullException(nameof(configureDelegate)));
@@ -75,7 +77,7 @@ public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAssetModel>, Re
 
 
     public IPackageBuilder ConfigureNamePatternLogic(
-        Func<BuilderContext, IReadOnlyList<ReleaseAssetModel>, IReadOnlyList<ReleaseAssetModel>> configureDelegate)
+        Func<BuilderContext, IEnumerable<ReleaseAssetModel>, IEnumerable<ReleaseAssetModel>> configureDelegate)
     {
         _configureNamePatternLogicActions.Add(configureDelegate ??
                                         throw new ArgumentNullException(nameof(configureDelegate)));

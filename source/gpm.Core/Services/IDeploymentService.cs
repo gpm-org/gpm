@@ -15,7 +15,7 @@ public interface IDeploymentService
     /// <returns></returns>
     Task<bool> InstallReleaseAsync(
         Package package,
-        IReadOnlyList<ReleaseModel> releases,
+        IEnumerable<ReleaseModel> releases,
         string? requestedVersion,
         int slot = 0);
 

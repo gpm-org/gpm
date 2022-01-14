@@ -12,12 +12,12 @@ public class ReleaseModel
     public ReleaseModel(Release githubRelease)
     {
         TagName = githubRelease.TagName;
-        Assets = (IReadOnlyList<ReleaseAssetModel>)githubRelease.Assets.Select(x => new ReleaseAssetModel(x));
+        Assets = githubRelease.Assets.Select(x => new ReleaseAssetModel(x));
     }
 
     public string TagName { get; internal set; }
 
-    public IReadOnlyList<ReleaseAssetModel> Assets { get; private set; }
+    public IEnumerable<ReleaseAssetModel> Assets { get; private set; }
 }
 
 public class ReleaseAssetModel

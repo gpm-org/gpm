@@ -5,7 +5,6 @@ using gpm.Core.Extensions;
 using gpm.Core.Models;
 using gpm.Core.Util;
 using gpm.Core.Util.Builders;
-using Octokit;
 using Serilog;
 
 namespace gpm.Core.Services;
@@ -37,7 +36,7 @@ public class DeploymentService : IDeploymentService
     /// <returns></returns>
     public async Task<bool> InstallReleaseAsync(
         Package package,
-        IReadOnlyList<ReleaseModel> releases,
+        IEnumerable<ReleaseModel> releases,
         string? requestedVersion,
         int slot = 0)
     {
@@ -57,7 +56,7 @@ public class DeploymentService : IDeploymentService
 
         // get correct release
         var release = string.IsNullOrEmpty(requestedVersion)
-            ? releases[0] //latest
+            ? releases.First() //latest
             : releases.FirstOrDefault(x => x.TagName.Equals(requestedVersion));
         if (release == null)
         {
