@@ -29,7 +29,7 @@ public class GitHubService : IGitHubService
     /// </summary>
     /// <param name="package"></param>
     /// <returns></returns>
-    public async Task<IReadOnlyList<Release>?> GetReleasesForPackage(Package package)
+    public async Task<IReadOnlyList<ReleaseModel>?> GetReleasesForPackage(Package package)
     {
         using var ssc = new ScopedStopwatch();
 
@@ -41,15 +41,21 @@ public class GitHubService : IGitHubService
             try
             {
                 releases = await _gitHubClient.Repository.Release.GetAll(package.Owner, package.Name);
+                if (releases != null)
+                {
+                    return (IReadOnlyList<ReleaseModel>?)releases.Select(x => new ReleaseModel(x));
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception e)
             {
                 Log.Error(e, "Fetching github releases failed");
-                releases = null;
+                return null;
             }
         }
-
-        return releases;
     }
 
     /// <summary>
@@ -96,7 +102,7 @@ public class GitHubService : IGitHubService
     /// <param name="releases"></param>
     /// <param name="installedVersion"></param>
     /// <returns></returns>
-    public bool IsUpdateAvailable(IReadOnlyList<Release>? releases, string installedVersion)
+    public bool IsUpdateAvailable(IReadOnlyList<ReleaseModel>? releases, string installedVersion)
     {
         using var ssc = new ScopedStopwatch();
 
@@ -121,6 +127,7 @@ public class GitHubService : IGitHubService
 
     /// <summary>
     /// Check if a release exists
+    /// 1 API call
     /// </summary>
     /// <param name="installedVersion"></param>
     /// <returns></returns>
@@ -134,6 +141,28 @@ public class GitHubService : IGitHubService
         }
 
         return IsUpdateAvailable(releases, installedVersion);
+    }
+
+    /// <summary>
+    /// Check if a release exists
+    /// 1 API call
+    /// </summary>
+    /// <param name="installedVersion"></param>
+    /// <returns></returns>
+    public async Task<IReadOnlyList<ReleaseModel>?> IsUpdateAvailableAndGetReleases(Package package, string installedVersion)
+    {
+        var releases = await GetReleasesForPackage(package);
+        if (releases is null || !releases.Any())
+        {
+            Log.Warning("[{Package}] No releases found for package", package);
+            return null;
+        }
+
+        if (IsUpdateAvailable(releases, installedVersion))
+        {
+            return releases;
+        }
+        return null;
     }
 
     /// <summary>
@@ -161,7 +190,7 @@ public class GitHubService : IGitHubService
     /// <param name="asset"></param>
     /// <param name="version"></param>
     /// <returns></returns>
-    public async Task<bool> DownloadAssetToCache(Package package, ReleaseAsset asset, string version)
+    public async Task<bool> DownloadAssetToCache(Package package, ReleaseAssetModel asset, string version)
     {
         using var ssc = new ScopedStopwatch();
 

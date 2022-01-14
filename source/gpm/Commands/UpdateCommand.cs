@@ -35,6 +35,6 @@ public class UpdateCommand : Command
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        await taskService.Update(name, global, path, slot, version);
+        await taskService.UpdateAndUpdate(name, global, path, slot, version);
     }
 }

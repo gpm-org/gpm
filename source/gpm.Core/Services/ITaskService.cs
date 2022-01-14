@@ -11,7 +11,9 @@ public interface ITaskService
     Task<bool> UpdateAndRemove(string name, bool global, string path, int? slot);
     Task<bool> Remove(string name, bool global, string path, int? slot);
 
+    Task<bool> UpdateAndUpdate(string name, bool global, string path, int? slot, string version);
     Task<bool> Update(string name, bool global, string path, int? slot, string version);
 
     void Upgrade();
+    
 }

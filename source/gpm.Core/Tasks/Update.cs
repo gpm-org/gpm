@@ -7,13 +7,34 @@ namespace gpm.Core.Tasks;
 
 public partial class TaskService
 {
-    public async Task<bool> Update(string name, bool global, string path, int? slot, string version)
+    /// <summary>
+    /// Update and updates a specified installed package
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="global"></param>
+    /// <param name="path"></param>
+    /// <param name="slot"></param>
+    /// <param name="version"></param>
+    /// <returns></returns>
+    public async Task<bool> UpdateAndUpdate(string name, bool global, string path, int? slot, string version)
     {
-        // update here
         Upgrade();
 
-        // checks
+        return await Update(name, global, path, slot, version);
+    }
 
+
+    /// <summary>
+    /// Updates a specified installed package
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="global"></param>
+    /// <param name="path"></param>
+    /// <param name="slot"></param>
+    /// <param name="version"></param>
+    /// <returns></returns>
+    public async Task<bool> Update(string name, bool global, string path, int? slot, string version)
+    {
         #region checks
 
         if (string.IsNullOrEmpty(name))

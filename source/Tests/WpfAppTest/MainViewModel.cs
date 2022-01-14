@@ -48,7 +48,7 @@ public class MainViewModel : ObservableRecipient
     {
         await AutoInstallerService.EnsureGpmInstalled();
 
-        var autoUpdateEnabled = await _installer.Init();
+        var autoUpdateEnabled = _installer.Init();
         Log.Information($"[{_installer.Package}, v.{_installer.Version}] auto-update Enabled: {autoUpdateEnabled}");
     }
 

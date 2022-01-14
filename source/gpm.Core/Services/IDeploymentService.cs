@@ -1,5 +1,4 @@
 using gpm.Core.Models;
-using Octokit;
 
 namespace gpm.Core.Services;
 
@@ -16,7 +15,7 @@ public interface IDeploymentService
     /// <returns></returns>
     Task<bool> InstallReleaseAsync(
         Package package,
-        IReadOnlyList<Release> releases,
+        IReadOnlyList<ReleaseModel> releases,
         string? requestedVersion,
         int slot = 0);
 

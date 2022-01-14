@@ -1,21 +1,20 @@
 using gpm.Core.Extensions;
 using gpm.Core.Models;
-using Octokit;
 
 namespace gpm.Core.Util.Builders;
 
-public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAsset>, ReleaseAsset>
+public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAssetModel>, ReleaseAssetModel>
 {
     private BuilderContext? _builderContext;
     private Package? _package;
 
-    private readonly List<Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>>>
+    private readonly List<Func<BuilderContext, IReadOnlyList<ReleaseAssetModel>, IReadOnlyList<ReleaseAssetModel>>>
         _configureIndexLogicActions = new();
-    private readonly List<Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>>>
+    private readonly List<Func<BuilderContext, IReadOnlyList<ReleaseAssetModel>, IReadOnlyList<ReleaseAssetModel>>>
         _configureNamePatternLogicActions = new();
 
 
-    public ReleaseAsset? Build(IReadOnlyList<ReleaseAsset> releaseAssets)
+    public ReleaseAssetModel? Build(IReadOnlyList<ReleaseAssetModel> releaseAssets)
     {
         ArgumentNullException.ThrowIfNull(_package);
         CreateHostBuilderContext();
@@ -67,7 +66,7 @@ public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAsset>, Release
 
 
     public IPackageBuilder ConfigureIndexLogic(
-        Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>> configureDelegate)
+        Func<BuilderContext, IReadOnlyList<ReleaseAssetModel>, IReadOnlyList<ReleaseAssetModel>> configureDelegate)
     {
         _configureIndexLogicActions.Add(configureDelegate ??
                                         throw new ArgumentNullException(nameof(configureDelegate)));
@@ -76,7 +75,7 @@ public class AssetBuilder : IPackageBuilder<IReadOnlyList<ReleaseAsset>, Release
 
 
     public IPackageBuilder ConfigureNamePatternLogic(
-        Func<BuilderContext, IReadOnlyList<ReleaseAsset>, IReadOnlyList<ReleaseAsset>> configureDelegate)
+        Func<BuilderContext, IReadOnlyList<ReleaseAssetModel>, IReadOnlyList<ReleaseAssetModel>> configureDelegate)
     {
         _configureNamePatternLogicActions.Add(configureDelegate ??
                                         throw new ArgumentNullException(nameof(configureDelegate)));

@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -11,10 +10,14 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using gpm.Core;
 using gpm.Core.Models;
 using gpm.Core.Services;
+using Octokit;
 using Serilog;
 
 namespace WpfAppTest;
 
+/// <summary>
+/// 
+/// </summary>
 public class AutoInstallerService
 {
     private readonly IGitHubService _gitHubService = Ioc.Default.GetRequiredService<IGitHubService>();
@@ -27,28 +30,22 @@ public class AutoInstallerService
 
     public AutoInstallerService()
     {
-
+        //Init();
     }
 
-    public async Task<bool> Init()
+    /// <summary>
+    /// Initializes the update manager
+    /// </summary>
+    /// <returns>false if no valid lockfile found in the app directory</returns>
+    public bool Init()
     {
         // read manifest
-        var info = await TryGetLockFile();
-        if (info is null)
-        {
-            return false;
-        }
-        var version = info.Packages[0].Version;
-        if (version is null)
-        {
-            return false;
-        }
-        var id = info.Packages[0].Id;
-        if (id is null)
+        if (!TryGetLockFile(out var info))
         {
             return false;
         }
 
+        var id = info.Packages[0].Id;
         var package = _dataBaseService.GetPackageFromName(id);
         if (package is null)
         {
@@ -56,17 +53,21 @@ public class AutoInstallerService
             return false;
         }
 
+
+
+
         Package = package;
         IsEnabled = true;
-        Version = version;
+        Version = info.Packages[0].Version;
 
         return true;
     }
 
     /// <summary>
-    /// 
+    /// reads the apps directory for a lockfile and checks if an update is available
+    /// 1 API call
     /// </summary>
-    /// <returns></returns>
+    /// <returns>false if no valid lockfile found in the app directory or no update available</returns>
     public async Task<bool> CheckForUpdate()
     {
         if (Package is null || Version is null || !IsEnabled)
@@ -84,7 +85,52 @@ public class AutoInstallerService
     }
 
     /// <summary>
-    /// 
+    /// reads the apps directory for a lockfile and checks if an update is available
+    /// 1 API call
+    /// </summary>
+    /// <returns>false if no valid lockfile found in the app directory or no update available</returns>
+    public async Task<IReadOnlyList<ReleaseModel>?> CheckForUpdateAndGetReleases()
+    {
+        if (Package is null || Version is null || !IsEnabled)
+        {
+            return null;
+        }
+
+        var releases = await _gitHubService.IsUpdateAvailableAndGetReleases(Package, Version);
+        if (releases is not null)
+        {
+            Log.Warning("[{Package}] No update available for package", Package);
+            return null;
+        }
+
+        return releases;
+    }
+
+
+    /// <summary>
+    /// Updates the current app
+    /// 1 API call
+    /// </summary>
+    /// <returns>true if update succeeded</returns>
+    public async Task<bool> Update()   
+    {
+        var releases = await CheckForUpdateAndGetReleases();
+        if (releases != null)
+        {
+            return false;
+        }
+
+
+
+             
+        return true;
+    }
+
+
+
+    /// <summary>
+    /// Ensure that the gpm global tool is installed
+    /// and reinstalls it if not
     /// </summary>
     /// <returns></returns>
     public static async Task<bool> EnsureGpmInstalled()
@@ -98,7 +144,7 @@ public class AutoInstallerService
     }
 
 
-    private static async Task<PackageLock?> TryGetLockFile()
+    private static bool TryGetLockFile([NotNullWhen(true)] out PackageLock? packageLock)
     {
         var dir = AppContext.BaseDirectory;
         var lockFilePath = Path.Combine(dir, Constants.GPMLOCK);
@@ -113,15 +159,30 @@ public class AutoInstallerService
         {
             try
             {
-                var obj = JsonSerializer.Deserialize<PackageLock>(await File.ReadAllTextAsync(lockFilePath), options);
-                return obj;
+                packageLock = JsonSerializer.Deserialize<PackageLock>(File.ReadAllText(lockFilePath), options);
+                if (packageLock is null)
+                {
+                    return false;
+                }
+                var version = packageLock.Packages[0].Version;
+                if (version is null)
+                {
+                    return false;
+                }
+                var id = packageLock.Packages[0].Id;
+                if (id is null)
+                {
+                    return false;
+                }
+                return true;
             }
             catch (Exception e)
             {
                 Log.Error(e, "Failed to read existing lock file");
             }
         }
-        return null;
+        packageLock = null;
+        return false;
     }
 
     private static async Task<bool> UpdateGpmAsync() => await RunDotnetAsync("update", "gpm");

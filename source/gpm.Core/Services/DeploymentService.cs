@@ -37,7 +37,7 @@ public class DeploymentService : IDeploymentService
     /// <returns></returns>
     public async Task<bool> InstallReleaseAsync(
         Package package,
-        IReadOnlyList<Release> releases,
+        IReadOnlyList<ReleaseModel> releases,
         string? requestedVersion,
         int slot = 0)
     {
