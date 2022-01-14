@@ -9,7 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="DynamicData" Version="7.4.9" />
-    <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+    <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0175" />
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.315-alpha.0.9" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     <PackageReference Include="Octokit" Version="0.50.0" />
