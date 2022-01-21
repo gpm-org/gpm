@@ -13,7 +13,6 @@ public partial class TaskService
     /// gpm install -p PATH         installs redscript in the specified location (global)
     /// gpm install redscript       installs redscript in the current directory (local)
     /// gpm install -g -p PATH      not allowed
-
     /// <summary>
     /// Update and install a package (optionally with a given version)
     /// </summary>
@@ -21,7 +20,6 @@ public partial class TaskService
     /// <param name="version"></param>
     /// <param name="path">The global install directory, can't be combined with -g</param>
     /// <param name="global">Install this package globally in the default location</param>
-    /// <param name="host"></param>
     /// <returns></returns>
     public async Task<bool> UpdateAndInstall(string name, string version, string path, bool global)
     {
@@ -37,7 +35,6 @@ public partial class TaskService
     /// <param name="version"></param>
     /// <param name="path">The global install directory, can't be combined with -g</param>
     /// <param name="global">Install this package globally in the default location</param>
-    /// <param name="host"></param>
     /// <returns></returns>
     public async Task<bool> Install(string name, string version, string path, bool global)
     {
@@ -87,8 +84,14 @@ public partial class TaskService
 
         // install package
         Log.Information("[{Package}] Installing package version {Version} ...", package, string.IsNullOrEmpty(version) ? "LATEST" : version);
-        var releases = await _gitHubService.GetReleasesForPackage(package);
-        if (releases is null || !releases.Any())
+
+        if (!(await _gitHubService.TryGetRelease(package, version))
+            .Out(out var release))
+        {
+            return false;
+        }
+
+        if (release is null)
         {
             Log.Warning("No releases found for package {Package}", package);
             // clean slots for failed install
@@ -96,7 +99,7 @@ public partial class TaskService
             return false;
         }
 
-        if (await _deploymentService.InstallReleaseAsync(package, releases, version, slotId))
+        if (await _deploymentService.InstallReleaseAsync(package, release, slotId))
         {
             Log.Information("[{Package}] Package successfully installed", package);
         }

@@ -126,14 +126,13 @@ public partial class TaskService
             return false;
         }
 
-        if (!(await _gitHubService.TryUpdateAvailable(package, model.Slots[slotIdx].Version.NotNull()))
-            .Out(out var releases))
+        if (!(await _gitHubService.TryGetRelease(package, version))
+            .Out(out var release))
         {
             return false;
         }
 
-        //var releases = await _gitHubService.IsUpdateAvailable(package, model.Slots[slotIdx].Version.NotNull());
-        if (releases is null || !releases.Any())
+        if (release is null)
         {
             return false;
         }
@@ -155,7 +154,7 @@ public partial class TaskService
         // update to new version
         model.Slots.AddOrUpdate(slotIdx, new SlotManifest() { FullPath = installPath });
         Log.Information("[{Package}] Updating package ...", package);
-        if (await _deploymentService.InstallReleaseAsync(package, releases, version, slotIdx))
+        if (await _deploymentService.InstallReleaseAsync(package, release, slotIdx))
         {
             Log.Information("[{Package}] Package successfully updated to version {Version}", package,
                 model.Slots[slotIdx].Version);

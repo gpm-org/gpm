@@ -8,15 +8,13 @@ public interface IDeploymentService
     /// Download and install an asset file from a Github repo.
     /// </summary>
     /// <param name="package"></param>
-    /// <param name="releases"></param>
-    /// <param name="requestedVersion"></param>
+    /// <param name="release"></param>
     /// <param name="slot"></param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
     Task<bool> InstallReleaseAsync(
         Package package,
-        IEnumerable<ReleaseModel> releases,
-        string? requestedVersion,
+        ReleaseModel release,
         int slot = 0);
 
     /// <summary>

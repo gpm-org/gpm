@@ -1,5 +1,6 @@
 using System.Windows;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using gpm.Core.Installer;
 using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;

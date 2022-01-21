@@ -34,22 +34,13 @@ public class GitHubService : IGitHubService
     {
         using var ssc = new ScopedStopwatch();
 
-        IReadOnlyList<Release>? releases;
-
         // get releases from github repo
         using (await _loadingLock.LockAsync())
         {
             try
             {
-                releases = await _gitHubClient.Repository.Release.GetAll(package.Owner, package.Name);
-                if (releases != null)
-                {
-                    return releases.Select(x => new ReleaseModel(x));
-                }
-                else
-                {
-                    return null;
-                }
+                var releases = await _gitHubClient.Repository.Release.GetAll(package.Owner, package.Name);
+                return releases?.Select(x => new ReleaseModel(x));
             }
             catch (Exception e)
             {
@@ -116,90 +107,75 @@ public class GitHubService : IGitHubService
     /// Check if a release exists and returns the releases
     /// 1 API call
     /// </summary>
-    /// <param name="installedVersion"></param>
+    /// <param name="package"></param>
+    /// <param name="requestedVersion">the requested version of the package. leave null or empty for the latest release</param>
     /// <returns></returns>
-    public async Task<AsyncOut<bool, IEnumerable<ReleaseModel>?>> TryUpdateAvailable(
-        Package package, string installedVersion)
+    public async Task<AsyncOut<bool, ReleaseModel?>> TryGetRelease(Package package, string requestedVersion)
     {
         var releases = await GetReleasesForPackage(package);
-        if (releases is null || !releases.Any())
+        if (releases is null)
         {
             Log.Warning("[{Package}] No releases found for package", package);
             return (false, null);
         }
 
-        if (IsReleasesContainTag(releases, installedVersion))
+        var releaseModels = releases.ToList();
+        if (!releaseModels.Any())
         {
-            return (true, releases);
+            Log.Warning("[{Package}] No releases found for package", package);
+            return (false, null);
         }
 
-        Log.Warning("[{Package}] No releases found for package", package);
-        return (false, null);
-    }
-
-
-    ///// <summary>
-    ///// Check if a release exists and returns the releases
-    ///// 1 API call
-    ///// </summary>
-    ///// <param name="installedVersion"></param>
-    ///// <returns></returns>
-    //public async Task<IReadOnlyList<ReleaseModel>?> IsUpdateAvailable(Package package, string installedVersion)
-    //{
-    //    var releases = await GetReleasesForPackage(package);
-    //    if (releases is null || !releases.Any())
-    //    {
-    //        Log.Warning("[{Package}] No releases found for package", package);
-    //        return null;
-    //    }
-
-    //    if (IsReleasesContainTag(releases, installedVersion))
-    //    {
-    //        return releases;
-    //    }
-    //    return null;
-    //}
-
-    ///// <summary>
-    ///// Check if a release exists
-    ///// 1 API call
-    ///// </summary>
-    ///// <param name="installedVersion"></param>
-    ///// <returns></returns>
-    //public async Task<bool> IsUpdateAvailable(Package package, string installedVersion)
-    //{
-    //    var releases = await GetReleasesForPackage(package);
-    //    if (releases is null || !releases.Any())
-    //    {
-    //        Log.Warning("[{Package}] No releases found for package", package);
-    //        return false;
-    //    }
-
-    //    return IsUpdateAvailable(releases, installedVersion);
-    //}
-
-    private static bool IsReleasesContainTag(IEnumerable<ReleaseModel>? releases, string installedVersion)
-    {
-        using var ssc = new ScopedStopwatch();
-
-        if (releases is null || !releases.Any())
+        if (!ReleasesContainTag(releaseModels, requestedVersion))
         {
-            return false;
-        }
-        if (!releases.Any(x => x.TagName.Equals(installedVersion)))
-        {
-            return false;
+            Log.Warning("[{Package}] No releases found for package", package);
+            return (false, null);
         }
 
-        // idx 0 is latest release
-        if (!releases.First().TagName.Equals(installedVersion))
+        // get correct release
+        var release = string.IsNullOrEmpty(requestedVersion)
+            ? releaseModels.First() //latest
+            : releaseModels.FirstOrDefault(x => x.TagName.Equals(requestedVersion));
+
+        if (release == null)
         {
+            Log.Warning("No release found for version {RequestedVersion}", requestedVersion);
+            return (false, null);
+        }
+
+        return (true, release);
+
+        // LOCAL FUNCTION
+        static bool ReleasesContainTag(IEnumerable<ReleaseModel>? releases, string installedVersion)
+        {
+            using var ssc = new ScopedStopwatch();
+
+            if (releases is null)
+            {
+                return false;
+            }
+
+            var releaseModels = releases.ToList();
+            if (!releaseModels.Any())
+            {
+                return false;
+            }
+            if (!releaseModels.Any(x => x.TagName.Equals(installedVersion)))
+            {
+                return false;
+            }
+
+            // idx 0 is latest release
+            if (releaseModels.First().TagName.Equals(installedVersion))
+            {
+                Log.Information("Latest release already installed");
+                return false;
+            }
+
             return true;
         }
-
-        Log.Information($"Latest release already installed");
-        return false;
     }
+
 
     /// <summary>
     /// Downloads a given release asset from GitHub and saves it to the cache location

@@ -29,15 +29,13 @@ public class DeploymentService : IDeploymentService
     /// Download and install an asset file from a Github repo.
     /// </summary>
     /// <param name="package"></param>
-    /// <param name="releases"></param>
-    /// <param name="requestedVersion"></param>
+    /// <param name="release"></param>
     /// <param name="slot"></param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
     public async Task<bool> InstallReleaseAsync(
         Package package,
-        IEnumerable<ReleaseModel> releases,
-        string? requestedVersion,
+        ReleaseModel release,
         int slot = 0)
     {
         using var ssc = new ScopedStopwatch();
@@ -54,15 +52,7 @@ public class DeploymentService : IDeploymentService
             }
         }
 
-        // get correct release
-        var release = string.IsNullOrEmpty(requestedVersion)
-            ? releases.First() //latest
-            : releases.FirstOrDefault(x => x.TagName.Equals(requestedVersion));
-        if (release == null)
-        {
-            Log.Warning("No release found for version {RequestedVersion}", requestedVersion);
-            return false;
-        }
+        var version = release.TagName;
 
         // get correct release asset
         // TODO support multiple asset files?
@@ -73,12 +63,12 @@ public class DeploymentService : IDeploymentService
         if (asset is null)
         {
             Log.Warning("No release asset found for version {RequestedVersion}",
-                requestedVersion);
+                version);
             return false;
         }
 
         // get download paths
-        var version = release.TagName;
+        
         ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(version);
         if (!await _gitHubService.DownloadAssetToCache(package, asset, version))
         {
@@ -134,6 +124,8 @@ public class DeploymentService : IDeploymentService
 
         return true;
     }
+
+
 
     /// <summary>
     /// Installs a package from the cache location by version and exact filename
@@ -203,6 +195,7 @@ public class DeploymentService : IDeploymentService
 
         var installedFiles = new List<HashedFile>();
 
+        // determine archive type
         if (package.ContentType == null)
         {
             package.ContentType = await _archiveService.IsSupportedArchive(assetCachePath)
@@ -219,7 +212,6 @@ public class DeploymentService : IDeploymentService
 
             installedFiles = DeploySingleFile(assetCachePath, assetDestinationPath);
         }
-
         else if (package.ContentType == EContentType.Archive)
         {
             // TODO: Replace with async call; parent function needs to be reworked to support.

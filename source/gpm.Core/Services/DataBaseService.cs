@@ -296,7 +296,11 @@ public class DataBaseService : IDataBaseService
     public bool ContainsOwner(string name) => _packages.Any(x => x.Value.Owner.Equals(name));
     public IEnumerable<Package> LookupByOwner(string name) => ContainsOwner(name) ? _packages.Values.Where(x => x.Owner.Equals(name)) : new List<Package>();
 
-
+    /// <summary>
+    /// Checks the local gpm registry if a package exists
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public Package? GetPackageFromName(string name)
     {
         if (Path.GetExtension(name) == ".git")

@@ -25,10 +25,10 @@ public interface IGitHubService
     /// 1 API call
     /// </summary>
     /// <param name="package"></param>
-    /// <param name="installedVersion"></param>
+    /// <param name="requestedVersion"></param>
     /// <returns></returns>
-    //Task<IReadOnlyList<ReleaseModel>?> IsUpdateAvailable(Package package, string installedVersion);
-    Task<AsyncOut<bool, IEnumerable<ReleaseModel>?>> TryUpdateAvailable(Package package, string installedVersion);
+    //Task<IReadOnlyList<ReleaseModel>?> IsUpdateAvailable(Package package, string requestedVersion);
+    Task<AsyncOut<bool, ReleaseModel?>> TryGetRelease(Package package, string requestedVersion);
 
     /// <summary>
     /// Downloads a given release asset from GitHub and saves it to the cache location
