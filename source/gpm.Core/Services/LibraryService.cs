@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using gpm.Core.Extensions;
 using gpm.Core.Models;
 using ProtoBuf;
 
@@ -124,7 +125,6 @@ public sealed class LibraryService : ILibraryService
         return slot is not null;
     }
 
-
     public PackageModel GetOrAdd(Package package)
     {
         var key = package.Id;
@@ -134,6 +134,45 @@ public sealed class LibraryService : ILibraryService
         }
 
         return _packages[key];
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="package"></param>
+    /// <param name="installPath"></param>
+    /// <param name="version"></param>
+    /// <returns></returns>
+    public int RegisterInSlot(Package package, string installPath, string version)
+    {
+        var model = GetOrAdd(package);
+        foreach (var (slot, val) in model.Slots)
+        {
+            if (val.FullPath != null
+                && val.FullPath.Equals(installPath)
+                && IsInstalledInSlot(package, slot))
+            {
+                return slot;
+            }
+        }
+
+        // if not, add to a new slot
+        var slotId = 0;
+        foreach (var (key, _) in model.Slots)
+        {
+            if (key != slotId)
+            {
+                break;
+            }
+            slotId++;
+        }
+
+        var slotManifest = model.Slots.GetOrAdd(key: slotId);
+        slotManifest.FullPath = installPath;
+        slotManifest.IsDefault = false;
+        slotManifest.Version = version;
+
+        return slotId;
     }
 
     public bool IsInstalled(Package package) => IsInstalled(package.Id);

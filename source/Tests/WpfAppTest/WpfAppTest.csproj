@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\gpm.Installer.WPF\gpm.Installer.WPF.csproj" />
     <ProjectReference Include="..\..\gpm\gpm.csproj" />
    
   </ItemGroup>

@@ -52,34 +52,14 @@ public class DeploymentService : IDeploymentService
             }
         }
 
-        var version = release.TagName;
-
-        // get correct release asset
-        // TODO support multiple asset files?
-        var assets = release.Assets;
-        ArgumentNullException.ThrowIfNull(assets);
-        var assetBuilder = IPackageBuilder.CreateDefaultBuilder<AssetBuilder>(package);
-        var asset = assetBuilder.Build(release.Assets);
-        if (asset is null)
-        {
-            Log.Warning("No release asset found for version {RequestedVersion}",
-                version);
-            return false;
-        }
-
-        // get download paths
-        
-        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(version);
-        if (!await _gitHubService.DownloadAssetToCache(package, asset, version))
+        if (!await _gitHubService.DownloadAssetToCache(package, release))
         {
             Log.Warning("Failed to download package {Package}", package);
             return false;
         }
 
         // install asset
-        var releaseFilename = asset.Name;
-        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
-        if (!await InstallPackageFromCacheAsync(package, version, slot))
+        if (!await InstallPackageFromCacheAsync(package, release.TagName, slot))
         {
             Log.Warning("Failed to install package {Package}", package);
             return false;

@@ -34,4 +34,13 @@ public interface ILibraryService : IDictionary<string, PackageModel>
 
     bool TryGetDefaultSlot(string key, [NotNullWhen(true)] out SlotManifest? slot);
     bool TryGetDefaultSlot(Package package, [NotNullWhen(true)] out SlotManifest? slot);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="package"></param>
+    /// <param name="installPath"></param>
+    /// <param name="version"></param>
+    /// <returns>the slot of the registered package</returns>
+    int RegisterInSlot(Package package, string installPath, string version);
 }

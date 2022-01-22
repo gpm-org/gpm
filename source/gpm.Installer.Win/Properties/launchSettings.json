@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "gpm.Installer.Win (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "gpm.Installer.Win (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

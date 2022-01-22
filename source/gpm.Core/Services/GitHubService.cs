@@ -2,6 +2,7 @@ using gpm.Core.Exceptions;
 using gpm.Core.Extensions;
 using gpm.Core.Models;
 using gpm.Core.Util;
+using gpm.Core.Util.Builders;
 using Nito.AsyncEx;
 using Octokit;
 using Serilog;
@@ -182,17 +183,29 @@ public class GitHubService : IGitHubService
     /// Creates a CacheManifest inside the library
     /// </summary>
     /// <param name="package"></param>
-    /// <param name="asset"></param>
-    /// <param name="version"></param>
+    /// <param name="release"></param>
     /// <returns></returns>
-    public async Task<bool> DownloadAssetToCache(Package package, ReleaseAssetModel asset, string version)
+    public async Task<bool> DownloadAssetToCache(Package package, ReleaseModel release)
     {
         using var ssc = new ScopedStopwatch();
+
+        // get correct release asset
+        // TODO support multiple asset files?
+        var assets = release.Assets;
+        ArgumentNullException.ThrowIfNull(assets);
+        var assetBuilder = IPackageBuilder.CreateDefaultBuilder<AssetBuilder>(package);
+        var asset = assetBuilder.Build(release.Assets);
+        if (asset is null)
+        {
+            Log.Warning("No release asset found for version {RequestedVersion}",
+                release.TagName);
+            return false;
+        }
 
         var releaseFilename = asset.Name;
         ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(releaseFilename);
 
-        var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{version}");
+        var packageCacheFolder = Path.Combine(IAppSettings.GetCacheFolder(), $"{package.Id}", $"{release.TagName}");
         var assetCacheFile = Path.Combine(packageCacheFolder, releaseFilename);
 
         // check if already exists
@@ -205,6 +218,7 @@ public class GitHubService : IGitHubService
 
         var url = asset.BrowserDownloadUrl;
         ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(url);
+
         try
         {
             Log.Information("Downloading asset from {Url} ...", url);
@@ -243,7 +257,7 @@ public class GitHubService : IGitHubService
             };
 
             var model = _libraryService.GetOrAdd(package);
-            model.CacheData.AddOrUpdate(version, cacheManifest);
+            model.CacheData.AddOrUpdate(release.TagName, cacheManifest);
             _libraryService.Save();
 
             return true;
@@ -271,7 +285,7 @@ public class GitHubService : IGitHubService
                 return false;
             }
 
-            var cacheManifest = existingModel.CacheData.GetOptional(version);
+            var cacheManifest = existingModel.CacheData.GetOptional(release.TagName);
             if (!cacheManifest.HasValue)
             {
                 return false;

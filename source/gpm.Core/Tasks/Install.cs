@@ -54,6 +54,7 @@ public partial class TaskService
         {
             return false;
         }
+
         // install package as a local tool in a specified location
         // check if that path matches any existing slot
         var model = _libraryService.GetOrAdd(package);

@@ -35,9 +35,8 @@ public interface IGitHubService
     /// Creates a CacheManifest inside the library
     /// </summary>
     /// <param name="package"></param>
-    /// <param name="asset"></param>
-    /// <param name="version"></param>
+    /// <param name="release"></param>
     /// <returns></returns>
-    Task<bool> DownloadAssetToCache(Package package, ReleaseAssetModel asset, string version);
+    Task<bool> DownloadAssetToCache(Package package, ReleaseModel release);
 
 }

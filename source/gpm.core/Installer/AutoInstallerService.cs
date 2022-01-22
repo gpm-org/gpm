@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using gpm.Core.Exceptions;
+using gpm.Core.Extensions;
 using gpm.Core.Models;
 using gpm.Core.Services;
 using gpm.Core.Util;
@@ -18,22 +19,61 @@ public class AutoInstallerService
 {
     private readonly IGitHubService _gitHubService;
     private readonly IDataBaseService _dataBaseService;
+    private readonly ILibraryService _libraryService;
 
+    private string? _version;
     private Package? _package;
-    public string? Version { get; private set; }
+    private int? _slot;
 
     public bool IsEnabled { get; private set; }
 
-    public AutoInstallerService(IGitHubService gitHubService, IDataBaseService dataBaseService)
+    public AutoInstallerService(
+        IGitHubService gitHubService,
+        IDataBaseService dataBaseService,
+        ILibraryService libraryService)
     {
         _gitHubService = gitHubService;
         _dataBaseService = dataBaseService;
+        _libraryService = libraryService;
 
-        Init();
+        IsEnabled = Init();
     }
 
-    public Package Package => _package.NotNull();
+    public bool TryGetPackage([NotNullWhen(true)] out Package? package)
+    {
+        package = null;
+        if (!IsEnabled || _package == null)
+        {
+            return false;
+        }
 
+        package = _package;
+        return true;
+    }
+
+    public bool TryGetVersion([NotNullWhen(true)] out string? version)
+    {
+        version = null;
+        if (!IsEnabled || _version == null)
+        {
+            return false;
+        }
+
+        version = _version;
+        return true;
+    }
+
+    public bool TryGetSlot([NotNullWhen(true)] out int? slot)
+    {
+        slot = null;
+        if (!IsEnabled || _slot == null)
+        {
+            return false;
+        }
+
+        slot = _slot;
+        return true;
+    }
 
     /// <summary>
     /// Initializes the update manager
@@ -56,20 +96,17 @@ public class AutoInstallerService
             return false;
         }
 
+        _version = info.Packages[0].Version;
         _package = package;
-        IsEnabled = true;
-        Version = info.Packages[0].Version;
-
-        Log.Information("[{_package}, v.{Version}] auto-update Enabled: {IsEnabled}", _package, Version, IsEnabled);
 
         // TODO: register app in gpm if not already
+        _slot = _libraryService.RegisterInSlot(package, AppContext.BaseDirectory, _version);
 
-
-
-
-
+        Log.Information("[{_package}, v.{_version}] auto-update Enabled: {IsEnabled}", package, _version, IsEnabled);
         return true;
     }
+
+    
 
     /// <summary>
     /// Updates the current app, silent
@@ -94,12 +131,12 @@ public class AutoInstallerService
     /// <returns>false if no valid lockfile found in the app directory or no update available</returns>
     public async Task<ReleaseModel?> CheckForUpdate()
     {
-        if (_package is null || Version is null || !IsEnabled)
+        if (_package is null || _version is null || !IsEnabled)
         {
             return null;
         }
 
-        return (await _gitHubService.TryGetRelease(_package, Version))
+        return (await _gitHubService.TryGetRelease(_package, _version))
             .Out(out var release)
             ? release
             : null;
@@ -139,32 +176,23 @@ public class AutoInstallerService
     /// <returns>true if update succeeded</returns>
     public async Task<bool> DownloadUpdate(ReleaseModel release)
     {
-        if (!IsEnabled)
+        if (!TryGetPackage(out var package))
+        {
+            return false;
+        }
+        if (!TryGetVersion(out var version))
         {
             return false;
         }
 
-        // TODO: move this?
-        // get correct release asset
-        // TODO support multiple asset files?
-        var assets = release.Assets;
-        ArgumentNullException.ThrowIfNull(assets);
-        var assetBuilder = IPackageBuilder.CreateDefaultBuilder<AssetBuilder>(Package);
-        var asset = assetBuilder.Build(release.Assets);
-        if (asset is null)
-        {
-            Log.Warning("No release asset found for version LATEST");
-            return false;
-        }
 
         // download
-        var version = release.TagName;
-        if (await _gitHubService.DownloadAssetToCache(Package, asset, version))
+        if (await _gitHubService.DownloadAssetToCache(package, release))
         {
             return true;
         }
 
-        Log.Warning("Failed to download package {Package}", Package);
+        Log.Warning("Failed to download package {Package}", package);
         return false;
 
     }
@@ -233,5 +261,5 @@ public class AutoInstallerService
 
     private static async Task<bool> InstallGpmAsync() => await DotnetUtil.RunDotnetToolAsync("install", "gpm");
 
-    
+
 }
