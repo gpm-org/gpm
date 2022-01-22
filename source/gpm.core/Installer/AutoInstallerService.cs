@@ -36,7 +36,7 @@ public class AutoInstallerService
         _dataBaseService = dataBaseService;
         _libraryService = libraryService;
 
-        IsEnabled = Init();
+        Init();
     }
 
     public bool TryGetPackage([NotNullWhen(true)] out Package? package)
@@ -102,7 +102,9 @@ public class AutoInstallerService
         // TODO: register app in gpm if not already
         _slot = _libraryService.RegisterInSlot(package, AppContext.BaseDirectory, _version);
 
+        IsEnabled = true;
         Log.Information("[{_package}, v.{_version}] auto-update Enabled: {IsEnabled}", package, _version, IsEnabled);
+
         return true;
     }
 
@@ -161,7 +163,14 @@ public class AutoInstallerService
         // TODO: user callback confirm
 
         // start gpm install command
+        // TODO: IF WINDOWS
+        var installer = Path.Combine(AppContext.BaseDirectory, "gpm.Installer.WPF.exe");
+        if (!File.Exists(installer))
+        {
+            return false;
+        }
 
+        Process.Start(installer, $"/Restart=WpfAppTest.exe /Dir={AppContext.BaseDirectory}");
 
         // shutdown exe
         // use a callback here?
