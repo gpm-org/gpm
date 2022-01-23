@@ -28,7 +28,8 @@ public static class Program
                     new ListCommand(),
                     new RestoreCommand(),
                     new UpgradeCommand(),
-                    new NewCommand()
+                    new NewCommand(),
+                    new RunCommand()
                 };
 
             var parser = new CommandLineBuilder(rootCommand)

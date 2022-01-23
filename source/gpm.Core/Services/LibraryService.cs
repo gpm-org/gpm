@@ -137,7 +137,7 @@ public sealed class LibraryService : ILibraryService
     }
 
     /// <summary>
-    /// 
+    /// Registers an existing app to gpm
     /// </summary>
     /// <param name="package"></param>
     /// <param name="installPath"></param>

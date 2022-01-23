@@ -1,13 +1,9 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using gpm.Core.Exceptions;
-using gpm.Core.Extensions;
 using gpm.Core.Models;
 using gpm.Core.Services;
 using gpm.Core.Util;
-using gpm.Core.Util.Builders;
 using Serilog;
 
 namespace gpm.Core.Installer;
@@ -15,17 +11,13 @@ namespace gpm.Core.Installer;
 /// <summary>
 /// An auto-installer service based on gpm
 /// </summary>
-public class AutoInstallerService
+public class AutoInstallerService : IAutoInstallerService
 {
     private readonly IGitHubService _gitHubService;
     private readonly IDataBaseService _dataBaseService;
     private readonly ILibraryService _libraryService;
 
-    private string? _version;
-    private Package? _package;
     private int? _slot;
-
-    public bool IsEnabled { get; private set; }
 
     public AutoInstallerService(
         IGitHubService gitHubService,
@@ -35,80 +27,11 @@ public class AutoInstallerService
         _gitHubService = gitHubService;
         _dataBaseService = dataBaseService;
         _libraryService = libraryService;
-
-        Init();
     }
 
-    public bool TryGetPackage([NotNullWhen(true)] out Package? package)
-    {
-        package = null;
-        if (!IsEnabled || _package == null)
-        {
-            return false;
-        }
+    public bool IsEnabled { get; private set; }
 
-        package = _package;
-        return true;
-    }
 
-    public bool TryGetVersion([NotNullWhen(true)] out string? version)
-    {
-        version = null;
-        if (!IsEnabled || _version == null)
-        {
-            return false;
-        }
-
-        version = _version;
-        return true;
-    }
-
-    public bool TryGetSlot([NotNullWhen(true)] out int? slot)
-    {
-        slot = null;
-        if (!IsEnabled || _slot == null)
-        {
-            return false;
-        }
-
-        slot = _slot;
-        return true;
-    }
-
-    /// <summary>
-    /// Initializes the update manager
-    /// </summary>
-    /// <returns>false if no valid lockfile found in the app directory</returns>
-    private bool Init()
-    {
-        // read manifest
-        if (!TryGetLockFile(out var info))
-        {
-            Log.Warning("No package lock file found for app. Auto-updates are not available");
-            return false;
-        }
-
-        var id = info.Packages[0].Id;
-        var package = _dataBaseService.GetPackageFromName(id);
-        if (package is null)
-        {
-            Log.Warning("_package {NameInner} not found in database", id);
-            return false;
-        }
-
-        _version = info.Packages[0].Version;
-        _package = package;
-
-        // TODO: register app in gpm if not already
-        _slot = _libraryService.RegisterInSlot(package, AppContext.BaseDirectory, _version);
-
-        IsEnabled = true;
-        Log.Information("[{_package}, v.{_version}] auto-update Enabled: {IsEnabled}", package, _version, IsEnabled);
-
-        return true;
-    }
-
-    
 
     /// <summary>
     /// Updates the current app, silent
@@ -133,12 +56,12 @@ public class AutoInstallerService
     /// <returns>false if no valid lockfile found in the app directory or no update available</returns>
     public async Task<ReleaseModel?> CheckForUpdate()
     {
-        if (_package is null || _version is null || !IsEnabled)
+        if (_channel?.Package is null || _version is null || !IsEnabled)
         {
             return null;
         }
 
-        return (await _gitHubService.TryGetRelease(_package, _version))
+        return (await _gitHubService.TryGetRelease(_channel.Package, _version))
             .Out(out var release)
             ? release
             : null;
@@ -163,14 +86,11 @@ public class AutoInstallerService
         // TODO: user callback confirm
 
         // start gpm install command
-        // TODO: IF WINDOWS
-        var installer = Path.Combine(AppContext.BaseDirectory, "gpm.Installer.WPF.exe");
-        if (!File.Exists(installer))
+        // TODO: WINDOWS?
+        if (!await GpmUtil.RunGpmAsync(GpmUtil.ECommand.run, GetInstallerId(_framework), $"/Restart=WpfAppTest.exe /Dir={AppContext.BaseDirectory} /Slot={_slot}"))
         {
             return false;
         }
-
-        Process.Start(installer, $"/Restart=WpfAppTest.exe /Dir={AppContext.BaseDirectory}");
 
         // shutdown exe
         // use a callback here?
@@ -185,42 +105,73 @@ public class AutoInstallerService
     /// <returns>true if update succeeded</returns>
     public async Task<bool> DownloadUpdate(ReleaseModel release)
     {
-        if (!TryGetPackage(out var package))
+        if (_channel?.Package is null || _version is null || !IsEnabled)
         {
             return false;
         }
-        if (!TryGetVersion(out var version))
-        {
-            return false;
-        }
-
 
         // download
-        if (await _gitHubService.DownloadAssetToCache(package, release))
+        if (await _gitHubService.DownloadAssetToCache(_channel.Package, release))
         {
             return true;
         }
 
-        Log.Warning("Failed to download package {Package}", package);
+        Log.Warning("Failed to download package {Package}", _channel.Package);
         return false;
 
     }
 
-    /// <summary>
-    /// Ensure that the gpm global tool is installed
-    /// and reinstalls it if not
-    /// </summary>
-    /// <returns></returns>
-    public static async Task<bool> EnsureGpmInstalled()
+
+
+    public enum EFramework
     {
-        var installed = await InstallGpmAsync();
-        if (!installed)
-        {
-            return await UpdateGpmAsync();
-        }
-        return true;
+        NONE,
+        WPF,
+        WINUI,
+        AVALONIA
     }
 
+    private EFramework _framework;
+    private static string GetInstallerId(EFramework framework) => framework switch
+    {
+        EFramework.NONE => throw new ArgumentNullException(nameof(framework)),
+        EFramework.WPF => "rfuzzo/gpm-installer/wpf",
+        EFramework.WINUI or EFramework.AVALONIA => throw new NotImplementedException(),
+        _ => throw new ArgumentNullException(nameof(framework)),
+    };
+    /// <summary>
+    /// Use the WPF installer UI
+    /// </summary>
+    /// <returns></returns>
+    public AutoInstallerService UseWPF()
+    {
+        _framework = EFramework.WPF;
+
+        return this;
+    }
+
+    /// <summary>
+    /// Use configuration info from a gpm lockfile
+    /// </summary>
+    /// <returns></returns>
+    public AutoInstallerService AddLockFile()
+    {
+        // read manifest
+        if (!TryGetLockFile(out var info))
+        {
+            Log.Warning("No package lock file found for app");
+            return this;
+        }
+
+        var id = info.Packages[0].Id;
+
+        // TODO version
+        _version = info.Packages[0].Version;
+
+        AddChannel("Default", id);
+
+        return this;
+    }
 
     private static bool TryGetLockFile([NotNullWhen(true)] out PackageLock? packageLock)
     {
@@ -266,9 +217,126 @@ public class AutoInstallerService
         return false;
     }
 
-    private static async Task<bool> UpdateGpmAsync() => await DotnetUtil.RunDotnetToolAsync("update", "gpm");
+    private string? _version;
+    /// <summary>
+    /// Registers the current app as a specific version.
+    /// Use AddLockFile instead
+    /// </summary>
+    /// <returns></returns>
+    public AutoInstallerService AddVersion(string version)
+    {
+        _version = version;
 
-    private static async Task<bool> InstallGpmAsync() => await DotnetUtil.RunDotnetToolAsync("install", "gpm");
+        return this;
+    }
 
+    public record class Channel(string Name, Package Package);
+    private readonly Dictionary<string, Channel> _channels = new();
+    /// <summary>
+    /// Adds an update channel to the auto-installer
+    /// </summary>
+    /// <param name="channelName">the name to use for the channel</param>
+    /// <param name="id">the gpm id for the app</param>
+    /// <returns></returns>
+    public AutoInstallerService AddChannel(string channelName, string id)
+    {
+        // remove duplicate channels for manual register
+        var remove = _channels.Where(x => x.Value.Package.Id == id).ToList();
+        foreach (var item in remove)
+        {
+            _channels.Remove(item.Key);
+        }
+
+        if (!_channels.ContainsKey(channelName))
+        {
+            // test if package exists
+            var package = _dataBaseService.GetPackageFromName(id);
+            if (package is null)
+            {
+                Log.Warning("_package {NameInner} not found in database", id);
+                return this;
+            }
+
+            _channels.Add(channelName, new Channel(channelName, package));
+        }
+
+        return this;
+    }
+
+    private Channel? _channel;
+    /// <summary>
+    /// Use this Channel to receive updates for this app
+    /// </summary>
+    /// <param name="channelName">the name of the update channel</param>
+    /// <returns></returns>
+    public AutoInstallerService UseChannel(string channelName)
+    {
+        if (_channels.ContainsKey(channelName))
+        {
+            _channel = _channels[channelName];
+        }
+        else
+        {
+            Log.Error("{Channel} not registered", channelName);
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    /// Initializes the update manager
+    /// </summary>
+    /// <returns></returns>
+    public void Build()
+    {
+        // Checks
+        if (_channels.Count == 0)
+        {
+            Log.Error("No update channel registered");
+            return;
+        }
+        if (_channel == null)
+        {
+            Log.Error("No update channel registered");
+            return;
+        }
+        if (string.IsNullOrEmpty(_version))
+        {
+            Log.Error("No version registered for {Package} installation failed", _channel.Package);
+            return;
+        }
+
+        var package = _channel.Package;
+
+        var result = Nito.AsyncEx.AsyncContext.Run(() => InstallHelperAsync());
+        if (!result)
+        {
+            Log.Warning("Helper installation failed.");
+            return;
+        }
+
+        // TODO: register app in gpm if not already
+        // TODO: lockfiles? did I miss anything?
+        _slot = _libraryService.RegisterInSlot(package, AppContext.BaseDirectory, _version);
+
+        IsEnabled = true;
+        Log.Information("[{_package}, v.{_version}] auto-update Enabled: {IsEnabled}", package, _version, IsEnabled);
+    }
+
+
+    private async Task<bool> InstallHelperAsync()
+    {
+        if (!await GpmUtil.EnsureGpmInstalled())
+        {
+            return false;
+        }
+
+        if (!await GpmUtil.RunGpmAsync(GpmUtil.ECommand.install, GetInstallerId(_framework), "-g"))
+        {
+            return false;
+        }
+
+        return true;
+    }
 
 }

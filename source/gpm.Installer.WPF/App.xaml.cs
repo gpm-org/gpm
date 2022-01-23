@@ -1,13 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using gpm.Core.Installer;
 using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -50,6 +45,9 @@ namespace gpm.Installer.WPF
                .WriteTo.MySink()
                .CreateLogger();
             Log.Information("Started");
+
+
+
         }
 
         private void App_Startup(object sender, StartupEventArgs e)
@@ -73,6 +71,12 @@ namespace gpm.Installer.WPF
                         break;
                     case Constants.Commands.Dir:
                         mainController.BaseDir = commandValue;
+                        break;
+                    case Constants.Commands.Slot:
+                        if (int.TryParse(commandValue, out var slot))
+                        {
+                            mainController.Slot = slot;
+                        }
                         break;
                 }
             }

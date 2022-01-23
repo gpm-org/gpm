@@ -34,12 +34,23 @@ namespace WpfAppTest
         {
             base.OnStartup(e);
 
-
             Log.Logger = new LoggerConfiguration()
                .MinimumLevel.Debug()
                .WriteTo.Console()
                .WriteTo.MySink()
                .CreateLogger();
+
+            var _installer = Ioc.Default.GetRequiredService<AutoInstallerService>();
+
+            _installer
+                .UseWPF()
+                .AddLockFile()
+                //.AddVersion("8.4.2")
+                .AddChannel("Nightly", "wolvenkit/wolvenkit/test1")
+                .AddChannel("Stable", "wolvenkit/wolvenkit/test1")
+                .UseChannel("Stable")
+                .Build();
+
             Log.Information("Started");
         }
 
