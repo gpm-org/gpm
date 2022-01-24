@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using gpm.Core.Services;
+using Serilog;
 
 namespace gpm.Installer.WPF;
 
@@ -14,18 +16,23 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private void Window_Loaded(object sender, RoutedEventArgs e)
+    // bad
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
         var _mainController = Ioc.Default.GetRequiredService<MainController>();
-
-        var result = Nito.AsyncEx.AsyncContext.Run(() => _mainController.RunAsync());
-        //var result = await _mainController.RunAsync();
-
-        if (!result)
+        if (!await Task.Run(() => _mainController.Test()))
         {
-            //Log.Warning("Helper installation failed.");
-            Application.Current.Shutdown();
-            return;
+            Log.Warning("Helper installation failed");
         }
+        else
+        {
+            Log.Information("Installation finished succesfully.");
+        }
+        
+        //if (!await Task.Run(() => _mainController.RunAsync()))
+        //{
+        //    Log.Warning("Helper installation failed.");
+        //}
+        //Application.Current.Shutdown();
     }
 }

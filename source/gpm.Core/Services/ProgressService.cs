@@ -8,9 +8,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using gpm.Core.Services;
 
-namespace System;
+namespace gpm.Core.Services;
 
 /// <summary>
 /// Provides an IProgress{T} that invokes callbacks for each reported progress value.
@@ -19,7 +18,7 @@ namespace System;
 /// <remarks>
 /// Any handler provided to the constructor or event handlers registered with
 /// the <see cref="ProgressChanged"/> event are invoked through a
-/// <see cref="System.Threading.SynchronizationContext"/> instance captured
+/// <see cref="SynchronizationContext"/> instance captured
 /// when the instance is constructed.  If there is no current SynchronizationContext
 /// at the time of construction, the callbacks will be invoked on the ThreadPool.
 /// </remarks>
@@ -49,11 +48,11 @@ public class ProgressService<T> : IProgressService<T>
     /// <param name="handler">
     /// A handler to invoke for each reported progress value.  This handler will be invoked
     /// in addition to any delegates registered with the <see cref="ProgressChanged"/> event.
-    /// Depending on the <see cref="System.Threading.SynchronizationContext"/> instance captured by
+    /// Depending on the <see cref="SynchronizationContext"/> instance captured by
     /// the <see cref="Progress{T}"/> at construction, it's possible that this handler instance
     /// could be invoked concurrently with itself.
     /// </param>
-    /// <exception cref="System.ArgumentNullException">The <paramref name="handler"/> is null (Nothing in Visual Basic).</exception>
+    /// <exception cref="ArgumentNullException">The <paramref name="handler"/> is null (Nothing in Visual Basic).</exception>
     public ProgressService(Action<T> handler) : this()
     {
         _handler = handler ?? throw new ArgumentNullException(nameof(handler));
@@ -62,7 +61,7 @@ public class ProgressService<T> : IProgressService<T>
     /// <summary>Raised for each reported progress value.</summary>
     /// <remarks>
     /// Handlers registered with this event will be invoked on the
-    /// <see cref="System.Threading.SynchronizationContext"/> captured when the instance was constructed.
+    /// <see cref="SynchronizationContext"/> captured when the instance was constructed.
     /// </remarks>
     public event EventHandler<T>? ProgressChanged;
 

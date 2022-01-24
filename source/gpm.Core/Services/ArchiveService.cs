@@ -10,6 +10,16 @@ public class ArchiveService : IArchiveService
 
     public async Task<bool> IsSupportedArchive(string archive)
     {
+        if (string.IsNullOrEmpty(archive))
+        {
+            return false;
+        }
+        var extension = Path.GetExtension(archive);
+        if (extension != ".zip")
+        {
+            return false;
+        }
+
         try
         {
             _ = await Task.Run(() => ArchiveFactory.Open(archive));

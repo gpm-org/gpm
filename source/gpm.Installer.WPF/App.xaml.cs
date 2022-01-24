@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using gpm.Core.Extensions;
@@ -24,6 +21,8 @@ namespace gpm.Installer.WPF
                 .AddSingleton<MySink>()
                 .AddSingleton<MainController>()
 
+                .AddScoped<IProgressService<double>, ProgressService<double>>()
+
                 .AddGpm()
 
                 .BuildServiceProvider());
@@ -33,21 +32,16 @@ namespace gpm.Installer.WPF
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-
-            Log.Logger = new LoggerConfiguration()
-               .MinimumLevel.Debug()
-               .WriteTo.Console()
-               .WriteTo.MySink()
-               .CreateLogger();
-            Log.Information("Started");
-
-
-
         }
 
         private void App_Startup(object sender, StartupEventArgs e)
         {
+            Log.Logger = new LoggerConfiguration()
+              .MinimumLevel.Debug()
+              .WriteTo.Console()
+              .WriteTo.MySink()
+              .CreateLogger();
+
             // Process command line args
             var mainController = Ioc.Default.GetRequiredService<MainController>();
 
@@ -68,7 +62,7 @@ namespace gpm.Installer.WPF
                     //case Constants.Commands.Dir:
                     //    mainController.BaseDir = commandValue;
                     //    break;
-                     case Constants.Commands.Package:
+                    case Constants.Commands.Package:
                         mainController.Package = commandValue;
                         break;
                     case Constants.Commands.Slot:

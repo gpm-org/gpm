@@ -1,14 +1,19 @@
 <Window x:Class="gpm.Installer.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:gpm.Installer.WPF"
         mc:Ignorable="d"
-        Title="MainWindow"
-        Height="450"
-        Width="800"
+        Title="gpm Installer"
         Loaded="Window_Loaded"
+        MinWidth="400"
+        MinHeight="200"
+
+        Width="400"
+        Height="200"
+       
         >
 
     <Window.Style>
@@ -21,20 +26,49 @@
     
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ProgressBar Grid.Row="0" Margin="50" >
-            
-        </ProgressBar>
+        <TextBlock Grid.Row="0" Margin="5"
+                   Text="Please Wait while your app is being updated ..." />
 
-        <ScrollViewer Grid.Row="1"
-                      >
-            <TextBlock Background="LightYellow"
+
+
+        <ProgressBar Grid.Row="1"
+                     Margin="5"
+                     MinWidth="200"
+                     MinHeight="25"
+                     Value="{Binding Path=ProgressValue}"/>
+
+
+        <ScrollViewer Grid.Row="2"  Margin ="2" >
+            <TextBlock
+                Background="{DynamicResource {x:Static adonisUi:Brushes.Layer1BackgroundBrush}}"
                    Text="{Binding Text, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
                    ScrollViewer.CanContentScroll="True"
                    />
         </ScrollViewer>
+
+        <Grid Grid.Row="3" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" HorizontalAlignment="Right" Content="Close" Margin="5"
+                    Command="{Binding CloseCommand}"
+                    IsEnabled="{Binding IsFinished, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Separator Grid.Column="2" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+            <Button Grid.Column="3" HorizontalAlignment="Right" Content="Cancel" Margin="5"
+                    Command="{Binding CancelCommand}"
+                    IsEnabled="{Binding IsNotFinished, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+           
+        </Grid>
+        
     </Grid>
 </Window>
