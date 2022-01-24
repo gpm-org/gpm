@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using gpm.Core.Extensions;
 using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -21,14 +22,9 @@ namespace gpm.Installer.WPF
                 new ServiceCollection()
 
                 .AddSingleton<MySink>()
-
                 .AddSingleton<MainController>()
 
-                .AddSingleton<IGitHubService, GitHubService>()
-                .AddSingleton<IDeploymentService, DeploymentService>()
-
-                .AddSingleton<ILibraryService, LibraryService>()
-                .AddSingleton<IDataBaseService, DataBaseService>()
+                .AddGpm()
 
                 .BuildServiceProvider());
         }
@@ -69,8 +65,11 @@ namespace gpm.Installer.WPF
                         mainController.Restart = true;
                         mainController.RestartName = commandValue;
                         break;
-                    case Constants.Commands.Dir:
-                        mainController.BaseDir = commandValue;
+                    //case Constants.Commands.Dir:
+                    //    mainController.BaseDir = commandValue;
+                    //    break;
+                     case Constants.Commands.Package:
+                        mainController.Package = commandValue;
                         break;
                     case Constants.Commands.Slot:
                         if (int.TryParse(commandValue, out var slot))
@@ -81,25 +80,11 @@ namespace gpm.Installer.WPF
                 }
             }
 
-            if (string.IsNullOrEmpty(mainController.BaseDir))
-            {
-                mainController.BaseDir = AppContext.BaseDirectory;
-                Log.Warning("No base directory set, using default: {BaseDir}", mainController.BaseDir);
-            }
-
-            if (string.IsNullOrEmpty(mainController.RestartName))
-            {
-                // use first exe in directory
-                var files = Directory.GetFiles(mainController.BaseDir, ".exe");
-                var exeName = files.FirstOrDefault();
-
-                if (exeName == null)
-                {
-                    Log.Error("No app to restart in {BaseDir}, aborting", mainController.BaseDir);
-                    Application.Current.Shutdown();
-                    return;
-                }
-            }
+            //if (string.IsNullOrEmpty(mainController.BaseDir))
+            //{
+            //    mainController.BaseDir = AppContext.BaseDirectory;
+            //    Log.Warning("No base directory set, using default: {BaseDir}", mainController.BaseDir);
+            //}
 
             // Create main application window, starting minimized if specified
             var mainWindow = new MainWindow();

@@ -35,17 +35,19 @@ public class AutoInstallerService : IAutoInstallerService
 
     /// <summary>
     /// Updates the current app, silent
-    /// 1 API call
+    /// 2 API calls
     /// </summary>
     /// <returns>true if update succeeded</returns>
     public async Task<bool> CheckAndUpdate()
     {
+        // 1 API call
         var release = await CheckForUpdate();
         if (release == null)
         {
             return false;
         }
 
+        // 1 API call
         return await Update(release);
     }
 
@@ -61,6 +63,7 @@ public class AutoInstallerService : IAutoInstallerService
             return null;
         }
 
+        // 1 API call
         return (await _gitHubService.TryGetRelease(_channel.Package, _version))
             .Out(out var release)
             ? release
@@ -69,10 +72,15 @@ public class AutoInstallerService : IAutoInstallerService
 
     /// <summary>
     /// Updates the current app to the latest version
+    /// 1 API call
     /// </summary>
     /// <returns>true if update succeeded</returns>
     public async Task<bool> Update(ReleaseModel release)
     {
+        if (_channel?.Package is null || _version is null || !IsEnabled)
+        {
+            return false;
+        }
         if (!IsEnabled)
         {
             return false;
@@ -86,8 +94,8 @@ public class AutoInstallerService : IAutoInstallerService
         // TODO: user callback confirm
 
         // start gpm install command
-        // TODO: WINDOWS?
-        if (!await GpmUtil.RunGpmAsync(GpmUtil.ECommand.run, GetInstallerId(_framework), $"/Restart=WpfAppTest.exe /Dir={AppContext.BaseDirectory} /Slot={_slot}"))
+        // 1 API call
+        if (!await GpmUtil.RunGpmAsync(GpmUtil.ECommand.run, GetInstallerId(_framework), $"/Package={_channel?.Package.Id} /Restart=WpfAppTest.exe /Slot={_slot}"))
         {
             return false;
         }
@@ -110,7 +118,6 @@ public class AutoInstallerService : IAutoInstallerService
             return false;
         }
 
-        // download
         if (await _gitHubService.DownloadAssetToCache(_channel.Package, release))
         {
             return true;
@@ -315,8 +322,7 @@ public class AutoInstallerService : IAutoInstallerService
             return;
         }
 
-        // TODO: register app in gpm if not already
-        // TODO: lockfiles? did I miss anything?
+        // register app in gpm if not already
         _slot = _libraryService.RegisterInSlot(package, AppContext.BaseDirectory, _version);
 
         IsEnabled = true;

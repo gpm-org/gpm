@@ -1,28 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
-namespace gpm.Installer.WPF
+namespace gpm.Installer.WPF;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    public MainWindow()
     {
-        public MainWindow()
+        InitializeComponent();
+    }
+
+    private void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        var _mainController = Ioc.Default.GetRequiredService<MainController>();
+
+        var result = Nito.AsyncEx.AsyncContext.Run(() => _mainController.RunAsync());
+        //var result = await _mainController.RunAsync();
+
+        if (!result)
         {
-            InitializeComponent();
+            //Log.Warning("Helper installation failed.");
+            Application.Current.Shutdown();
+            return;
         }
     }
 }

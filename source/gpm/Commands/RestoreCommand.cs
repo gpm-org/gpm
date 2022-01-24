@@ -22,6 +22,6 @@ public class RestoreCommand : Command
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        await taskService.UpdateAndRestore();
+        await taskService.UpgradeAndRestore();
     }
 }

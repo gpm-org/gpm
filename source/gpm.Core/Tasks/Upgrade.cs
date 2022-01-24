@@ -1,4 +1,4 @@
-namespace gpm.Core.Tasks;
+namespace gpm.Core.Services;
 
 public partial class TaskService
 {

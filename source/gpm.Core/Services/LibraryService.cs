@@ -171,6 +171,7 @@ public sealed class LibraryService : ILibraryService
         slotManifest.FullPath = installPath;
         slotManifest.IsDefault = false;
         slotManifest.Version = version;
+        //slotManifest.Files.Add("");
 
         return slotId;
     }
@@ -191,7 +192,7 @@ public sealed class LibraryService : ILibraryService
         {
             return false;
         }
-        return model.Slots.TryGetValue(slot, out var manifest) && manifest.Files.Any();
+        return model.Slots.TryGetValue(slot, out var manifest)/* && manifest.Files.Any()*/;
     }
 
     public bool IsInstalledAtLocation(Package package, string path, [NotNullWhen(true)] out int? idx) =>

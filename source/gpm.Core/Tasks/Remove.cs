@@ -1,7 +1,7 @@
 using gpm.Core.Services;
 using Serilog;
 
-namespace gpm.Core.Tasks;
+namespace gpm.Core.Services;
 
 /// <summary>
 /// To uninstall a global tool that was installed in the default location, use the --global option.
@@ -19,7 +19,7 @@ public partial class TaskService
     /// <param name="slot"></param>
     /// <param name="host"></param>
     /// <returns></returns>
-    public async Task<bool> UpdateAndRemove(string name, bool global, string path, int? slot)
+    public async Task<bool> UpgradeAndRemove(string name, bool global, string path, int? slot)
     {
         Upgrade();
 

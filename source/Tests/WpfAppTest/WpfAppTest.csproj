@@ -28,8 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\gpm.Installer.WPF\gpm.Installer.WPF.csproj" />
-   
+    <ProjectReference Include="..\..\gpm.Core\gpm.Core.csproj" />
   </ItemGroup>
 
 </Project>

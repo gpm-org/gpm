@@ -1,9 +1,8 @@
-using gpm.Core.Exceptions;
 using gpm.Core.Extensions;
 using gpm.Core.Models;
 using Serilog;
 
-namespace gpm.Core.Tasks;
+namespace gpm.Core.Services;
 
 public partial class TaskService
 {
@@ -16,7 +15,7 @@ public partial class TaskService
     /// <param name="slot"></param>
     /// <param name="version"></param>
     /// <returns></returns>
-    public async Task<bool> UpdateAndUpdate(string name, bool global, string path, int? slot, string version)
+    public async Task<bool> UpgradeAndUpdate(string name, bool global, string path, int? slot, string version)
     {
         Upgrade();
 
@@ -126,6 +125,7 @@ public partial class TaskService
             return false;
         }
 
+        // 1 API call
         if (!(await _gitHubService.TryGetRelease(package, version))
             .Out(out var release))
         {
@@ -141,6 +141,7 @@ public partial class TaskService
         // save slot location for later re-install
         var installPath = model.Slots[slotIdx].FullPath;
         Log.Debug("[{Package}] Removing installed package ...", package);
+
         if (await _deploymentService.UninstallPackage(model.Key, slotIdx))
         {
             Log.Debug("[{Package}] Old package successfully removed", package);
@@ -154,6 +155,7 @@ public partial class TaskService
         // update to new version
         model.Slots.AddOrUpdate(slotIdx, new SlotManifest() { FullPath = installPath });
         Log.Information("[{Package}] Updating package ...", package);
+
         if (await _deploymentService.InstallReleaseAsync(package, release, slotIdx))
         {
             Log.Information("[{Package}] Package successfully updated to version {Version}", package,

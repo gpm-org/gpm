@@ -32,6 +32,6 @@ public class RemoveCommand : Command
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        await taskService.UpdateAndRemove(name, global, path, slot);
+        await taskService.UpgradeAndRemove(name, global, path, slot);
     }
 }

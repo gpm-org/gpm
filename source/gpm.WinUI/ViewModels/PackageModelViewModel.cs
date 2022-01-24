@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using gpm.Core.Models;
 using gpm.Core.Services;
-using gpm.Core.Tasks;
 using Nito.AsyncEx;
 
 namespace gpmWinui.ViewModels
@@ -93,7 +92,7 @@ namespace gpmWinui.ViewModels
         {
             if (Id is not null)
             {
-                await _taskService.UpdateAndInstall(Id, "", "", true);
+                await _taskService.UpgradeAndInstall(Id, "", "", true);
             }
         }
     }

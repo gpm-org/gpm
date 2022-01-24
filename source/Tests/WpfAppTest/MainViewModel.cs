@@ -53,8 +53,10 @@ public class MainViewModel : ObservableRecipient
     }
 
     public IAsyncRelayCommand CheckCommand { get; }
+    // 2 API calls
     private async Task CheckAsync()
     {
+        // 1 API call
         var releases = await _installer.CheckForUpdate();
 
         var isUpdateAvailable = releases != null;
@@ -68,6 +70,7 @@ public class MainViewModel : ObservableRecipient
             //await _installer.Update(releases);
 
             // Option 2 callback
+            // 1 API call
             await _installer.Update(releases);
         }
     }

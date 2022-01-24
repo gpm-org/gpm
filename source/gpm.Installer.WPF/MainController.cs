@@ -1,108 +1,106 @@
-using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
-using gpm.Core.Models;
+using gpm.Core.Services;
 using Serilog;
 
 namespace gpm.Installer.WPF;
 
 internal class MainController
 {
+    private readonly ITaskService _taskService;
+    private readonly ILibraryService _libraryService;
+
     public bool Restart { get; internal set; }
     public string RestartName { get; internal set; } = "";
-
-    public string BaseDir { get; internal set; } = "";
+    public string Package { get; internal set; } = "";
 
     public int Slot { get; internal set; }
 
+    public MainController(ITaskService taskService, ILibraryService libraryService)
+    {
+        _taskService = taskService;
+        _libraryService = libraryService;
+    }
 
-    public void Run()
+    public async Task<bool> RunAsync()
     {
         // checks
-        // TODO
-
-
-        // read lockfile
-        //if (!TryGetLockFile(out var lockFile))
-        //{
-        //    Log.Error("No lockfile found in {BaseDir}", BaseDir);
-        //    Application.Current.Shutdown();
-        //    return;
-        //}
+        if (!_libraryService.TryGetValue(Package, out var model))
+        {
+            Log.Warning("[{Package}] Package not found in library. Use gpm install to install a package", Package);
+            return false;
+        }
+        if (!_libraryService.IsInstalled(Package))
+        {
+            Log.Warning("[{Package}] Package not installed. Use gpm install to install a package", Package);
+            return false;
+        }
+        if (!_libraryService.IsInstalledInSlot(Package, Slot))
+        {
+            Log.Warning(
+                "[{Package}] Package not installed in slot {SlotIdx}. Use gpm install to install a package",
+                Package, Slot.ToString());
+            return false;
+        }
 
         // wait for process to finish
         if (!WaitForProcessEnded())
         {
             Log.Error("Could not kill process, aborting");
-            Application.Current.Shutdown();
-            return;
+            return false;
         }
 
         // install in slot
-        //TODO
-
+        var result = await _taskService.UpgradeAndUpdate(Package, false, "", Slot, "");
+        if (!result)
+        {
+            Log.Error("Could not update package");
+            return false;
+        }
 
         // restart app once finished
         if (Restart)
         {
+            var baseDir = model.Slots[Slot].FullPath;
+            if (baseDir == null)
+            {
+                Log.Error("No path registered for slot {Slot}", Slot);
+                return false;
+            }
+            var exe = Path.Combine(baseDir, RestartName);
+
+            if (string.IsNullOrEmpty(RestartName))
+            {
+                // use first exe in directory
+                var files = Directory.GetFiles(baseDir, ".exe");
+                exe = files.FirstOrDefault();
+
+                if (exe == null)
+                {
+                    Log.Error("No app to restart in {BaseDir}, aborting", baseDir);
+                    return false;
+                }
+            }
+
+            if (!File.Exists(exe))
+            {
+                Log.Error("No app to restart in {BaseDir}, aborting", baseDir);
+                return false;
+            }
+
             Log.Information("Restarting ...");
 
-            var exeName = RestartName;
-            Process.Start(exeName);
+            // restart app
+            Process.Start(exe);
         }
 
         Log.Information("Shutting down ...");
         Application.Current.Shutdown();
-    }
-
-    private bool TryGetLockFile([NotNullWhen(true)] out PackageLock? packageLock)
-    {
-        var baseDirectory = BaseDir;
-
-        Log.Information($"Using BaseDirectory: {baseDirectory}");
-
-        var lockFilePath = Path.Combine(baseDirectory, gpm.Core.Constants.GPMLOCK);
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        if (File.Exists(lockFilePath))
-        {
-            try
-            {
-                packageLock = JsonSerializer.Deserialize<PackageLock>(File.ReadAllText(lockFilePath), options);
-                if (packageLock is null)
-                {
-                    return false;
-                }
-                var version = packageLock.Packages[0].Version;
-                if (version is null)
-                {
-                    return false;
-                }
-                var id = packageLock.Packages[0].Id;
-                if (id is null)
-                {
-                    return false;
-                }
-                return true;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Failed to read existing lock file");
-            }
-        }
-        packageLock = null;
-        return false;
+        return true;
     }
 
     private bool WaitForProcessEnded()

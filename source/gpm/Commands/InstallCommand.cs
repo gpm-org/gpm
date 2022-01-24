@@ -40,6 +40,6 @@ public class InstallCommand : Command
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        await taskService.UpdateAndInstall(name, version, path, global);
+        await taskService.UpgradeAndInstall(name, version, path, global);
     }
 }

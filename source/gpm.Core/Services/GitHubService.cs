@@ -147,9 +147,14 @@ public class GitHubService : IGitHubService
         return (true, release);
 
         // LOCAL FUNCTION
-        static bool ReleasesContainTag(IEnumerable<ReleaseModel>? releases, string installedVersion)
+        static bool ReleasesContainTag(IEnumerable<ReleaseModel>? releases, string version)
         {
             using var ssc = new ScopedStopwatch();
+
+            if (string.IsNullOrEmpty(version))
+            {
+                return true;
+            }
 
             if (releases is null)
             {
@@ -161,13 +166,13 @@ public class GitHubService : IGitHubService
             {
                 return false;
             }
-            if (!releaseModels.Any(x => x.TagName.Equals(installedVersion)))
+            if (!releaseModels.Any(x => x.TagName.Equals(version)))
             {
                 return false;
             }
 
             // idx 0 is latest release
-            if (releaseModels.First().TagName.Equals(installedVersion))
+            if (releaseModels.First().TagName.Equals(version))
             {
                 Log.Information("Latest release already installed");
                 return false;

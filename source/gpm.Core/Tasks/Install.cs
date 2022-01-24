@@ -4,7 +4,7 @@ using gpm.Core.Models;
 using gpm.Core.Services;
 using Serilog;
 
-namespace gpm.Core.Tasks;
+namespace gpm.Core.Services;
 
 public partial class TaskService
 {
@@ -21,7 +21,7 @@ public partial class TaskService
     /// <param name="path">The global install directory, can't be combined with -g</param>
     /// <param name="global">Install this package globally in the default location</param>
     /// <returns></returns>
-    public async Task<bool> UpdateAndInstall(string name, string version, string path, bool global)
+    public async Task<bool> UpgradeAndInstall(string name, string version, string path, bool global)
     {
         Upgrade();
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using DynamicData;
@@ -8,7 +9,6 @@ namespace gpm.Installer.WPF;
 
 public class MainViewModel : ObservableRecipient
 {
-    private readonly MainController _mainController = Ioc.Default.GetRequiredService<MainController>();
     private readonly MySink _sink = Ioc.Default.GetRequiredService<MySink>();
 
     private readonly ReadOnlyObservableCollection<string> _list;
@@ -29,8 +29,6 @@ public class MainViewModel : ObservableRecipient
                     Text += $"{msg}\n";
                 }
             });
-
-        _mainController.Run();
     }
 
     private string _text;

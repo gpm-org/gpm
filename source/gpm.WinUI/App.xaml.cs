@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using gpm.Core.Extensions;
 using gpm.Core.Services;
-using gpm.Core.Tasks;
 using gpmWinui.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -52,15 +52,8 @@ namespace gpmWinui
                 new ServiceCollection()
 
                 .AddSingleton<ISettingsService, SettingsService>()
-                .AddScoped<IArchiveService, ArchiveService>()
 
-                .AddSingleton<IGitHubService, GitHubService>()
-                .AddSingleton<IDeploymentService, DeploymentService>()
-
-                .AddSingleton<ILibraryService, LibraryService>()
-                .AddSingleton<IDataBaseService, DataBaseService>()
-
-                .AddSingleton<ITaskService, TaskService>()
+                .AddGpm()
 
                 .BuildServiceProvider());
 

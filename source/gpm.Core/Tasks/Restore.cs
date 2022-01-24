@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using gpm.Core.Models;
 using Serilog;
 
-namespace gpm.Core.Tasks;
+namespace gpm.Core.Services;
 
 public partial class TaskService
 {
@@ -11,7 +11,7 @@ public partial class TaskService
     /// Installs the local packages that are in scope for the current directory.
     /// </summary>
     /// <param name="host"></param>
-    public async Task<bool> UpdateAndRestore()
+    public async Task<bool> UpgradeAndRestore()
     {
         //var serviceProvider = host.Services;
         //var library = serviceProvider.GetRequiredService<ILibraryService>();

@@ -1,7 +1,7 @@
 using gpm.Core;
+using gpm.Core.Extensions;
 using gpm.Core.Models;
 using gpm.Core.Services;
-using gpm.Core.Tasks;
 using gpm.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,15 +28,8 @@ public static class Startup
     {
         services.AddScoped<IAppSettings, AppSettings>();
         services.AddScoped<IProgressService<double>, PercentProgressService>();
-        services.AddScoped<IArchiveService, ArchiveService>();
 
-        services.AddSingleton<ILibraryService, LibraryService>();
-        services.AddSingleton<IDataBaseService, DataBaseService>();
-
-        services.AddSingleton<IDeploymentService, DeploymentService>();
-        services.AddSingleton<IGitHubService, GitHubService>();
-
-        services.AddSingleton<ITaskService, TaskService>();
+        services.AddGpm();
 
         services.AddOptions<CommonSettings>()
             .Bind(ctx.Configuration.GetSection(nameof(CommonSettings)));

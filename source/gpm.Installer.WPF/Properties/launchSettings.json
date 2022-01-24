@@ -2,7 +2,7 @@
   "profiles": {
     "gpm.Installer.WPF": {
       "commandName": "Project",
-      "commandLineArgs": "/Restart=WpfAppTest.exe /Dir=Z:\\GitHub\\gpm\\source\\Tests\\WpfAppTest\\bin\\Debug\\net6.0-windows"
+      "commandLineArgs": "/Slot=1 /Package=wolvenkit/wolvenkit/test1"
     }
   }
 }
