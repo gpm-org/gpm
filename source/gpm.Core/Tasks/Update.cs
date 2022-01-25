@@ -137,6 +137,13 @@ public partial class TaskService
             return false;
         }
 
+        // check if installed
+        if (release.TagName == model.Slots[slotIdx].Version)
+        {
+            Log.Information("[{Package}] Latest release installed", package);
+            return true;
+        }
+
         // uninstall package in location
         // save slot location for later re-install
         var installPath = model.Slots[slotIdx].FullPath;

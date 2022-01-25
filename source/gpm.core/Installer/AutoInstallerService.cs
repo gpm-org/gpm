@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using gpm.Core.Exceptions;
 using gpm.Core.Models;
 using gpm.Core.Services;
 using gpm.Core.Util;
@@ -16,17 +17,20 @@ public class AutoInstallerService : IAutoInstallerService
     private readonly IGitHubService _gitHubService;
     private readonly IDataBaseService _dataBaseService;
     private readonly ILibraryService _libraryService;
+    private readonly ITaskService _taskService;
 
     private int? _slot;
 
     public AutoInstallerService(
         IGitHubService gitHubService,
         IDataBaseService dataBaseService,
-        ILibraryService libraryService)
+        ILibraryService libraryService,
+        ITaskService taskService)
     {
         _gitHubService = gitHubService;
         _dataBaseService = dataBaseService;
         _libraryService = libraryService;
+        _taskService = taskService;
     }
 
     public bool IsEnabled { get; private set; }
@@ -41,14 +45,14 @@ public class AutoInstallerService : IAutoInstallerService
     public async Task<bool> CheckAndUpdate()
     {
         // 1 API call
-        var release = await CheckForUpdate();
-        if (release == null)
+        if (!(await CheckForUpdate())
+            .Out(out var release))
         {
             return false;
         }
 
         // 1 API call
-        return await Update(release);
+        return await Update(release.NotNull());
     }
 
     /// <summary>
@@ -56,18 +60,18 @@ public class AutoInstallerService : IAutoInstallerService
     /// 1 API call
     /// </summary>
     /// <returns>false if no valid lockfile found in the app directory or no update available</returns>
-    public async Task<ReleaseModel?> CheckForUpdate()
+    public async Task<AsyncOut<bool, ReleaseModel?>> CheckForUpdate()
     {
-        if (_channel?.Package is null || _version is null || !IsEnabled)
+        if (_channel?.Package is null || !IsEnabled)
         {
-            return null;
+            return (false, null);
         }
 
         // 1 API call
-        return (await _gitHubService.TryGetRelease(_channel.Package, _version))
+        return (await _gitHubService.TryGetRelease(_channel.Package, ""))
             .Out(out var release)
-            ? release
-            : null;
+            ? (true, release)
+            : (false, null);
     }
 
     /// <summary>
@@ -77,7 +81,7 @@ public class AutoInstallerService : IAutoInstallerService
     /// <returns>true if update succeeded</returns>
     public async Task<bool> Update(ReleaseModel release)
     {
-        if (_channel?.Package is null || _version is null || !IsEnabled)
+        if (_channel?.Package is null || !IsEnabled)
         {
             return false;
         }
@@ -93,12 +97,11 @@ public class AutoInstallerService : IAutoInstallerService
 
         // TODO: user callback confirm
 
+
         // start gpm install command
         // 1 API call
-        if (!await GpmUtil.RunGpmAsync(GpmUtil.ECommand.run, GetInstallerId(_framework), $"/Package={_channel?.Package.Id} /Restart /Slot={_slot}"))
-        {
-            return false;
-        }
+        _taskService.UpgradeAndRun(GetInstallerId(_framework), $"/Package={_channel?.Package.Id} /Restart /Slot={_slot}");
+            
 
         // shutdown exe
         // use a callback here?
@@ -113,7 +116,7 @@ public class AutoInstallerService : IAutoInstallerService
     /// <returns>true if update succeeded</returns>
     public async Task<bool> DownloadUpdate(ReleaseModel release)
     {
-        if (_channel?.Package is null || _version is null || !IsEnabled)
+        if (_channel?.Package is null || !IsEnabled)
         {
             return false;
         }
@@ -173,7 +176,7 @@ public class AutoInstallerService : IAutoInstallerService
         var id = info.Packages[0].Id;
 
         // TODO version
-        _version = info.Packages[0].Version;
+        _installedVersion = info.Packages[0].Version;
 
         AddChannel("Default", id);
 
@@ -224,7 +227,7 @@ public class AutoInstallerService : IAutoInstallerService
         return false;
     }
 
-    private string? _version;
+    private string? _installedVersion;
     /// <summary>
     /// Registers the current app as a specific version.
     /// Use AddLockFile instead
@@ -232,7 +235,7 @@ public class AutoInstallerService : IAutoInstallerService
     /// <returns></returns>
     public AutoInstallerService AddVersion(string version)
     {
-        _version = version;
+        _installedVersion = version;
 
         return this;
     }
@@ -307,7 +310,7 @@ public class AutoInstallerService : IAutoInstallerService
             Log.Error("No update channel registered");
             return;
         }
-        if (string.IsNullOrEmpty(_version))
+        if (string.IsNullOrEmpty(_installedVersion))
         {
             Log.Error("No version registered for {Package} installation failed", _channel.Package);
             return;
@@ -323,23 +326,22 @@ public class AutoInstallerService : IAutoInstallerService
         }
 
         // register app in gpm if not already
-        _slot = _libraryService.RegisterInSlot(package, AppContext.BaseDirectory, _version);
+        _slot = _libraryService.RegisterInSlot(package, AppContext.BaseDirectory, _installedVersion);
 
         IsEnabled = true;
-        Log.Information("[{_package}, v.{_version}] auto-update Enabled: {IsEnabled}", package, _version, IsEnabled);
+        Log.Information("[{_package}, v.{_version}] auto-update Enabled: {IsEnabled}", package, _installedVersion, IsEnabled);
     }
 
 
     private async Task<bool> InstallHelperAsync()
     {
-        if (!await GpmUtil.EnsureGpmInstalled())
+        // update 
+        if (!await _taskService.UpgradeAndUpdate(GetInstallerId(_framework), true, "", null, ""))
         {
-            return false;
-        }
-
-        if (!await GpmUtil.RunGpmAsync(GpmUtil.ECommand.install, GetInstallerId(_framework), "-g"))
-        {
-            return false;
+            if (!await _taskService.UpgradeAndInstall(GetInstallerId(_framework), "", "", true))
+            {
+                return false;
+            }
         }
 
         return true;

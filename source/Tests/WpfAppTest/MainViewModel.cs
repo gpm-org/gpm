@@ -1,8 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Documents;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
@@ -21,7 +19,6 @@ public class MainViewModel : ObservableRecipient
 
     public MainViewModel()
     {
-
         CheckCommand = new AsyncRelayCommand(CheckAsync, CanCheck);
         InstallCommand = new AsyncRelayCommand(InstallAsync);
 
@@ -40,29 +37,41 @@ public class MainViewModel : ObservableRecipient
                 }
             });
 
-        CheckCommand.Execute(null);
+        _installer
+           .UseWPF()
+           .AddLockFile()
+           //.AddVersion("8.4.2")
+           .AddChannel("Nightly", "wolvenkit/wolvenkit/test1")
+           .AddChannel("Stable", "wolvenkit/wolvenkit/test1")
+           .UseChannel("Stable")
+           .Build();
+
+        //CheckCommand.Execute(null);
     }
 
     private bool CanCheck() => _installer.IsEnabled;
 
 
     public IAsyncRelayCommand InstallCommand { get; }
-    private async Task InstallAsync()
-    {
-        await Task.Delay(1);
-    }
+    private async Task InstallAsync() => await Task.Delay(1);
 
     public IAsyncRelayCommand CheckCommand { get; }
     // 2 API calls
     private async Task CheckAsync()
     {
-        // 1 API call
-        var releases = await _installer.CheckForUpdate();
+        Log.Information("CheckAsync");
 
-        var isUpdateAvailable = releases != null;
+        // 1 API call
+        if (!(await _installer.CheckForUpdate())
+            .Out(out var release))
+        {
+            return;
+        }
+
+        var isUpdateAvailable = release != null;
         Log.Information($"Is update available: {isUpdateAvailable}");
 
-        if (releases != null)
+        if (release != null)
         {
             // TODO: ask user
 
@@ -71,7 +80,7 @@ public class MainViewModel : ObservableRecipient
 
             // Option 2 callback
             // 1 API call
-            await _installer.Update(releases);
+            await _installer.Update(release);
         }
     }
 

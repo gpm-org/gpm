@@ -24,11 +24,11 @@ public class RunCommand : Command
         Handler = CommandHandler.Create<string, string[]?, IHost>(RunAction);
     }
 
-    private async Task RunAction(string name, string[]? args, IHost host)
+    private void RunAction(string name, string[]? args, IHost host)
     {
         var serviceProvider = host.Services;
         var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        await taskService.UpgradeAndRun(name, args);
+        taskService.UpgradeAndRun(name, args);
     }
 }

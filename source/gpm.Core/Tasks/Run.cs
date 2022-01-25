@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using gpm.Core.Extensions;
 using gpm.Core.Models;
 using gpm.Core.Util;
@@ -13,11 +14,11 @@ public partial class TaskService
     /// <param name="name"></param>
     /// <param name="args"></param>
     /// <returns></returns>
-    public async Task<bool> UpgradeAndRun(string name, string[]? args)
+    public bool UpgradeAndRun(string name, params string[]? args)
     {
         Upgrade();
 
-        return await Run(name, args);
+        return Run(name, args);
     }
 
 
@@ -27,7 +28,7 @@ public partial class TaskService
     /// <param name="name"></param>
     /// <param name="args"></param>
     /// <returns></returns>
-    public async Task<bool> Run(string name, string[]? args)
+    public bool Run(string name, params string[]? args)
     {
         // checks
         if (string.IsNullOrEmpty(name))
@@ -90,15 +91,24 @@ public partial class TaskService
             }
         }
 
-        var result = false;
+        //var result = false;
         if (args is not null)
         {
-            result = await ProcessUtil.RunProcessAsync(exe, args);
+            Process.Start(exe, string.Join(' ', args));
+            //result = await ProcessUtil.RunProcessAsync(exe, args);
+            //using var p = new Process();
+
+            //p.StartInfo.FileName = exe;
+            //p.StartInfo.Arguments = string.Join(' ', args);
+            //p.StartInfo.CreateNoWindow = true;
+            //p.StartInfo.UseShellExecute = false;
         }
         else
         {
-            result = await ProcessUtil.RunProcessAsync(exe);
+            //result = await ProcessUtil.RunProcessAsync(exe);
+            Process.Start(exe);
         }
-        return result;
+        //return result;
+        return true;
     }
 }
