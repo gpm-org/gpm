@@ -7,8 +7,8 @@ on:
 
 jobs:
   build:
-    name: release-ubuntu
-    runs-on: ubuntu-latest
+    name: release-win
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -21,14 +21,15 @@ jobs:
       run: dotnet build source/gpm.sln --no-restore
       
     - name: Publish
-      run: dotnet publish source/gpm/gpm.csproj -o publish-win && dotnet publish source/gpm/gpm.csproj -r linux-x64 --no-self-contained -o publish-linux
-    - uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r gpm-win.zip publish-win/ 
-    - uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r gpm-linux.zip publish-linux/
-
+      run: dotnet publish source/gpm/gpm.csproj -o publish-win # && dotnet publish source/gpm/gpm.csproj -r linux-x64 --no-self-contained -o publish-linux
+    # - uses: montudor/action-zip@v1
+    #  with:
+    #    args: zip -qq -r gpm-win.zip publish-win/ 
+    #- uses: montudor/action-zip@v1
+    #  with:
+    #    args: zip -qq -r gpm-linux.zip publish-linux/
+    - run: Compress-Archive -Path publish-win\* -DestinationPath gpm-win.zip
+    
     - uses: ncipollo/release-action@v1
       with:
         draft: true
