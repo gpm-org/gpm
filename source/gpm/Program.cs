@@ -6,20 +6,20 @@ using gpm.Commands;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace gpm
-{
-    public static class Program
-    {
-        public static int Main(string[] args)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .CreateBootstrapLogger();
+namespace gpm;
 
-            try
-            {
-                var rootCommand = new RootCommand
+public static class Program
+{
+    public static int Main(string[] args)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .CreateBootstrapLogger();
+
+        try
+        {
+            var rootCommand = new RootCommand
                 {
                     new SearchCommand(),
                     new InstallCommand(),
@@ -28,34 +28,34 @@ namespace gpm
                     new ListCommand(),
                     new RestoreCommand(),
                     new UpgradeCommand(),
-                    new NewCommand()
+                    new NewCommand(),
+                    new RunCommand()
                 };
 
-                var parser = new CommandLineBuilder(rootCommand)
-                    .UseDefaults()
-                    .UseHost(CreateHostBuilder)
-                    .Build();
+            var parser = new CommandLineBuilder(rootCommand)
+                .UseDefaults()
+                .UseHost(CreateHostBuilder)
+                .Build();
 
-                return parser.Invoke(args);
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Host terminated unexpectedly");
-                return 1;
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
+            return parser.Invoke(args);
         }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration(Startup.ConfigureAppConfiguration)
-                .ConfigureServices(Startup.ConfigureServices)
-                .UseSerilog(Startup.ConfigureSerilog);
-
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Host terminated unexpectedly");
+            return 1;
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
     }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration(Startup.ConfigureAppConfiguration)
+            .ConfigureServices(Startup.ConfigureServices)
+            .UseSerilog(Startup.ConfigureSerilog);
+
 }
 
 

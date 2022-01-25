@@ -2,7 +2,7 @@
   "profiles": {
     "gpm update": {
       "commandName": "Project",
-      "commandLineArgs": "update wolvenkit/wolvenkit/test1"
+      "commandLineArgs": "update gpm-org/gpm.installer/wpf -g"
     },
     "gpm list": {
       "commandName": "Project",
@@ -10,11 +10,11 @@
     },
     "gpm install": {
       "commandName": "Project",
-      "commandLineArgs": "install wolvenkit/wolvenkit/test1 -g"
+      "commandLineArgs": "install gpm-org/gpm.installer/wpf -g"
     },
     "gpm remove": {
       "commandName": "Project",
-      "commandLineArgs": "remove wolvenkit/wolvenkit/test1 -s 0"
+      "commandLineArgs": "remove gpm-org/gpm.installer/wpf -s 0"
     },
     "gpm search": {
       "commandName": "Project",
@@ -26,11 +26,15 @@
     },
     "gpm new": {
       "commandName": "Project",
-      "commandLineArgs": "new https://github.com/jac3km4/redscript.git -o /Users/ghost/gpm2"
+      "commandLineArgs": "new https://github.com/gpm-org/gpm.Installer.git -o out -i wpf"
     },
     "gpm help": {
       "commandName": "Project",
       "commandLineArgs": "-h"
+    },
+    "gpm run": {
+      "commandName": "Project",
+      "commandLineArgs": "run gpm-org/gpm.installer/wpf -a \"/Test /Restart\""
     }
   }
 }

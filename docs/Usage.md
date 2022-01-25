@@ -18,6 +18,7 @@ Commands:
   list              Lists all installed packages.
   restore           Restore packages defined in the local package lock file.
   upgrade           Update the local package registry.
+  run <name>        Runs a globally installed gpm package.
 ```
 
 ## Commands list
@@ -69,3 +70,9 @@ The `gpm list` command provides a way for you to list all global, custom, or loc
 >See also: [RestoreCommand](/docs/RestoreCommand.md)
 
 The `gpm restore` command finds the `gpm-lock.json` file that is in scope for the current directory and installs the tools that are listed in it.
+
+### Run
+
+>See also: [RunCommand](/docs/RunCommand.md)
+
+The `gpm run` command runs a globally installed package with given arguments.

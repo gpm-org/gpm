@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "packages": [
+    {
+      "id": "wolvenkit/wolvenkit/test1",
+      "version": "8.4.2"
+    }
+  ]
+}

@@ -3,6 +3,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>10</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -28,8 +29,8 @@
         <Product>gpm</Product>
         <Description>GitHub package manager</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/rfuzzo/gpm</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/rfuzzo/gpm</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/gpm-org/gpm</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/gpm-org/gpm</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>
@@ -58,7 +59,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\gpm.core\gpm.core.csproj" />
+        <ProjectReference Include="..\gpm.Core\gpm.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -67,6 +68,6 @@
         <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-        <PackageReference Include="System.CommandLine.Hosting" Version="0.3.0-alpha.21216.1" />
+        <PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.21617.1" />
     </ItemGroup>
 </Project>

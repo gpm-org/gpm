@@ -2,7 +2,7 @@
 
 A Github package manager to install, update and manage **releases** published on GitHub.
 
-The manager registry is located at <https://github.com/rfuzzo/gpm-db> and accepts pull requests. For the package format see below.
+The manager registry is located at <https://github.com/gpm-org/gpm-db> and accepts pull requests. For the package format see below.
 
 ## Installation
 
@@ -32,7 +32,7 @@ Navigate to a folder to install a package in (but you can also specify the insta
 
 >See also: [The package format](/docs/PackageFormat.md)
 
-The package format is a simple json file (renamed to `.gpak`) and can be auto generated with the **[gpm-util](/docs/gpm-util.md)** tool. To integrate your package into the registry, make a pull request to <https://github.com/rfuzzo/gpm-db>.
+The package format is a simple json file (renamed to `.gpak`) and can be auto generated with the **[gpm-util](/docs/gpm-util.md)** tool. To integrate your package into the registry, make a pull request to <https://github.com/gpm-org/gpm-db>.
 
 Example:
 

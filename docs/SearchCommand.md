@@ -1,6 +1,6 @@
 # gpm search
 
-`gpm search` - Searches all packages that are published in the gpm registry: [https://github.com/rfuzzo/gpm-db]
+`gpm search` - Searches all packages that are published in the gpm registry: [https://github.com/gpm-org/gpm-db]
 
 ## Synopsis
 

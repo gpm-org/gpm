@@ -1,28 +1,27 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using gpm.core.Services;
-using gpm.Tasks;
+using gpm.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.CommandLine.NamingConventionBinder;
 
-namespace gpm.Commands
+namespace gpm.Commands;
+
+public class UpgradeCommand : Command
 {
-    public class UpgradeCommand : Command
+    private new const string Description = "Update the local package registry.";
+    private new const string Name = "upgrade";
+
+    public UpgradeCommand() : base(Name, Description)
     {
-        private new const string Description = "Update the local package registry.";
-        private new const string Name = "upgrade";
+        Handler = CommandHandler.Create<IHost>(Upgrade);
+    }
 
-        public UpgradeCommand() : base(Name, Description)
-        {
-            Handler = CommandHandler.Create<IHost>(Upgrade);
-        }
+    private void Upgrade(IHost host)
+    {
+        var serviceProvider = host.Services;
+        var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        private void Upgrade(IHost host)
-        {
-            var serviceProvider = host.Services;
-            var taskService = serviceProvider.GetRequiredService<ITaskService>();
-
-            taskService.Upgrade();
-        }
+        taskService.Upgrade();
     }
 }
