@@ -1,6 +1,6 @@
 # The Package Format
 
-The package format is a simple json file (renamed to `.gpak`) and can be auto generated with the **[gpm-util](/docs/gpm-util.md)** tool. To integrate your package into the registry, make a pull request to <https://github.com/rfuzzo/gpm-db>.
+The package format is a simple json file (renamed to `.gpak`) and can be auto generated with the **[gpm-util](/docs/gpm-util.md)** tool. To integrate your package into the registry, make a pull request to <https://github.com/gpm-org/gpm-db>.
 
 Example:
 

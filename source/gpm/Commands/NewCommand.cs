@@ -59,15 +59,17 @@ public class NewCommand : Command
         }
         else
         {
-            var dir = Path.GetFullPath(outdir);
+            var dir = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, outdir));
             if (Directory.Exists(dir))
             {
                 outDirectory = dir;
             }
             else
             {
-                logger.LogWarning("Output directory does not exist: {Outdir}", outdir);
-                return;
+                Directory.CreateDirectory(dir);
+                //logger.LogWarning("Output directory does not exist: {Outdir}", outdir);
+                //return;
+                outDirectory = dir;
             }
         }
 

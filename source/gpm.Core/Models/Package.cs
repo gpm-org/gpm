@@ -135,7 +135,7 @@ public sealed class Package
         {
             throw new ArgumentException(nameof(Url));
         }
-        var rName = fi.Name.Split('.').First();
+        var rName = fi.Name[0..^4]; // remove .git from the end
 
         if (string.IsNullOrEmpty(rName))
         {

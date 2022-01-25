@@ -7,21 +7,20 @@ using Microsoft.Extensions.Hosting;
 
 namespace gpm.Commands;
 
-public class RunCommand : Command
+public class ListCommand : Command
 {
-    private new const string Description = "Runs a globally installed gpm packages.";
-    private new const string Name = "run";
+    private new const string Description = "Lists all installed packages.";
+    private new const string Name = "list";
 
-    public RunCommand() : base(Name, Description)
+    public ListCommand() : base(Name, Description)
     {
-        Handler = CommandHandler.Create<IHost>(RunAction);
+        Handler = CommandHandler.Create<IHost>(ListAction);
     }
 
-    private void RunAction(IHost host)
+    private void ListAction(IHost host)
     {
         var serviceProvider = host.Services;
-
-        //TODO
-
+        var taskService = serviceProvider.GetRequiredService<ITaskService>();
+        taskService.List();
     }
 }

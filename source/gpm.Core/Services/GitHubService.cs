@@ -66,7 +66,14 @@ public class GitHubService : IGitHubService
             throw new ArgumentException(nameof(url));
         }
         var rOwner = fi.Directory.Name;
-        var rName = fi.Name.Split('.').First();
+        var rName = fi.Name;
+        if (!rName.EndsWith(".git"))
+        {
+            Log.Error("Please specify a .git url");
+            throw new ArgumentException(nameof(url));
+        }
+        rName = rName[0..^4];
+
         if (string.IsNullOrEmpty(rOwner) || string.IsNullOrEmpty(rName))
         {
             throw new ArgumentException(nameof(url));

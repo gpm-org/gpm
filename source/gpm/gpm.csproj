@@ -29,8 +29,8 @@
         <Product>gpm</Product>
         <Description>GitHub package manager</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/rfuzzo/gpm</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/rfuzzo/gpm</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/gpm-org/gpm</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/gpm-org/gpm</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>

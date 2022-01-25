@@ -26,7 +26,7 @@
     },
     "gpm new": {
       "commandName": "Project",
-      "commandLineArgs": "new https://github.com/jac3km4/redscript.git -o /Users/ghost/gpm2"
+      "commandLineArgs": "new https://github.com/gpm-org/gpm.Installer.git -o Users/ghost/gpm2 -i wpf"
     },
     "gpm help": {
       "commandName": "Project",

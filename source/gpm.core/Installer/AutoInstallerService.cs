@@ -95,7 +95,7 @@ public class AutoInstallerService : IAutoInstallerService
 
         // start gpm install command
         // 1 API call
-        if (!await GpmUtil.RunGpmAsync(GpmUtil.ECommand.run, GetInstallerId(_framework), $"/Package={_channel?.Package.Id} /Restart=WpfAppTest.exe /Slot={_slot}"))
+        if (!await GpmUtil.RunGpmAsync(GpmUtil.ECommand.run, GetInstallerId(_framework), $"/Package={_channel?.Package.Id} /Restart /Slot={_slot}"))
         {
             return false;
         }
@@ -142,7 +142,7 @@ public class AutoInstallerService : IAutoInstallerService
     private static string GetInstallerId(EFramework framework) => framework switch
     {
         EFramework.NONE => throw new ArgumentNullException(nameof(framework)),
-        EFramework.WPF => "rfuzzo/gpm-installer/wpf",
+        EFramework.WPF => "gpm-org/gpm.installer/wpf",
         EFramework.WINUI or EFramework.AVALONIA => throw new NotImplementedException(),
         _ => throw new ArgumentNullException(nameof(framework)),
     };

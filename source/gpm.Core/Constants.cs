@@ -4,7 +4,7 @@ public static class Constants
 {
     public const string GPM = "gpm";
 
-    public const string GPMDB = @"https://github.com/rfuzzo/gpm-db.git";
+    public const string GPMDB = @"https://github.com/gpm-org/gpm-db.git";
 
     public const string APPSETTINGS = "appsettings.local.json";
 
