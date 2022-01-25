@@ -15,5 +15,5 @@ public interface ITaskService
     Task<bool> Update(string name, bool global, string path, int? slot, string version);
 
     void Upgrade();
-    
+    Task<bool> UpgradeAndRun(string name, string[]? args);
 }

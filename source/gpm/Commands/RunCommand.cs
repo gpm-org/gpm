@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using gpm.Core.Services;
+using gpm.Core.Util;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -14,14 +15,20 @@ public class RunCommand : Command
 
     public RunCommand() : base(Name, Description)
     {
-        Handler = CommandHandler.Create<IHost>(RunAction);
+        AddArgument(new Argument<string>("name",
+            "The package name. Can be a github repo url, a repo name or in the form of owner/name/id. "));
+
+        AddOption(new Option<string[]?>(new[] { "--args", "-a" },
+            "Commandline arguments."));
+
+        Handler = CommandHandler.Create<string, string[]?, IHost>(RunAction);
     }
 
-    private void RunAction(IHost host)
+    private async Task RunAction(string name, string[]? args, IHost host)
     {
         var serviceProvider = host.Services;
+        var taskService = serviceProvider.GetRequiredService<ITaskService>();
 
-        //TODO
-
+        await taskService.UpgradeAndRun(name, args);
     }
 }
