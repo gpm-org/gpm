@@ -6,8 +6,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      <NoWarn>$(NoWarn);NU5104</NoWarn>
   </PropertyGroup>
 
+    <PropertyGroup>
+        <Title>gpm.Core</Title>
+        <Authors>Moritz Baron</Authors>
+        <Version>0.4.2</Version>
+        <PackageTags>gpm, GitHub</PackageTags>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>gpm.Core</PackageId>
+        <Product>gpm.Core</Product>
+        <Description>GitHub package manager</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/gpm-org/gpm</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/gpm-org/gpm</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+    
   <ItemGroup>
     <PackageReference Include="DynamicData" Version="7.4.9" />
     <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0175" />

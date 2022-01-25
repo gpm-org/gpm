@@ -19,9 +19,7 @@
     <PropertyGroup>
         <Title>gpm</Title>
         <Authors>Moritz Baron</Authors>
-        <Version>0.4</Version>
-        <PackAsTool>true</PackAsTool>
-        <ToolCommandName>gpm</ToolCommandName>
+        <Version>0.4.2</Version>
         <PackageTags>gpm, GitHub</PackageTags>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -35,8 +33,11 @@
         <PackageReadmeFile>readme.md</PackageReadmeFile>
     </PropertyGroup>
 
-
-
+    <PropertyGroup>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>gpm</ToolCommandName>
+    </PropertyGroup>
+    
     <ItemGroup>
         <Content Include="..\..\readme.md" Pack="true" PackagePath="\" />
         <Content Include="..\..\docs\*" Pack="true" PackagePath="\docs\" />
