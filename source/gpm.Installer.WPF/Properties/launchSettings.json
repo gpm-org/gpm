@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "gpm.Installer.WPF": {
-      "commandName": "Project",
-      "commandLineArgs": "/Slot=1 /Package=wolvenkit/wolvenkit/test1"
-    }
-  }
-}
