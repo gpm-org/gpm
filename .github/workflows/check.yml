@@ -12,6 +12,36 @@ on:
 
 jobs:    
 
+  build-macos:
+
+    runs-on: macos-11
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.x
+    - name: Restore dependencies
+      run: dotnet restore source/gpm.sln
+    - name: Build
+      run: dotnet build source/gpm.sln --no-restore
+
+  build-win:
+
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.x
+    - name: Restore dependencies
+      run: dotnet restore source/gpm.sln
+    - name: Build
+      run: dotnet build source/gpm.sln --no-restore
+
   build-linux:
 
     runs-on: ubuntu-latest
