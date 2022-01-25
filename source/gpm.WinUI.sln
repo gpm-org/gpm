@@ -18,8 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{48DDF94F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "gpm.Tests", "Tests\gpm.Tests\gpm.Tests.csproj", "{9548A1A0-6968-4640-A4BF-B7CDE3C98DAF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfAppTest", "Tests\WpfAppTest\WpfAppTest.csproj", "{83600098-0F86-4824-8989-01F0141E9095}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,29 +102,12 @@ Global
 		{9548A1A0-6968-4640-A4BF-B7CDE3C98DAF}.Release|x64.Build.0 = Release|Any CPU
 		{9548A1A0-6968-4640-A4BF-B7CDE3C98DAF}.Release|x86.ActiveCfg = Release|Any CPU
 		{9548A1A0-6968-4640-A4BF-B7CDE3C98DAF}.Release|x86.Build.0 = Release|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Debug|arm64.ActiveCfg = Debug|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Debug|arm64.Build.0 = Debug|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Debug|x64.Build.0 = Debug|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Debug|x86.Build.0 = Debug|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Release|arm64.ActiveCfg = Release|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Release|arm64.Build.0 = Release|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Release|x64.ActiveCfg = Release|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Release|x64.Build.0 = Release|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Release|x86.ActiveCfg = Release|Any CPU
-		{83600098-0F86-4824-8989-01F0141E9095}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9548A1A0-6968-4640-A4BF-B7CDE3C98DAF} = {48DDF94F-52BE-4E37-88B2-13B281BE785B}
-		{83600098-0F86-4824-8989-01F0141E9095} = {48DDF94F-52BE-4E37-88B2-13B281BE785B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1E499F9A-2823-48E3-A97D-AC0752FDF08F}

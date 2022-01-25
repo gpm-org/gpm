@@ -12,14 +12,14 @@
 
     <PropertyGroup>
         <AssemblyName>gpm</AssemblyName>
-        <AssemblyVersion>0.3</AssemblyVersion>
+        <AssemblyVersion>0.4</AssemblyVersion>
         <RootNamespace>gpm</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>
         <Title>gpm</Title>
         <Authors>Moritz Baron</Authors>
-        <Version>0.3</Version>
+        <Version>0.4</Version>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>gpm</ToolCommandName>
         <PackageTags>gpm, GitHub</PackageTags>
