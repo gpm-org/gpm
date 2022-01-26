@@ -23,7 +23,10 @@ public partial class TaskService
     /// <returns></returns>
     public async Task<bool> UpgradeAndInstall(string name, string version, string path, bool global)
     {
-        Upgrade();
+        if (!Upgrade())
+        {
+            return false;
+        }
 
         return await Install(name, version, path, global);
     }

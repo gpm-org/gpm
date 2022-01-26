@@ -174,12 +174,15 @@ public class DataBaseService : IDataBaseService
     /// <summary>
     /// Fetch and Pull git database and update
     /// </summary>
-    public void FetchAndUpdateSelf()
+    public bool FetchAndUpdateSelf()
     {
         using var sw = new ScopedStopwatch();
 
         // update database
-        var status = UpdateGitDatabase();
+        if (! TryUpdateGitDatabase(out var status))
+        {
+            return false;
+        }
 
         // init database
         if (!File.Exists(IAppSettings.GetDbFile()))
@@ -208,6 +211,8 @@ public class DataBaseService : IDataBaseService
                 throw new ArgumentNullException(nameof(status));
             }
         }
+
+        return true;
     }
 
     /// <summary>
@@ -216,8 +221,10 @@ public class DataBaseService : IDataBaseService
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    private static MergeStatus? UpdateGitDatabase()
+    private static bool TryUpdateGitDatabase([NotNullWhen(true)] out MergeStatus? mergeStatus)
     {
+        mergeStatus = null;
+
         //var commonSettings = settings.CommonSettings.Value;
         //ArgumentNullException.ThrowIfNull(commonSettings);
 
@@ -233,15 +240,24 @@ public class DataBaseService : IDataBaseService
         catch (RepositoryNotFoundException)
         {
             // git clone
-            Repository.Clone(Constants.GPMDB, IAppSettings.GetGitDbFolder());
+            try
+            {
+                Repository.Clone(Constants.GPMDB, IAppSettings.GetGitDbFolder());
+            }
+            catch (Exception)
+            {
+                Log.Error("git clone failed");
+                return false;
+            }
         }
 
-        MergeStatus? status;
         using var repo = new Repository(IAppSettings.GetGitDbFolder());
+        // this also return something when offline
         var statusItems = repo.RetrieveStatus(new StatusOptions());
         if (statusItems.Any())
         {
-            throw new NotSupportedException("working tree not clean");
+            Log.Error("working tree not clean");
+            return false;
         }
 
         // fetch
@@ -249,7 +265,17 @@ public class DataBaseService : IDataBaseService
         {
             var remote = repo.Network.Remotes["origin"];
             var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
-            Commands.Fetch(repo, remote.Name, refSpecs, null, logMessage);
+            try
+            {
+                // this will return here when offline
+                Commands.Fetch(repo, remote.Name, refSpecs, null, logMessage);
+            }
+            catch (Exception)
+            {
+                Log.Error("git fetch failed");
+                return false;
+            }
+            
         }
         Log.Debug("Fetch log: {LogMessage}", logMessage);
 
@@ -266,18 +292,26 @@ public class DataBaseService : IDataBaseService
         var signature = new Signature(
             new Identity("MERGE_USER_NAME", "MERGE_USER_EMAIL"), DateTimeOffset.Now);
 
-        var result = Commands.Pull(repo, signature, options);
-        if (result is not null)
+        try
         {
-            status = result.Status;
-            Log.Information("Status: {Status}", status);
-        }
-        else
-        {
-            throw new ArgumentNullException(nameof(result));
-        }
+            var result = Commands.Pull(repo, signature, options);
+            if (result is not null)
+            {
+                mergeStatus = result.Status;
+                Log.Information("Status: {Status}", mergeStatus);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(result));
+            }
 
-        return status;
+            return true;
+        }
+        catch (Exception)
+        {
+            Log.Error("git pull failed");
+            return false;
+        }
     }
 
     #endregion

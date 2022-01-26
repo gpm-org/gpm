@@ -27,5 +27,5 @@ public interface IDataBaseService : IDictionary<string, Package>
     /// <summary>
     /// Fetch and Pull git database and update
     /// </summary>
-    void FetchAndUpdateSelf();
+    bool FetchAndUpdateSelf();
 }

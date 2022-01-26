@@ -16,7 +16,10 @@ public partial class TaskService
         //var serviceProvider = host.Services;
         //var library = serviceProvider.GetRequiredService<ILibraryService>();
 
-        Upgrade();
+        if (!Upgrade())
+        {
+            return false;
+        }
 
         var destinationDir = Environment.CurrentDirectory;
         var lockFilePath = Path.Combine(destinationDir, Constants.GPMLOCK);

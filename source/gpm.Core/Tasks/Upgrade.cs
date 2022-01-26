@@ -2,7 +2,7 @@ namespace gpm.Core.Services;
 
 public partial class TaskService
 {
-    public void Upgrade() =>
+    public bool Upgrade() =>
         // TODO: check if git is installed
 
         _dataBaseService.FetchAndUpdateSelf();

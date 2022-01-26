@@ -21,7 +21,10 @@ public partial class TaskService
     /// <returns></returns>
     public async Task<bool> UpgradeAndRemove(string name, bool global, string path, int? slot)
     {
-        Upgrade();
+        if (!Upgrade())
+        {
+            return false;
+        }
 
         return await Remove(name, global, path, slot);
     }

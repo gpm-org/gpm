@@ -16,7 +16,10 @@ public partial class TaskService
     /// <returns></returns>
     public bool UpgradeAndRun(string name, params string[]? args)
     {
-        Upgrade();
+        if (!Upgrade())
+        {
+            return false;
+        }
 
         return Run(name, args);
     }

@@ -17,7 +17,10 @@ public partial class TaskService
     /// <returns></returns>
     public async Task<bool> UpgradeAndUpdate(string name, bool global, string path, int? slot, string version)
     {
-        Upgrade();
+        if (!Upgrade())
+        {
+            return false;
+        }
 
         return await Update(name, global, path, slot, version);
     }
