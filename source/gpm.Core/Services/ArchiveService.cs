@@ -1,3 +1,4 @@
+using Serilog;
 using SharpCompress.Archives;
 using SharpCompress.Common;
 using SharpCompress.Readers;
@@ -52,9 +53,18 @@ public class ArchiveService : IArchiveService
         while (archiveReader.MoveToNextEntry())
         {
             // Possible speedup here if we enqueue all extract Tasks and use Task.WhenAll to await them at the same time.
-            await Task.Run(() => archiveReader.WriteEntryToDirectory(destination, archiveOptions));
+            try
+            {
+                await Task.Run(() => archiveReader.WriteEntryToDirectory(destination, archiveOptions));
+                extractedFiles.Add(Path.Combine(destination, archiveReader.Entry.Key));
 
-            extractedFiles.Add(Path.Combine(destination, archiveReader.Entry.Key));
+            }
+            catch (Exception e)
+            {
+                Log.Error("Could not deploy file {File}", archiveReader.Entry.Key);
+                Log.Error(e.Message);
+            }
+            
         }
 
         return extractedFiles;

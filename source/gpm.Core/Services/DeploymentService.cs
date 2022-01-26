@@ -202,9 +202,17 @@ public class DeploymentService : IDeploymentService
                 return false;
             }
 
-            installedFiles = (await _archiveService.ExtractAsync(assetCachePath, destinationDir))
+            try
+            {
+                installedFiles = (await _archiveService.ExtractAsync(assetCachePath, destinationDir, true))
                 .Select(x => new HashedFile(x, null, null))
                 .ToList();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.Message);
+                return false;
+            }
 
             Log.Information($"[{package}] Installed {installedFiles.Count} files from '{assetCachePath}' into '{destinationDir}'.");
         }
