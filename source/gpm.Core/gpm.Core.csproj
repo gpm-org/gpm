@@ -12,7 +12,7 @@
     <PropertyGroup>
         <Title>gpm.Core</Title>
         <Authors>Moritz Baron</Authors>
-        <Version>0.4.2</Version>
+        <Version>0.4.3</Version>
         <PackageTags>gpm, GitHub</PackageTags>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
