@@ -42,11 +42,6 @@ jobs:
       uses: rohith/publish-nuget@v2
       with:
         PROJECT_FILE_PATH: source/gpm/gpm.csproj
-        NUGET_KEY: ${{secrets.NUGET_KEY}}
-    - name: publish core nuget
-      id: publish_nuget_core
-      uses: rohith/publish-nuget@v2
-      with:
-        PROJECT_FILE_PATH: source/gpm.Core/gpm.Core.csproj
+        TAG_COMMIT: false
         NUGET_KEY: ${{secrets.NUGET_KEY}}
 
