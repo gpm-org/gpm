@@ -41,16 +41,16 @@ public class DeploymentService : IDeploymentService
         using var ssc = new ScopedStopwatch();
 
         // check if any version is already installed, should never trigger
-        if (_libraryService.TryGetValue(package.Id, out var model) && _libraryService.IsInstalledInSlot(package, slot))
-        {
-            var slotManifest = model.Slots[slot];
-            var installedVersion = slotManifest.Version;
-            if (installedVersion is not null /*&& installedVersion.Equals(version)*/)
-            {
-                Log.Warning("[{Package}] Version {Version} already installed. Use gpm update or repair", package, installedVersion);
-                return false;
-            }
-        }
+        //if (_libraryService.TryGetValue(package.Id, out var model) && _libraryService.IsInstalledInSlot(package, slot))
+        //{
+        //    var slotManifest = model.Slots[slot];
+        //    var installedVersion = slotManifest.Version;
+        //    if (installedVersion is not null /*&& installedVersion.Equals(version)*/)
+        //    {
+        //        Log.Warning("[{Package}] Version {Version} already installed. Use gpm update or repair", package, installedVersion);
+        //        return false;
+        //    }
+        //}
 
         if (!await _gitHubService.DownloadAssetToCache(package, release))
         {
