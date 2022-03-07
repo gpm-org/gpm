@@ -16,13 +16,12 @@ jobs:
         
     - name: Restore dependencies
       run: dotnet restore source/gpm.sln
+      
     - name: Build
       run: dotnet build source/gpm.sln --no-restore
 
-    - name: publish core nuget
-      id: publish_nuget_core
-      uses: rohith/publish-nuget@v2
-      with:
-        PROJECT_FILE_PATH: source/gpm.Core/gpm.Core.csproj
-        NUGET_KEY: ${{secrets.NUGET_KEY}}
+    - name: publish package to NuGet
+      run: dotnet nuget push source/gpm.Core/nupkg/*.nupkg --api-key ${{secrets.NUGET_KEY}} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
+
+
 

@@ -37,11 +37,5 @@ jobs:
 #        bodyFile: "body.md"
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: publish nuget
-      id: publish_nuget
-      uses: rohith/publish-nuget@v2
-      with:
-        PROJECT_FILE_PATH: source/gpm/gpm.csproj
-        TAG_COMMIT: false
-        NUGET_KEY: ${{secrets.NUGET_KEY}}
-
+    - name: publish package to NuGet
+      run: dotnet nuget push source/gpm/nupkg/*.nupkg --api-key ${{secrets.NUGET_KEY}} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
